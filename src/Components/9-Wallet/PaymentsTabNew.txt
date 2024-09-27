@@ -1,0 +1,27 @@
+P2P Sequencing
+
+//KEEP SEPARATE BC TUPLING OF NAMES <= ***
+
+highlevel
+msgs and Thrs
+msgs -> combine with names -> tuples
+create the msgs jsx
+combine all the msgs to display -> is this possible -> 
+
+
+Just put the pmtMsgs inside the request msgs and then if passing tuples can combine
+pass them separately to the build component
+
+So the name keeps them separate but after tupling then can combine?
+Then can sort the tuples in orders..
+Then can pass to the build component -> 
+
+
+!!! BELOW - THIS IS THE WAY !!! 
+
+separate tupling
+ add property to tuple req/msg, now its a truple ahaha
+then combine all and order..
+then build and choose build component from [2] .. -> 
+dont need a separate chooser component just do it in the paymentsTabnew
+What about the threads -> some separation -> but just let the build component sort it out -> 

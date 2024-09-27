@@ -1,0 +1,9 @@
+.importantText{
+  border:3px solid black;
+  border-radius: 4px;
+  padding-left: 3px;
+}
+
+span {
+  margin-left: .3rem;
+}

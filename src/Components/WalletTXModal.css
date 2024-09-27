@@ -1,0 +1,10 @@
+.satBalImpactreceived {
+  color: green;
+  margin: 0rem;
+  padding: 0rem;
+}
+.satBalImpactsent {
+  color: red;
+  margin: 0rem;
+  padding: 0rem;
+}

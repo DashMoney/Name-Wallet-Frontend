@@ -1,0 +1,304 @@
+body,
+html {
+  overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
+  overflow-x: hidden;
+}
+
+#dash-bkgd {
+  position: absolute;
+  opacity: 0.3;
+  width: 90%;
+  padding: 15% 5% 5% 5%;
+  margin: auto;
+  z-index: -1;
+}
+
+.bodytext {
+  padding: 1rem;
+}
+
+.bodytexttighter {
+  padding: 1rem;
+  padding-top: 0.3rem;
+  padding-bottom: 0.2rem;
+}
+
+.bodytexttighternobottom {
+  padding: 1rem;
+  padding-top: 0.3rem;
+  padding-bottom: 0rem;
+}
+
+#sidetext {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 1rem;
+}
+#sidetextonlytop {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.5rem;
+}
+
+#sidetextonlysides {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.summarytext {
+  padding: 1rem;
+  padding-bottom: 0rem;
+}
+
+.id-line {
+  display: flex;
+  flex-wrap: wrap;
+  word-wrap: break-word;
+  word-break: break-all;
+}
+
+#title-bar {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  margin-left: 0.4rem;
+  margin-right: 0.4rem;
+  text-align: center;
+  /* font-family: Arial, Helvetica, sans-serif; */
+}
+
+.heading-shift {
+  text-align: center;
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+
+.bodytextnotop {
+  padding: 1rem;
+  padding-top: 0rem;
+}
+.bodytextnobottom {
+  padding: 1rem;
+  padding-bottom: 0rem;
+}
+
+.ButtonRight {
+  margin-right: 1rem;
+  padding-bottom: 0.8rem;
+  display: flex;
+  justify-content: flex-end;
+  border-bottom: 0.1rem solid white;
+}
+
+.ButtonRightNoUnderline {
+  padding-bottom: 0.2rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.TwoButtons {
+  padding-bottom: 0.2rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.BottomBorder {
+  border-bottom: 0.05rem solid white;
+}
+
+.BottomThinBorder {
+  border-bottom: 0.01rem solid white;
+}
+
+.ThreadBorder {
+  border-bottom: 0rem solid rgba(255, 255, 255, 0.4);
+}
+
+.navbar-nav {
+  margin: auto;
+}
+
+.Top {
+  border-bottom: 0.1rem solid grey;
+}
+
+.bottomNav {
+  border-top: 0.1rem solid grey;
+}
+
+#spinner {
+  display: flex;
+  justify-content: center;
+}
+
+#shoutOutSpinner {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+}
+
+#dash-money {
+  padding-top: 4px;
+  margin-left: 5px;
+}
+
+p {
+  word-wrap: break-word;
+}
+
+.paddingBadge {
+  margin-right: 0.5rem;
+  margin-left: 0.5rem;
+}
+
+.paddingReqBadge {
+  margin-left: 0.5rem;
+  padding-bottom: 0.1rem;
+}
+
+.indentStuff {
+  margin-left: 1rem;
+}
+
+.indent {
+  margin-left: 0.5rem;
+}
+
+.indentMembers {
+  margin-left: 1rem;
+}
+
+.requestbtn {
+  padding-top: 0.2rem;
+  padding-right: 0.4rem;
+  padding-left: 0.6rem;
+  padding-bottom: 0.1rem;
+  font-size: large;
+}
+
+.sendReqTrial {
+  display: flex;
+  align-items: center;
+}
+
+div {
+  word-wrap: break-word;
+}
+
+.positionButton {
+  display: flex;
+  margin-top: 3rem;
+}
+
+.modal-backcolor-primary {
+  background-color: rgb(250, 250, 250);
+}
+
+.modal-backcolor-dark {
+  background-color: rgb(20, 20, 20);
+  color: white;
+}
+
+/* https://stackoverflow.com/questions/28096346/how-to-change-background-opacity-when-bootstrap-modal-is-open */
+/* modal-backdrop-nochange.show{
+  
+} */
+
+.modal-backdrop-dark.show {
+  background-color: rgb(150, 150, 150, 0.2);
+}
+
+.footer {
+  margin-bottom: 6rem;
+}
+
+.locationTitle {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.cardTitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+} /*baseline instead of center BC the smaller date didn't line up right vs the name*/
+
+.cardCenterTitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalTitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.textsmaller {
+  font-size: small;
+  text-align: right;
+  opacity: 0.7;
+}
+
+.textsmallest {
+  font-size: x-small;
+  text-align: right;
+  opacity: 0.7;
+}
+
+.postModalCloseButton {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* #card {
+  margin-top: 0.4rem;
+} */
+
+#MyStoreTitle {
+  padding: 0.4rem;
+}
+
+.bootstrapMenu {
+  /* margin-right: auto;
+  margin-left: auto; */
+  position: fixed;
+  /* background-color: white; */
+  overflow: hidden;
+  z-index: 1;
+  display: flex;
+  justify-content: space-around;
+
+  position: fixed;
+  bottom: 5%;
+  right: 0;
+  left: 0;
+  /* width: 88%; */
+}
+
+.icon-position {
+  /* margin-top: 0.6rem;
+  margin-bottom: 0.6rem; */
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.one-level-nav {
+  display: flex;
+
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#easyReadText {
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: justify;
+  line-height: 140%;
+}
