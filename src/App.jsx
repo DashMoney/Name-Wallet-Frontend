@@ -1361,7 +1361,7 @@ class App extends React.Component {
     ) {
       this.createProxyController(theProxyTuple);
     } else {
-      this.editProxyController(theProxyTuple);
+      this.addProxyToController(theProxyTuple);
     }
   };
 
@@ -1438,7 +1438,7 @@ class App extends React.Component {
         this.setState(
           {
             ProxyController: returnedDoc,
-            isLoadingProxy: false,
+            //  isLoadingProxy: false,
           },
           () => this.loadIdentityCredits()
         );
@@ -1446,6 +1446,83 @@ class App extends React.Component {
       })
       .catch((e) => {
         console.error("Something went wrong with controller creation:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  addProxyToController = (proxyTuple) => {
+    this.setState({
+      isLoadingProxy: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const submitControllerDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      }
+
+      const [document] = await client.platform.documents.get(
+        "ProxyContract.controller",
+        {
+          where: [["$id", "==", this.state.ProxyController.$id]],
+        }
+      );
+
+      let editedProxyList = [
+        proxyTuple,
+        ...this.state.ProxyController.proxyList,
+      ];
+
+      document.set("proxyList", JSON.stringify(editedProxyList));
+
+      await platform.documents.broadcast({ replace: [document] }, identity);
+      return document;
+
+      //############################################################
+      //This below disconnects the document editing..***
+      // console.log("Edited ProxyList");
+      // return document;
+
+      //This is to disconnect the Document editing***
+      //############################################################
+    };
+
+    submitControllerDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+        //console.log("Document:\n", returnedDoc);
+
+        // returnedDoc.replyId = Identifier.from(
+        //   returnedDoc.replyId,
+        //   "base64"
+        // ).toJSON();
+        returnedDoc.proxyList = JSON.parse(returnedDoc.proxyList);
+
+        console.log("ControllerDocument:\n", returnedDoc);
+
+        this.setState(
+          {
+            ProxyController: returnedDoc,
+            // isLoadingProxy: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+        this.startProxyRace(returnedDoc);
+      })
+      .catch((e) => {
+        console.error("Something went wrong with controller add:\n", e);
       })
       .finally(() => client.disconnect());
   };
