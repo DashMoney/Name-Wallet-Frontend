@@ -84,7 +84,15 @@ class ProxyPage extends React.Component {
         // }
         //and dont have credits yet so just place Holder
         return (
-          <Card id="card" key={index} bg={cardBkg} text={cardText}>
+          <Card
+            id="card"
+            key={index}
+            bg={cardBkg}
+            text={cardText}
+            style={{
+              marginBottom: ".5rem",
+            }}
+          >
             <Card.Body>
               <Card.Title className="cardTitle">
                 <div>
