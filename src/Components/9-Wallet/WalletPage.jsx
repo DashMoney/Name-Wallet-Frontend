@@ -8,7 +8,7 @@ import Alert from "react-bootstrap/Alert";
 
 import Nav from "react-bootstrap/Nav";
 
-import PaymentsTab from "./PaymentsTab";
+//import PaymentsTab from "./PaymentsTab";
 import PaymentsTabNEW from "./PaymentsTabNEW";
 import PaymentAddrComponent from "./PaymentAddrComponent";
 import PaymentRequestsComp from "./PaymentRequestsComp";

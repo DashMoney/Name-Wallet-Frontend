@@ -47,7 +47,22 @@ import AddProxyModal from "./Components/1-ProxyAccounts/AddProxyModal";
 import EditProxyModal from "./Components/1-ProxyAccounts/EditProxyModal";
 import DeleteProxyModal from "./Components/1-ProxyAccounts/DeleteProxyModal";
 
-import TwoPartyPage from "./Components/2-PartyPay/TwoPartyPage";
+//import TwoPartyPage from "./Components/2-PartyPay/TwoPartyPage";
+import TwoPartyPage from "./Components/2-PartyPay/TwoPartyActualPage";
+import RequestPage from "./Components/2-PartyPay/RequestPage";
+
+import Register2PartyModal from "./Components/2-PartyPay/Modals/Register2PartyModal";
+
+import Confirm2PartyRequestModal from "./Components/2-PartyPay/Modals/Confirm2PartyRequestModal";
+import Pay2PartyRequestModal from "./Components/2-PartyPay/Modals/Pay2PartyRequestModal";
+
+import Release2PartyModal from "./Components/2-PartyPay/Modals/Release2PartyModal";
+import RetrieveFundsModal from "./Components/2-PartyPay/Modals/RetrieveFundsModal";
+
+import AddMsgToRequestModal from "./Components/2-PartyPay/Modals/AddMsgToRequestModal";
+import AddMessageToResponseModal from "./Components/2-PartyPay/Modals/AddMessageToResponseModal";
+
+import createFullTX from "./Components/2-PartyPay/createFullTX";
 
 import CreateGroupModal from "./Components/6-Groups/CreateGroupModal";
 import JoinGroupModal from "./Components/6-Groups/JoinGroupModal";
@@ -73,6 +88,21 @@ import dapiClientNoWallet from "./Components/DapiClientNoWallet";
 
 //const Dash = require("dash");
 import Dash from "dash";
+
+const {
+  Core: {
+    Mnemonic,
+    //HDPrivateKey,
+    HDPublicKey,
+    //PublicKey,
+    Script,
+    Address,
+    //Transaction,
+    //Output,
+    //Networks,
+    //Block,
+  },
+} = Dash;
 
 const {
   Essentials: { Buffer },
@@ -136,6 +166,60 @@ class App extends React.Component {
       selectedProxyTupleIndex: "",
 
       //PROXY PAGE STATE^^^^^
+
+      // 2 PARTY PAGE STATE
+
+      InitialPull2Party: true,
+      is2PartyRefreshReady: true,
+
+      Your2PartyPubKey: [], // When do I query this,
+      //If no 2Party PubKey -> "No Pub Key" and query
+
+      ReqsFromYou: [],
+      ReqsFromYouPubKeys: [],
+      ReqsFromYouNames: [],
+      ReqsFromYouResponses: [],
+
+      ReqsToYou: [],
+      ReqsToYouPubKeys: [],
+      ReqsToYouNames: [],
+      ReqsToYouResponses: [],
+
+      isLoading2Party: false,
+      DisplayReqsOrPmts: "Payments",
+
+      TwoParty1: false,
+      TwoParty2: false,
+
+      // sendPmtMsgSuccess2Party: false,
+      sendPmtMsgFailure2Party: false,
+
+      sendSuccess2Party: false, // then what is this
+      // ^^^ this is the payment Tx send -> yes
+      sendFailure2Party: false,
+      // sendReqSuccess2Party: false,
+      sendReqFailure2Party: false,
+
+      requestPmtReqDoc2Party: "",
+      sendToNameDoc2Party: "",
+      requestPubKeyDoc2Party: "",
+      amountToSend2Party: 0,
+      messageToSend2Party: "",
+
+      signature2Party: "",
+      responseToEdit: "",
+      responseToEditIndex: "", //<- Need this for the editingfunction!!
+
+      signingToSendToWhomNameDoc: "",
+
+      responseToUse: "",
+      responsePubKeyDocToUse: "",
+
+      requestToEdit: "",
+      requestToEditIndex: "", //<- Need this for the editingfunction!!
+      txToUse: "",
+
+      // 2 PARTY PAGE STATE^^^^
 
       //MESSAGES PAGE
       // isLoading={this.state.isLoading}
@@ -850,6 +934,7 @@ class App extends React.Component {
     //
     this.getIdentityInfo(theIdentity);
     this.getWalletPlatformLogin(theMnemonic);
+    this.get2PartyYourPubKey();
     // this.getNamefromIdentity(theIdentity); DONT NEED <=
     //this.getAliasfromIdentity(theIdentity); // NO MORE ALIASES
     //
@@ -1177,6 +1262,7 @@ class App extends React.Component {
   };
 
   LOGINCOMPLETEQueryTrigger = (theIdentity) => {
+    this.get2PartyYourPubKey();
     //After(Identity/Name) -> trigger added to 2 Functions ABOVE
     // ForYou(Messages)
     // this.startMessagesQuerySeq(theIdentity);
@@ -1316,7 +1402,7 @@ class App extends React.Component {
             isLoadingIdInfo: false,
             accountBalance: this.state.accountBalance - 1000000,
           },
-          () => this.updateIdentityInfo()
+          () => this.loadIdentityCredits()
         );
       })
       .catch((e) => {
@@ -1330,20 +1416,17 @@ class App extends React.Component {
   };
   //Name and Alias purchase is done in the modal.
 
-  //ACCOUNT LOGIN FUNCTIONS^^^
-
-  /*
-   * PROXY FUNCTIONS
+  /* ACCOUNT LOGIN FUNCTIONS^^^
+   *
    *
    *   ################
    *   ###          ####
    *   ################
    *   ###
    *   ###
+   * PROXY FUNCTIONS
    */
-  //
-  //CHANGE TO PROXY ->
-  //
+
   pullInitialTriggerPROXY = () => {
     if (this.state.InitialPullPROXY) {
       this.getProxyController();
@@ -1718,9 +1801,6 @@ class App extends React.Component {
       .finally(() => client.disconnect());
   };
 
-  //
-  //CHANGE TO PROXY ->
-  //
   //What is the Queries -> ControllerDoc, (Proxies - to verify connected), and identity(credits)
 
   //THIS NEEDS TO BE GET THE PROXY CONTROLLER ->
@@ -1944,20 +2024,1884 @@ class App extends React.Component {
    *                                  ###
    *                                  ###
    *
-   
+   *
+   *      #############
+   *     ###         ###
+   *              ####
+   *          ####
+   *      ####
+   *     ###############
    *
    */
 
-  /*
+  pullInitialTrigger2Party = () => {
+    if (this.state.InitialPull2Party) {
+      this.start2PartyRace();
 
+      this.setState({
+        InitialPull2Party: false,
+      });
+    }
+  };
+
+  handleReqsOrPmtsFilter = (theSelected) => {
+    this.setState({
+      DisplayReqsOrPmts: theSelected,
+    });
+  };
+
+  handleRefresh_2Party = () => {
+    this.setState({
+      isLoadingWallet: true,
+      isLoading2Party: true,
+      is2PartyRefreshReady: false,
+
+      sendSuccess2Party: false,
+      sendFailure2Party: false,
+      sendMsgSuccess2Party: false, //It just appears
+      sendMsgFailure2Party: false,
+    });
+
+    this.start2PartyRace();
+    this.get2PartyWallet();
+    this.loadIdentityCredits();
+
+    //REFRESH -> TIMEOUT
+    //if (!this.state.is2PartyRefreshReady) {
+    const TwoPartyTimeout = setTimeout(this.allow2PartyRefresh, 5000);
+    // }
+    //REFRESH -> TIMEOUT
+  };
+
+  allow2PartyRefresh = () => {
+    this.setState({
+      is2PartyRefreshReady: true,
+    });
+  };
+
+  start2PartyRace = () => {
+    if (!this.state.isLoading2Party) {
+      this.setState({ isLoading2Party: true });
+    }
+
+    this.get2PartyReqsFromYou(); //Reqs -> PubKeys & Name(toId) And Response (reqId)
+    this.get2PartyReqsToYou(); //Reqs -> PubKeys & Names -> Response
+
+    //add a check only if not initial -> PULL YOUR PUBLIC KEY***
+  };
+
+  check2PartyRace = () => {
+    if (this.state.TwoParty1 && this.state.TwoParty2) {
+      this.setState({
+        // isLoadingWallet: false,
+        isLoading2Party: false,
+
+        TwoParty1: false,
+        TwoParty2: false,
+      });
+    }
+  };
+  //Only call this if they hit the refresh button. -> DONE
+  get2PartyWallet = () => {
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const retrieveWallet = async () => {
+      const account = await client.getWalletAccount();
+
+      this.setState({
+        accountBalance: account.getTotalBalance(),
+        //accountAddress: account.getUnusedAddress().address,
+        accountHistory: account.getTransactionHistory(),
+      });
+
+      return account;
+    };
+
+    retrieveWallet()
+      .then((d) => {
+        //console.log("Wallet Account:\n", d);
+
+        this.setState({
+          isLoadingWallet: false,
+        });
+      })
+      .catch((e) => {
+        console.error("Something went wrong get 2Party Wallet:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+  //I think add this to login pull, not page ->
+  get2PartyYourPubKey = () => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    const getDocuments = async () => {
+      // console.log("Called 2 Party Pub Key");
+
+      return client.platform.documents.get("TwoPartyContract.xPubKeyDoc", {
+        where: [["$ownerId", "==", this.state.identity]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("There are no 2PartyYourPubKey");
+
+          this.setState(
+            { Your2PartyPubKey: "No Pub Key" } //,() => this.check2PartyRace()
+          );
+        } else {
+          // let docArray = [];
+
+          // for (const n of d) {
+          //   let returnedDoc = n.toJSON();
+          //   //console.log("Req:\n", returnedDoc);
+          //   returnedDoc.toId = Identifier.from(
+          //     returnedDoc.toId,
+          //     "base64"
+          //   ).toJSON();
+          //   //console.log("newReq:\n", returnedDoc);
+          //   docArray = [...docArray, returnedDoc];
+          //   //docArray.push(returnedDoc)
+          // }
+
+          this.setState(
+            { Your2PartyPubKey: d[0].toJSON() } //,() => this.check2PartyRace()
+          );
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  get2PartyReqsFromYou = () => {
+    //console.log("Calling get2PartyReqsFromYou");
+
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("TwoPartyContract.request", {
+        // limit: 100,
+        where: [
+          ["$ownerId", "==", this.state.identity],
+          ["$createdAt", "<=", Date.now()],
+        ],
+        orderBy: [["$createdAt", "desc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("There are no ReqsFromYou");
+
+          this.setState(
+            {
+              TwoParty1: true,
+              ReqsFromYou: [],
+              ReqsFromYouNames: [],
+              ReqsFromYouResponses: [],
+            },
+            () => this.check2PartyRace()
+          );
+        } else {
+          let docArray = [];
+
+          for (const n of d) {
+            let returnedDoc = n.toJSON();
+            //console.log("Req:\n", returnedDoc);
+            returnedDoc.toId = Identifier.from(
+              returnedDoc.toId,
+              "base64"
+            ).toJSON();
+
+            returnedDoc.forId = Identifier.from(
+              returnedDoc.forId,
+              "base64"
+            ).toJSON();
+
+            returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+            //console.log("newReq:\n", returnedDoc);
+            docArray = [...docArray, returnedDoc];
+            //docArray.push(returnedDoc)
+          }
+          this.get2PartyFromYouNames(docArray);
+        }
+      })
+      .catch((e) => console.error("Something went wrong:\n", e))
+      .finally(() => client.disconnect());
+  };
+
+  get2PartyFromYouNames = (docArray) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+    //START OF NAME RETRIEVAL - ToId not the ownerId!!!
+
+    let ownerarrayOfToIds = docArray.map((doc) => {
+      return doc.toId;
+    });
+
+    let setOfToIds = [...new Set(ownerarrayOfToIds)];
+
+    let arrayOfToIds = [...setOfToIds];
+
+    //CALLING THE PUBLIC KEYS DOCS HERE***
+    this.get2PartyFromYouPubKeys(arrayOfToIds);
+    //
+
+    //console.log("Calling get2PartyByYouNames");
+
+    const getNameDocuments = async () => {
+      return client.platform.documents.get("DPNSContract.domain", {
+        where: [["records.identity", "in", arrayOfToIds]],
+        orderBy: [["records.identity", "asc"]],
+      });
+    };
+
+    getNameDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("No DPNS domain documents retrieved.");
+        }
+
+        let nameDocArray = [];
+
+        for (const n of d) {
+          //console.log("NameDoc:\n", n.toJSON());
+
+          nameDocArray = [n.toJSON(), ...nameDocArray];
+        }
+        //console.log(`DPNS Name Docs: ${nameDocArray}`);
+
+        this.get2PartyFromYouResponses(docArray, nameDocArray);
+      })
+      .catch((e) => {
+        console.error(
+          "Something went wrong getting 2Party FromYou Names:\n",
+          e
+        );
+      })
+      .finally(() => client.disconnect());
+    //END OF NAME RETRIEVAL
+  };
+
+  get2PartyFromYouPubKeys = (arrayOfToIds) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    //console.log("Calling get2PartyFromYouPubKeys");
+
+    const getPublicKeyDocuments = async () => {
+      return client.platform.documents.get("TwoPartyContract.xPubKeyDoc", {
+        where: [["$ownerId", "in", arrayOfToIds]],
+        orderBy: [["$ownerId", "asc"]],
+      });
+    };
+
+    getPublicKeyDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("No DPNS domain documents retrieved.");
+        }
+
+        let pubKeyDocArray = [];
+
+        for (const n of d) {
+          //console.log("PubKeyDoc:\n", n.toJSON());
+
+          pubKeyDocArray = [n.toJSON(), ...pubKeyDocArray];
+        }
+        //console.log(`Public Key Docs: ${pubKeyDocArray}`);
+
+        this.setState(
+          {
+            ReqsFromYouPubKeys: pubKeyDocArray,
+          } //,() => this.check2PartyRace()
+        );
+      })
+      .catch((e) => {
+        console.error(
+          "Something went wrong getting 2Party FromYou PubKeys:\n",
+          e
+        );
+      })
+      .finally(() => client.disconnect());
+  };
+
+  get2PartyFromYouResponses = (docArray, nameDocArray) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    // This Below is to get unique set of FromYou Req doc ids
+    let arrayOfReqIds = docArray.map((doc) => {
+      return doc.$id;
+    });
+
+    //console.log("Array of FromYou Req ids", arrayOfReqIds);
+
+    let setOfReqIds = [...new Set(arrayOfReqIds)];
+
+    arrayOfReqIds = [...setOfReqIds];
+
+    //console.log("Array of Req ids", arrayOfReqIds);
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("TwoPartyContract.response", {
+        where: [
+          ["reqId", "in", arrayOfReqIds],
+          // ["$createdAt", "<=", Date.now()],
+        ],
+        orderBy: [
+          ["reqId", "asc"],
+          // ["$createdAt", "desc"],
+        ],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        let responseDocArray = [];
+
+        for (const n of d) {
+          let returnedDoc = n.toJSON();
+          //console.log("Response:\n", returnedDoc);
+          returnedDoc.reqId = Identifier.from(
+            returnedDoc.reqId,
+            "base64"
+          ).toJSON();
+          returnedDoc.toId = Identifier.from(
+            returnedDoc.toId,
+            "base64"
+          ).toJSON();
+          returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+          //console.log("newResponse:\n", returnedDoc);
+          responseDocArray = [...responseDocArray, returnedDoc];
+        }
+
+        this.setState(
+          {
+            TwoParty1: true,
+            ReqsFromYou: docArray,
+            ReqsFromYouNames: nameDocArray,
+            ReqsFromYouResponses: responseDocArray,
+          },
+          () => this.check2PartyRace()
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong 2PartyFromYouResponses:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  get2PartyReqsToYou = () => {
+    // console.log("Called get2PartyToYou");
+
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("TwoPartyContract.request", {
+        where: [
+          ["toId", "==", this.state.identity],
+          ["$createdAt", "<=", Date.now()],
+        ],
+        orderBy: [["$createdAt", "desc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("There are no ForyouByyouMsgs");
+
+          this.setState(
+            {
+              TwoParty2: true,
+              ReqsToYou: [],
+              ReqsToYouNames: [],
+              ReqsToYouResponses: [],
+            },
+            () => this.check2PartyRace()
+          );
+        } else {
+          let docArray = [];
+          //console.log("Getting get2PartyToYou");
+          for (const n of d) {
+            let returnedDoc = n.toJSON();
+            //console.log("Req:\n", returnedDoc);
+
+            returnedDoc.toId = Identifier.from(
+              returnedDoc.toId,
+              "base64"
+            ).toJSON();
+
+            returnedDoc.forId = Identifier.from(
+              returnedDoc.forId,
+              "base64"
+            ).toJSON();
+
+            returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+            //console.log("newReq:\n", returnedDoc);
+            docArray = [...docArray, returnedDoc];
+          }
+          this.get2PartyToYouNames(docArray);
+        }
+      })
+      .catch((e) => console.error("Something went wrong:\n", e))
+      .finally(() => client.disconnect());
+  };
+
+  get2PartyToYouNames = (docArray) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+    //START OF NAME RETRIEVAL
+
+    let ownerarrayOfOwnerIds = docArray.map((doc) => {
+      return doc.$ownerId;
+    });
+
+    let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
+
+    let arrayOfOwnerIds = [...setOfOwnerIds];
+
+    //CALLING THE PUBLIC KEYS DOCS HERE***
+    this.get2PartyToYouPubKeys(arrayOfOwnerIds);
+    //
+
+    //console.log("Calling get2PartyToYouNames");
+
+    const getNameDocuments = async () => {
+      return client.platform.documents.get("DPNSContract.domain", {
+        where: [["records.identity", "in", arrayOfOwnerIds]],
+        orderBy: [["records.identity", "asc"]],
+      });
+    };
+
+    getNameDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("No DPNS domain documents retrieved.");
+        }
+
+        let nameDocArray = [];
+
+        for (const n of d) {
+          //  console.log("INIT TOYOU NameDoc:\n", n.toJSON());
+
+          nameDocArray = [n.toJSON(), ...nameDocArray];
+        }
+        //console.log(`DPNS Name Docs: ${nameDocArray}`);
+
+        this.get2PartyToYouResponses(docArray, nameDocArray);
+      })
+      .catch((e) => {
+        console.error("Something went wrong getting 2Party ToYou Names:\n", e);
+      })
+      .finally(() => client.disconnect());
+    //END OF NAME RETRIEVAL
+  };
+
+  get2PartyToYouPubKeys = (arrayOfOwnerIds) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    //console.log("Calling get2PartyToYouPubKeys");
+
+    const getPublicKeyDocuments = async () => {
+      return client.platform.documents.get("TwoPartyContract.xPubKeyDoc", {
+        where: [["$ownerId", "in", arrayOfOwnerIds]],
+        orderBy: [["$ownerId", "asc"]],
+      });
+    };
+
+    getPublicKeyDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("No DPNS domain documents retrieved.");
+        }
+
+        let pubKeyDocArray = [];
+
+        for (const n of d) {
+          //console.log("PubKeyDoc:\n", n.toJSON());
+
+          pubKeyDocArray = [n.toJSON(), ...pubKeyDocArray];
+        }
+        //console.log(`Public Key Docs: ${pubKeyDocArray}`);
+
+        this.setState(
+          {
+            ReqsToYouPubKeys: pubKeyDocArray,
+          } //,() => this.check2PartyRace()
+        );
+      })
+      .catch((e) => {
+        console.error(
+          "Something went wrong getting 2Party ToYou PubKeys:\n",
+          e
+        );
+      })
+      .finally(() => client.disconnect());
+  };
+
+  get2PartyToYouResponses = (docArray, nameDocArray) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    // This Below is to get unique set of ToYou Req doc ids
+    let arrayOfReqIds = docArray.map((doc) => {
+      return doc.$id;
+    });
+
+    //console.log("Array of ToYou Req ids", arrayOfReqIds);
+
+    let setOfReqIds = [...new Set(arrayOfReqIds)];
+
+    arrayOfReqIds = [...setOfReqIds];
+
+    //console.log("Array of Req ids", arrayOfReqIds);
+
+    const getDocuments = async () => {
+      //console.log("Called Get 2PartyByYou Threads");
+
+      return client.platform.documents.get("TwoPartyContract.response", {
+        where: [
+          ["reqId", "in", arrayOfReqIds],
+          // ["$createdAt", "<=", Date.now()],
+        ],
+        orderBy: [
+          ["reqId", "asc"],
+          //  ["$createdAt", "desc"],
+        ],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        let responseDocArray = [];
+
+        for (const n of d) {
+          let returnedDoc = n.toJSON();
+          //console.log("Response:\n", returnedDoc);
+          returnedDoc.reqId = Identifier.from(
+            returnedDoc.reqId,
+            "base64"
+          ).toJSON();
+
+          returnedDoc.toId = Identifier.from(
+            returnedDoc.toId,
+            "base64"
+          ).toJSON();
+          returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+          //console.log("newResponse:\n", returnedDoc);
+          responseDocArray = [...responseDocArray, returnedDoc];
+        }
+
+        this.setState(
+          {
+            TwoParty2: true,
+            ReqsToYou: docArray,
+            ReqsToYouNames: nameDocArray,
+            ReqsToYouResponses: responseDocArray,
+          },
+          () => this.check2PartyRace()
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong 2PartyToYouResponses:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  // BELOW - PAYMENT REQUEST
+  // Request(Merch) - Confirm/sendTo2Party(Cust) - Release(Cust) -
+  show2PartyRequestModal = (inputNameDoc, inputNumber, message) => {
+    this.setState({
+      sendPmtMsgSuccess2Party: false,
+      sendPmtMsgFailure2Party: false,
+
+      sendToNameDoc2Party: inputNameDoc, // removed .label
+      amountToSend2Party: Number((inputNumber * 100000000).toFixed(0)),
+      messageToSend2Party: message,
+      presentModal: "Confirm2PartyRequestModal",
+      isModalShowing: true,
+    });
+  };
+
+  show2PartyRejectReplyModal = (
+    inputNameDoc, //name and OwnerId
+    reqMsgDoc //NEED FOR MSGID***
+    //inputNumber //Should already be in duffs
+  ) => {
+    this.setState({
+      sendSuccess2Party: false,
+      sendFailure2Party: false,
+      sendMsgSuccess2Party: false,
+      sendMsgFailure2Party: false,
+      sendPmtMsgSuccess2Party: false,
+      sendPmtMsgFailure2Party: false,
+
+      requestPmtReqDoc2Party: reqMsgDoc,
+      sendToNameDoc2Party: inputNameDoc,
+      amountToSend2Party: Number(reqMsgDoc.amt),
+      //
+      presentModal: "RejectReqModal",
+      isModalShowing: true,
+    });
+  };
+
+  showAddMsgToRequestModal = (theRequest, theRequestIndex, theResponseName) => {
+    let requestIndex = this.state.ReqsFromYou.findIndex((req) => {
+      return req.$id === theRequest.$id;
+    });
+    this.setState({
+      requestToEdit: theRequest,
+      requestToEditIndex: requestIndex, //<- Need this for the editingfunction!!
+      signingToSendToWhomNameDoc: theResponseName,
+
+      presentModal: "AddMsgToRequestModal",
+      isModalShowing: true,
+    });
+  };
+
+  editRequestAddMessage = (addedMessage) => {
+    //console.log(addedMessage);
+    this.setState({
+      isLoading2Party: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const edit2PartyDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      } // Your identity ID
+
+      let theTime = Date.now();
+
+      let theMsgObject = {
+        msg: addedMessage,
+        time: theTime,
+      };
+
+      const [document] = await client.platform.documents.get(
+        "TwoPartyContract.request",
+        {
+          where: [["$id", "==", this.state.requestToEdit.$id]],
+        }
+      );
+
+      //Add message is just push to object!! ->
+      //console.log(typeof this.state.requestToEdit.msgObject);
+
+      let theMsgsToAddTo = [...this.state.requestToEdit.msgObject];
+
+      theMsgsToAddTo.push(theMsgObject);
+
+      //console.log("theMsgsToAddTo", theMsgsToAddTo);
+
+      if (addedMessage !== "") {
+        document.set("msgObject", JSON.stringify(theMsgsToAddTo));
+      }
+
+      await platform.documents.broadcast({ replace: [document] }, identity);
+      return document;
+
+      //############################################################
+      //This below disconnects the document editing..***
+
+      //return document;
+
+      //This is to disconnect the Document editing***
+      //############################################################
+    };
+
+    edit2PartyDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
+
+        returnedDoc.forId = Identifier.from(
+          returnedDoc.forId,
+          "base64"
+        ).toJSON();
+
+        returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        console.log("Edited 2Party Req:\n", returnedDoc);
+
+        //
+
+        let editedRequests = this.state.ReqsFromYou;
+
+        editedRequests.splice(this.state.requestToEditIndex, 1, returnedDoc);
+
+        this.setState(
+          {
+            ReqsFromYou: editedRequests,
+            isLoading2Party: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+      })
+      .catch((e) => {
+        this.setState({
+          isLoading2Party: false,
+          // sendPmtMsgFailure2Party: true,
+        });
+
+        console.error("Something went wrong editing 2 Party request:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  showAddMessageToResponseModal = (
+    theResponse,
+    theResponseIndex,
+    theRequestName
+  ) => {
+    let responseIndex = this.state.ReqsToYouResponses.findIndex((resp) => {
+      return resp.$id === theResponse.$id;
+    });
+    this.setState({
+      responseToEdit: theResponse,
+      responseToEditIndex: responseIndex, //<- Need this for the editingfunction!!
+      signingToSendToWhomNameDoc: theRequestName,
+
+      presentModal: "AddMessageToResponseModal",
+      isModalShowing: true,
+    });
+  };
+
+  editResponseAddMessage = (addedMessage) => {
+    //  console.log("Called Edit ResponseAddMessage");
+    this.setState({
+      isLoading2Party: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    let theTime = Date.now();
+
+    let theMsgObject = {
+      msg: addedMessage,
+      time: theTime,
+    };
+
+    const submit2PartyDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      }
+
+      const [document] = await client.platform.documents.get(
+        "TwoPartyContract.response",
+        {
+          where: [["$id", "==", this.state.responseToEdit.$id]],
+        }
+      );
+
+      // if (this.state.responseToEdit.description !== rentalObject.description) {
+      //   document.set("description", rentalObject.description);
+      // }
+
+      let theMsgsToAddTo = [...this.state.responseToEdit.msgObject];
+
+      theMsgsToAddTo.push(theMsgObject);
+
+      //console.log("theMsgsToAddTo", theMsgsToAddTo);
+
+      if (addedMessage !== "") {
+        document.set("msgObject", JSON.stringify(theMsgsToAddTo));
+      }
+
+      await platform.documents.broadcast({ replace: [document] }, identity);
+      return document;
+
+      //############################################################
+      //This below disconnects the document editing..***
+
+      //return document;
+
+      //This is to disconnect the Document editing***
+      //############################################################
+    };
+
+    submit2PartyDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        returnedDoc.reqId = Identifier.from(
+          returnedDoc.reqId,
+          "base64"
+        ).toJSON();
+
+        returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
+
+        returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        console.log("Edited 2Party Doc:\n", returnedDoc);
+
+        //
+
+        let editedResponses = this.state.ReqsToYouResponses;
+
+        editedResponses.splice(this.state.responseToEditIndex, 1, returnedDoc);
+
+        this.setState(
+          {
+            ReqsToYouResponses: editedResponses,
+            isLoading2Party: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong with Response Edit:\n", e);
+        this.setState({
+          isLoading2Party: false,
+        });
+      })
+      .finally(() => client.disconnect());
+  };
+
+  show2PartyPayRequestModal = (
+    reqDoc,
+    inputNameDoc, //name and OwnerId
+    pubKeyDoc
+    //NEED FOR MSGID
+    //inputNumber //Should already be in duffs
+  ) => {
+    //THIS IS AFTER YOU CLICK PAY ON PAYMENT REQUEST
+    this.setState({
+      sendSuccess2Party: false, //TX go through
+      sendFailure2Party: false, //TX go through
+      //sendReqSuccess2Party: false, //Req go through
+      // sendReqFailure2Party: false,
+      //sendPmtMsgSuccess2Party: false, //It just go through
+      sendPmtMsgFailure2Party: false, //Response go through
+      requestPmtReqDoc2Party: reqDoc,
+      sendToNameDoc2Party: inputNameDoc,
+      amountToSend2Party: Number(reqDoc.amt),
+      requestPubKeyDoc2Party: pubKeyDoc,
+
+      //messageToSend2Party: message, //Add message in the modal
+
+      presentModal: "Pay2PartyRequestModal",
+      isModalShowing: true,
+    });
+  };
+
+  //showReleaseFunds2PartyModal
+
+  //showRetrieveFunds2PartyModal
+
+  //
+  //
+  //
+
+  // ^^^^ - PAYMENT REQUEST
+
+  //Oh this just closes the alert i think
+  handleSuccessAlert_WALLET = () => {
+    this.setState({
+      WALLET_sendSuccess: false,
+      WALLET_sendMsgSuccess: false,
+    });
+  }; //THis should just show up in wallet of on the request right?
+  //So like
+
+  handleFailureAlert_WALLET = () => {
+    this.setState({
+      WALLET_sendFailure: false,
+    });
+  };
+
+  handleFailureMsgAlert_WALLET = () => {
+    this.setState({
+      WALLET_sendMsgFailure: false,
+    });
+  };
+  // BELOW - PAYMENT REQUEST
+  handleFailurePmtMsgAlert_WALLET = () => {
+    this.setState({
+      WALLET_sendPmtMsgFailure: false,
+    });
+  };
+
+  handleSuccessPmtMsgAlert_WALLET = () => {
+    this.setState({
+      WALLET_sendPmtMsgSuccess: false,
+    });
+  };
+
+  // ^^^^ - PAYMENT REQUEST
+
+  //CREATING DOCUMENTS AND MAKING PAYMENTS
+  //Called from modal on showModal on Button Press
+  RegisterYour2PartyPubKey = () => {
+    console.log("Called Register 2Party Pub Key");
+    this.setState({
+      isLoading2Party: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const submitNoteDocument = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      } // Your identity ID
+
+      //create wallet from new Mnemonic
+
+      let wallet = new Mnemonic(this.state.mnemonic);
+
+      let hdPrivateKey = wallet.toHDPrivateKey();
+
+      let hdPrivateKeyChild = hdPrivateKey.deriveChild("m/2024'/5'/2'");
+      //"m/2024'/5'/2'/timestamp"
+
+      let hdxPublicKey = new HDPublicKey(
+        hdPrivateKeyChild,
+        this.state.whichNetwork
+      ).toObject().xpubkey;
+
+      //xpubkey
+
+      console.log("hdxPublicKey", hdxPublicKey);
+
+      const docProperties = {
+        xpubkey: hdxPublicKey,
+      };
+
+      // Create the note document
+      const TwoPartyDoc = await platform.documents.create(
+        "TwoPartyContract.xPubKeyDoc",
+        identity,
+        docProperties
+      );
+
+      //############################################################
+      //This below disconnects the document sending..***
+
+      //return TwoPartyDoc;
+
+      //This is to disconnect the Document Creation***
+      //############################################################
+
+      const documentBatch = {
+        create: [TwoPartyDoc], // Document(s) to create
+      };
+      // Sign and submit the document(s)
+      await platform.documents.broadcast(documentBatch, identity);
+      return TwoPartyDoc;
+    };
+
+    submitNoteDocument()
+      .then((d) => {
+        let returnedDoc = d.toJSON(); //d[0].toJSON();
+        console.log("Document:\n", returnedDoc);
+
+        this.setState(
+          {
+            Your2PartyPubKey: returnedDoc,
+            isLoading2Party: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+        // this.setState({
+        //   isLoading2Party: false,
+        // });
+      })
+      .finally(() => client.disconnect());
+  };
+
+  //3 BELOW FOR PAYMENT REQUESTS**
+
+  requestDash2PartyPayment = () => {
+    //console.log("Called Submit Request Pmt Doc");
+
+    this.setState({
+      isLoading2Party: true,
+      isModalShowing: false,
+      selectedDapp: "2-Party Pay",
+      DisplayReqsOrPmts: "Requests",
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    let docProperties = {};
+
+    //get time
+    let theTime = Date.now();
+
+    let theMsgObject = [];
+
+    if (this.state.messageToSend2Party !== "") {
+      theMsgObject = JSON.stringify([
+        {
+          msg: this.state.messageToSend2Party,
+          time: theTime,
+        },
+      ]);
+    } else {
+      theMsgObject = JSON.stringify([]);
+    }
+
+    const submitDocument = async () => {
+      const { platform } = client;
+      // const identity = await platform.identities.get(this.state.identity); // Your identity ID
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      } // Your identity ID
+
+      docProperties = {
+        toId: this.state.sendToNameDoc2Party.$ownerId,
+        forId: this.state.sendToNameDoc2Party.$ownerId,
+        txId: "", //Blank txId not paid out of multisig Yet
+        amt: this.state.amountToSend2Party,
+        sigObject: "",
+        msgObject: theMsgObject,
+        encryptObject: "",
+      };
+
+      //console.log(docProperties);
+
+      // Create the note document
+      const twoPartyDocument = await platform.documents.create(
+        "TwoPartyContract.request",
+        identity,
+        docProperties
+      );
+
+      //console.log(twoPartyDocument.toJSON());
+
+      //############################################################
+      //This below disconnects the document sending..***
+
+      //return twoPartyDocument;
+
+      //This is to disconnect the Document Creation***
+
+      //############################################################
+
+      const documentBatch = {
+        create: [twoPartyDocument], // Document(s) to create
+      };
+
+      await platform.documents.broadcast(documentBatch, identity);
+      return twoPartyDocument;
+    };
+
+    submitDocument()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
+
+        returnedDoc.forId = Identifier.from(
+          returnedDoc.forId,
+          "base64"
+        ).toJSON();
+
+        returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        console.log("Req Document:\n", returnedDoc);
+
+        this.setState(
+          {
+            ReqsFromYou: [returnedDoc, ...this.state.ReqsFromYou],
+            ReqsFromYouNames: [
+              this.state.sendToNameDoc2Party,
+              ...this.state.ReqsFromYouNames,
+            ],
+            isLoading2Party: false,
+            //send2PartyPmtMsgSuccess: true,
+          },
+          () => this.loadIdentityCredits()
+        );
+      })
+      .catch((e) => {
+        this.setState({
+          isLoading2Party: false,
+          sendReqFailure2Party: true,
+        });
+
+        console.error("Something went wrong creating new 2Party Req:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  //THIS IS THE ACTUAL PAYMENT AND TX
+  payDash2PartyRequest = (addedMessage) => {
+    // console.log(addedMessage);
+
+    this.setState({
+      isLoading2Party: true,
+      isLoadingWallet: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const payToRecipient = async () => {
+      const account = await client.getWalletAccount();
+
+      //CREATE THE MULTISIG TO SEND TO -
+
+      //https://github.com/dashpay/dashcore-lib/blob/master/lib/hdpublickey.js
+
+      //2,147,483,648 =  2^31 is deriveChild limit
+      //1,729,873,503,663 TIMENOW
+      //31,536,000 secsInYear
+      //68 years this is how long until repeat - no just repeat, run out of room, will need to increase truncate
+      //Just truncate - 1,729,873,000,000
+
+      let timeStamp =
+        this.state.requestPmtReqDoc2Party.$createdAt - 1729873000000;
+
+      //console.log("timeStamp", timeStamp);
+
+      //console.log("requestPmtReqDoc2Party", this.state.requestPmtReqDoc2Party);
+      //console.log("Your2PartyPubKey", this.state.Your2PartyPubKey.xpubkey);
+
+      let YourPublicKey = new HDPublicKey(this.state.Your2PartyPubKey.xpubkey)
+        .deriveChild(`m/${timeStamp}`)
+        //`m/2147483647` <- LIMIT, will hit in 68 years
+        .toObject().publicKey;
+
+      // console.log("YourPublicKey", YourPublicKey);
+
+      let TheirPublicKey = new HDPublicKey(
+        this.state.requestPubKeyDoc2Party.xpubkey
+      )
+        .deriveChild(`m/${timeStamp}`)
+        .toObject().publicKey;
+
+      // console.log("TheirPublicKey", TheirPublicKey);
+
+      let redeemScript = Script.buildMultisigOut(
+        [YourPublicKey, TheirPublicKey],
+        2
+      );
+
+      //console.log("redeemScript: ", redeemScript);
+
+      let scriptHashOut = redeemScript.toScriptHashOut();
+      //console.log("ScriptHashOut: ", scriptHashOut.toString());
+
+      let scriptAddress = Address.fromScript(
+        scriptHashOut,
+        this.state.whichNetwork
+      );
+      console.log("scriptAddress: ", scriptAddress.toString());
+
+      //CREATE THE MULTISIG TO SEND TO ^^^^
+
+      let dashAmt = this.state.amountToSend2Party;
+      console.log("sats sent in TX:", dashAmt);
+      // console.log(typeof dashAmt);
+
+      // let amt = dashAmt.toFixed(0).toString();
+      // console.log(amt);
+      // console.log(typeof amt);
+
+      const transaction = account.createTransaction({
+        recipient: scriptAddress,
+        satoshis: dashAmt, //Must be a string!! -> no.
+      });
+      //return transaction; //Use to disable TX
+      return account.broadcastTransaction(transaction);
+    };
+
+    payToRecipient()
+      .then((d) => {
+        console.log("Payment TX:\n", d);
+
+        this.setState(
+          {
+            sendSuccess2Party: true, //TX go through //DO I NEED THIS? BC THE DOCUMENT WILL JUST CHANGE TO REFLECT
+          },
+          () => this.create2PartyResponseWithTX(d, addedMessage)
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+        this.setState({
+          isLoading2Party: false,
+          isLoadingWallet: false,
+          sendFailure2Party: true, //TX go through
+        });
+      });
+    //.finally(() => client.disconnect()); // <- Caused Error in the past, added back seems to fix more recent payment error. -> YES error dont use
+  };
+
+  create2PartyResponseWithTX = (theTxId, addedMessage) => {
+    //console.log(addedMessage);
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    let docProperties = {};
+
+    //get time
+    let theTime = Date.now();
+
+    //build msgObject = id?, time created updated,
+    let theMsgObject = [];
+
+    if (addedMessage !== "") {
+      theMsgObject = JSON.stringify([
+        {
+          msg: addedMessage,
+          time: theTime,
+        },
+      ]);
+    } else {
+      theMsgObject = JSON.stringify([]);
+    }
+
+    const submitDocuments = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      } // Your identity ID
+
+      docProperties = {
+        reqId: this.state.requestPmtReqDoc2Party.$id,
+        toId: this.state.requestPmtReqDoc2Party.$ownerId,
+        txId: theTxId,
+        refundTxId: "",
+        amtMatch: this.state.amountToSend2Party,
+        sigObject: "",
+        msgObject: theMsgObject,
+        encryptObject: "",
+      };
+
+      // Create the note document
+      const twoPartyDocument = await platform.documents.create(
+        "TwoPartyContract.response",
+        identity,
+        docProperties
+      );
+
+      //console.log(dsoDocument.toJSON());
+
+      //############################################################
+      //This below disconnects the document sending..***
+
+      //return twoPartyDocument;
+
+      //This is to disconnect the Document Creation***
+
+      //############################################################
+
+      const documentBatch = {
+        create: [twoPartyDocument], // Document(s) to create
+      };
+
+      await platform.documents.broadcast(documentBatch, identity);
+      return twoPartyDocument;
+    };
+
+    submitDocuments()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        returnedDoc.reqId = Identifier.from(
+          returnedDoc.reqId,
+          "base64"
+        ).toJSON();
+
+        returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
+
+        returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        console.log("response Doc:\n", returnedDoc);
+
+        this.setState(
+          {
+            ReqsToYouResponses: [returnedDoc, ...this.state.ReqsToYouResponses],
+            //BELOW handled in the POSTPAYMENTWallet function.
+            //isLoadingWallet: false,
+            isLoading2Party: false,
+            WALLET_sendMsgSuccess: true,
+          },
+          () => this.loadIdentityCredits()
+        );
+
+        this.get2PartyWallet();
+      })
+      .catch((e) => {
+        this.setState(
+          {
+            isLoading2Party: false,
+            sendPmtMsgFailure2Party: true,
+          },
+          () => this.get2PartyWallet()
+        );
+
+        console.error("Something went wrong creating 2 Party response:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  rejectOrReplyRequest = (addedMessage, ifReject) => {
+    this.setState({
+      isLoadingRefresh_WALLET: true,
+      isLoadingWallet: true,
+
+      isLoadingButtons_WALLET: true,
+      isLoadingForm_WALLET: true,
+      isLoadingMsgs_WALLET: true,
+    });
+
+    //console.log(addedMessage);
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    let docProperties = {};
+
+    const submitDocuments = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      } // Your identity ID
+      if (ifReject) {
+        docProperties = {
+          msg: addedMessage,
+          msgId: this.state.WALLET_requestPmtReqDoc.$id,
+          txId: "rej",
+        };
+      } else {
+        docProperties = {
+          msg: addedMessage,
+          msgId: this.state.WALLET_requestPmtReqDoc.$id,
+        };
+      }
+
+      // Create the note document
+      const dgmDocument = await platform.documents.create(
+        "DGMContract.dgmthr",
+        identity,
+        docProperties
+      );
+
+      //console.log(dsoDocument.toJSON());
+
+      //############################################################
+      //This below disconnects the document sending..***
+
+      // return dgmDocument;
+
+      //This is to disconnect the Document Creation***
+
+      //############################################################
+
+      const documentBatch = {
+        create: [dgmDocument], // Document(s) to create
+      };
+
+      await platform.documents.broadcast(documentBatch, identity);
+      return dgmDocument;
+    };
+
+    submitDocuments()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+        console.log("Thread Documents:\n", returnedDoc);
+
+        let newThread;
+
+        // required: [' 'msg','msgId', "$createdAt", "$updatedAt"],
+        if (ifReject) {
+          newThread = {
+            $ownerId: returnedDoc.$ownerId,
+            $id: returnedDoc.$id,
+            msgId: this.state.WALLET_requestPmtReqDoc.$id,
+            msg: addedMessage,
+            $createdAt: returnedDoc.$createdAt,
+            txId: "rej",
+          };
+        } else {
+          newThread = {
+            $ownerId: returnedDoc.$ownerId,
+            $id: returnedDoc.$id,
+            msgId: this.state.WALLET_requestPmtReqDoc.$id,
+            msg: addedMessage,
+            $createdAt: returnedDoc.$createdAt,
+          };
+        }
+
+        this.setState({
+          WALLET_ByYouThreads: [newThread, ...this.state.WALLET_ByYouThreads],
+
+          isLoadingRefresh_WALLET: false,
+          isLoadingWallet: false,
+          isLoadingButtons_WALLET: false,
+          isLoadingForm_WALLET: false,
+
+          isLoadingMsgs_WALLET: false,
+        });
+      })
+      .catch((e) => {
+        this.setState({
+          isLoadingRefresh_WALLET: false,
+          isLoadingWallet: false,
+          isLoadingButtons_WALLET: false,
+          isLoadingForm_WALLET: false,
+
+          isLoadingMsgs_WALLET: false,
+        });
+
+        console.error("Something went wrong creating new thread:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  // ^^^ FOR PAYMENT REQUESTS**
+  //
+
+  showReleaseFundsModal = (
+    signatureToAdd,
+    theResponse,
+    index,
+    toWhomNameDoc
+  ) => {
+    //console.log("signatureToAdd", signatureToAdd);
+    //find the index
+    let responseIndex = this.state.ReqsToYouResponses.findIndex((resp) => {
+      return resp.$id === theResponse.$id;
+    });
+    this.setState(
+      {
+        signature2Party: signatureToAdd,
+        responseToEdit: theResponse,
+        responseToEditIndex: responseIndex, //<- Need this for the editingfunction!!
+        signingToSendToWhomNameDoc: toWhomNameDoc,
+      },
+      () => this.showModal("Release2PartyModal")
+    );
+  };
+
+  editReleaseFunds = (addedMessage) => {
+    //  console.log("Called Edit ReleaseFunds");
+    this.setState({
+      isLoading2Party: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    let theTime = Date.now();
+
+    let theMsgObject = {
+      msg: addedMessage,
+      time: theTime,
+    };
+    const submit2PartyDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      }
+
+      const [document] = await client.platform.documents.get(
+        "TwoPartyContract.response",
+        {
+          where: [["$id", "==", this.state.responseToEdit.$id]],
+        }
+      );
+
+      //console.log("signatureToAdd", this.state.signatureToAdd);
+      //RELEASE THE FUNDS
+      document.set(
+        "sigObject",
+        this.state.signature2Party.signature.toString()
+      );
+
+      // if (this.state.responseToEdit.description !== rentalObject.description) {
+      //   document.set("description", rentalObject.description);
+      // }
+
+      //Add message is just push to object!! ->
+
+      //console.log(typeof this.state.responseToEdit.msgObject);
+
+      let theMsgsToAddTo = [...this.state.responseToEdit.msgObject];
+
+      theMsgsToAddTo.push(theMsgObject);
+
+      //console.log("theMsgsToAddTo", theMsgsToAddTo);
+
+      if (addedMessage !== "") {
+        document.set("msgObject", JSON.stringify(theMsgsToAddTo));
+      }
+
+      await platform.documents.broadcast({ replace: [document] }, identity);
+      return document;
+
+      //############################################################
+      //This below disconnects the document editing..***
+
+      //return document;
+
+      //This is to disconnect the Document editing***
+      //############################################################
+    };
+
+    submit2PartyDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        returnedDoc.reqId = Identifier.from(
+          returnedDoc.reqId,
+          "base64"
+        ).toJSON();
+
+        returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
+
+        returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        console.log("Edited 2Party Doc:\n", returnedDoc);
+
+        //
+
+        let editedResponses = this.state.ReqsToYouResponses;
+
+        editedResponses.splice(this.state.responseToEditIndex, 1, returnedDoc);
+
+        this.setState(
+          {
+            ReqsToYouResponses: editedResponses,
+            isLoading2Party: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong with Response Edit:\n", e);
+        this.setState({
+          isLoading2Party: false,
+        });
+      })
+      .finally(() => client.disconnect());
+  };
+
+  showRetrieveFundsModal = (
+    theResponse,
+    theResponsePubKeyDoc,
+    toWhomNameDoc,
+    theRequest,
+    theRequestIndex,
+    theTx
+  ) => {
+    let requestIndex = this.state.ReqsFromYou.findIndex((req) => {
+      return req.$id === theRequest.$id;
+    });
+    this.setState(
+      {
+        responseToUse: theResponse,
+        responsePubKeyDocToUse: theResponsePubKeyDoc,
+        signingToSendToWhomNameDoc: toWhomNameDoc, //This will be the responseName
+        requestToEdit: theRequest,
+        requestToEditIndex: requestIndex, //<- Need this for the editingfunction!!
+        txToUse: theTx,
+      },
+      () => this.showModal("RetrieveFundsModal")
+    );
+  };
+
+  //THIS IS THE ACTUAL PAYMENT AND TX
+  payRetrieveFunds = (addedMessage) => {
+    // console.log(addedMessage);
+
+    this.setState({
+      isLoading2Party: true,
+      isLoadingWallet: true,
+      //messageToSend2Party: "MSGFORpaidthr",
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const payToRecipient = async () => {
+      const account = await client.getWalletAccount();
+
+      // let dashAmt = this.state.amountToSend2Party;
+      // console.log("sats sent in TX:", dashAmt);
+      // console.log(typeof dashAmt);
+
+      // let amt = dashAmt.toFixed(0).toString();
+      // console.log(amt);
+      // console.log(typeof amt);
+
+      // const transaction = account.createTransaction({
+      //   recipient: scriptAddress,
+      //   satoshis: dashAmt, //Must be a string!! -> no.
+      // });
+
+      // createFullTX(
+      //   theRequest,
+      //   theRequestPubKeyDoc,
+      //   theResponse,
+      //   theResponsePubKeyDoc,
+      //   whichNetwork,
+      //   theTx, //txId,script,amt
+      //   theMnemonic,
+      //   theAddress
+      // )
+
+      let transaction = createFullTX(
+        this.state.requestToEdit,
+        this.state.Your2PartyPubKey,
+        this.state.responseToUse,
+        this.state.responsePubKeyDocToUse,
+        this.state.whichNetwork,
+        this.state.txToUse,
+        this.state.mnemonic,
+        this.state.accountAddress
+      );
+
+      // return transaction.id; //Use to disable TX
+      return account.broadcastTransaction(transaction);
+    };
+
+    payToRecipient()
+      .then((d) => {
+        console.log("Payment TX:\n", d);
+
+        this.setState(
+          {
+            sendSuccess2Party: true, //TX go through //DO I NEED THIS? BC THE DOCUMENT WILL JUST CHANGE TO REFLECT
+          },
+          () => this.editRetrieveFundsReqWithTX(d, addedMessage)
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+        this.setState({
+          isLoading2Party: false,
+          isLoadingWallet: false,
+          sendFailure2Party: true, //TX go through
+        });
+      });
+    //.finally(() => client.disconnect()); // <- Caused Error in the past, added back seems to fix more recent payment error. -> YES error dont use
+  };
+
+  editRetrieveFundsReqWithTX = (theTxId, addedMessage) => {
+    //console.log(addedMessage);
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const edit2PartyDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      } // Your identity ID
+
+      let theTime = Date.now();
+
+      let theMsgObject = {
+        msg: addedMessage,
+        time: theTime,
+      };
+
+      const [document] = await client.platform.documents.get(
+        "TwoPartyContract.request",
+        {
+          where: [["$id", "==", this.state.requestToEdit.$id]],
+        }
+      );
+
+      //console.log("signatureToAdd", this.state.signatureToAdd);
+      //RELEASE THE FUNDS
+      document.set("txId", theTxId);
+
+      //Add message is just push to object!! ->
+      //console.log(typeof this.state.requestToEdit.msgObject);
+
+      let theMsgsToAddTo = [...this.state.requestToEdit.msgObject];
+
+      theMsgsToAddTo.push(theMsgObject);
+
+      //console.log("theMsgsToAddTo", theMsgsToAddTo);
+
+      if (addedMessage !== "") {
+        document.set("msgObject", JSON.stringify(theMsgsToAddTo));
+      }
+
+      await platform.documents.broadcast({ replace: [document] }, identity);
+      return document;
+
+      //############################################################
+      //This below disconnects the document editing..***
+
+      //return document;
+
+      //This is to disconnect the Document editing***
+      //############################################################
+    };
+
+    edit2PartyDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
+
+        returnedDoc.forId = Identifier.from(
+          returnedDoc.forId,
+          "base64"
+        ).toJSON();
+
+        returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        console.log("Edited 2Party Req:\n", returnedDoc);
+
+        //
+
+        let editedRequests = this.state.ReqsFromYou;
+
+        editedRequests.splice(this.state.requestToEditIndex, 1, returnedDoc);
+
+        this.setState(
+          {
+            ReqsFromYou: editedRequests,
+            isLoading2Party: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+
+        this.get2PartyWallet();
+      })
+      .catch((e) => {
+        this.setState(
+          {
+            isLoading2Party: false,
+            // sendPmtMsgFailure2Party: true,
+          },
+          () => this.get2PartyWallet()
+        );
+
+        console.error("Something went wrong editing 2 Party request:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  /* 2-Party FUNCTIONS^^^^^
+   *
+   *
+   *                             #############
+   *                            ###         ###
+   *                                     ####
+   *                                 ####
+   *                              ####
+   *                            ###############
+   *
    *      #############
    *     ####        ###
    *     ###
    *     ###     ########
    *     #####      ####
    *      #############
+   *
+   * GROUP FUNCTIONS
    */
-  //GROUP FUNCTIONS
 
   //NOT QUITE WHAT i WANT BECAUSE WANT TO PULL EACH PULL.. OR DO I
   // I WNANT THE GROUPS TO APPEAR BUT ALSO i WANT
@@ -2748,6 +4692,7 @@ class App extends React.Component {
       // }
     );
   };
+
   showRejectReplyReqModal_WALLET = (
     inputNameDoc, //name and OwnerId
     reqMsgDoc //NEED FOR MSGID***
@@ -6488,13 +8433,60 @@ PROOF OF FUNDS FUNCTIONS^^^^
               {this.state.selectedDapp === "2-Party Pay" ? (
                 <>
                   <TwoPartyPage
+                    mnemonic={this.state.mnemonic}
+                    whichNetwork={this.state.whichNetwork}
                     isLoginComplete={isLoginComplete}
-                    // isLoadingProxy={this.state.isLoadingProxy}
+                    isLoading2Party={this.state.isLoading2Party}
                     identity={this.state.identity}
                     identityInfo={this.state.identityInfo}
                     uniqueName={this.state.uniqueName}
                     mode={this.state.mode}
                     showModal={this.showModal}
+                    pullInitialTrigger2Party={this.pullInitialTrigger2Party}
+                    is2PartyRefreshReady={this.state.is2PartyRefreshReady}
+                    handleRefresh_2Party={this.handleRefresh_2Party}
+                    accountBalance={this.state.accountBalance}
+                    accountHistory={this.state.accountHistory}
+                    DisplayReqsOrPmts={this.state.DisplayReqsOrPmts}
+                    handleReqsOrPmtsFilter={this.handleReqsOrPmtsFilter}
+                    handleSelectedDapp={this.handleSelectedDapp}
+                    Your2PartyPubKey={this.state.Your2PartyPubKey}
+                    ReqsFromYou={this.state.ReqsFromYou}
+                    ReqsFromYouPubKeys={this.state.ReqsFromYouPubKeys}
+                    ReqsFromYouNames={this.state.ReqsFromYouNames}
+                    ReqsFromYouResponses={this.state.ReqsFromYouResponses}
+                    ReqsToYou={this.state.ReqsToYou}
+                    ReqsToYouPubKeys={this.state.ReqsToYouPubKeys}
+                    ReqsToYouNames={this.state.ReqsToYouNames}
+                    ReqsToYouResponses={this.state.ReqsToYouResponses}
+                    show2PartyPayRequestModal={this.show2PartyPayRequestModal}
+                    showReleaseFundsModal={this.showReleaseFundsModal}
+                    showRetrieveFundsModal={this.showRetrieveFundsModal}
+                    showAddMsgToRequestModal={this.showAddMsgToRequestModal}
+                    showAddMessageToResponseModal={
+                      this.showAddMessageToResponseModal
+                    }
+                  />
+                </>
+              ) : (
+                <></>
+              )}
+
+              {this.state.selectedDapp === "2-PartyRequest" ? (
+                <>
+                  <RequestPage
+                    isLoginComplete={isLoginComplete}
+                    isLoading2Party={this.state.isLoading2Party}
+                    identity={this.state.identity}
+                    identityInfo={this.state.identityInfo}
+                    uniqueName={this.state.uniqueName}
+                    mode={this.state.mode}
+                    //showModal={this.showModal}
+
+                    show2PartyRequestModal={this.show2PartyRequestModal}
+                    accountBalance={this.state.accountBalance}
+                    accountHistory={this.state.accountHistory}
+                    handleSelectedDapp={this.handleSelectedDapp}
                   />
                 </>
               ) : (
@@ -6799,7 +8791,6 @@ PROOF OF FUNDS FUNCTIONS^^^^
         ) : (
           <></>
         )}
-
         {this.state.isModalShowing &&
         this.state.presentModal === "RegisterNameModal" ? (
           <RegisterNameModal
@@ -6821,13 +8812,11 @@ PROOF OF FUNDS FUNCTIONS^^^^
         ) : (
           <></>
         )}
-
         {/*     ################
          *      ###          ####
          *      ################
          *      ###
          *      ###            */}
-
         {this.state.isModalShowing &&
         this.state.presentModal === "AddProxyModal" ? (
           <AddProxyModal
@@ -6841,7 +8830,6 @@ PROOF OF FUNDS FUNCTIONS^^^^
         ) : (
           <></>
         )}
-
         {this.state.isModalShowing &&
         this.state.presentModal === "EditProxyModal" ? (
           <EditProxyModal
@@ -6857,7 +8845,6 @@ PROOF OF FUNDS FUNCTIONS^^^^
         ) : (
           <></>
         )}
-
         {this.state.isModalShowing &&
         this.state.presentModal === "DeleteProxyModal" ? (
           <DeleteProxyModal
@@ -6872,6 +8859,138 @@ PROOF OF FUNDS FUNCTIONS^^^^
         ) : (
           <></>
         )}
+        {/*
+         *      #############
+         *     ###         ###
+         *              ####
+         *          ####
+         *      ####
+         *     ###############
+         * */}
+        {this.state.isModalShowing &&
+        this.state.presentModal === "Register2PartyModal" ? (
+          <Register2PartyModal
+            RegisterYour2PartyPubKey={this.RegisterYour2PartyPubKey}
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+            closeTopNav={this.closeTopNav}
+          />
+        ) : (
+          <></>
+        )}
+        {this.state.isModalShowing &&
+        this.state.presentModal === "Confirm2PartyRequestModal" ? (
+          <Confirm2PartyRequestModal
+            whichNetwork={this.state.whichNetwork}
+            requestPmtNameDoc={this.state.sendToNameDoc2Party}
+            amountToSend={this.state.amountToSend2Party}
+            messageToSend={this.state.messageToSend2Party}
+            requestDash2PartyPayment={this.requestDash2PartyPayment}
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+            closeTopNav={this.closeTopNav}
+          />
+        ) : (
+          <></>
+        )}
+        {this.state.isModalShowing &&
+        this.state.presentModal === "AddMsgToRequestModal" ? (
+          <AddMsgToRequestModal
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+            SelectedReplyNameDoc={this.state.signingToSendToWhomNameDoc}
+            editRequestAddMessage={this.editRequestAddMessage}
+            closeTopNav={this.closeTopNav}
+          />
+        ) : (
+          <></>
+        )}
+
+        {this.state.isModalShowing &&
+        this.state.presentModal === "AddMessageToResponseModal" ? (
+          <AddMessageToResponseModal
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+            SelectedReplyNameDoc={this.state.signingToSendToWhomNameDoc}
+            editResponseAddMessage={this.editResponseAddMessage}
+            closeTopNav={this.closeTopNav}
+          />
+        ) : (
+          <></>
+        )}
+        {this.state.isModalShowing &&
+        this.state.presentModal === "Pay2PartyRequestModal" ? (
+          <Pay2PartyRequestModal
+            /*
+           requestPmtReqDoc2Party: "",
+      sendToNameDoc2Party: "",
+      requestPubKeyDoc2Party: "",
+      amountToSend2Party: 0,
+      messageToSend2Party: "",
+           */
+            sendToName={this.state.sendToNameDoc2Party.label}
+            requestPmtNameDoc={this.state.sendToNameDoc2Party}
+            amountToSend={this.state.amountToSend2Party}
+            whichNetwork={this.state.whichNetwork}
+            payDash2PartyRequest={this.payDash2PartyRequest}
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+          />
+        ) : (
+          <></>
+        )}
+        {this.state.isModalShowing &&
+        this.state.presentModal === "Release2PartyModal" ? (
+          <Release2PartyModal
+            sendToName={this.state.signingToSendToWhomNameDoc.label}
+            requestPmtNameDoc={this.state.signingToSendToWhomNameDoc}
+            amountToSend={this.state.responseToEdit.amtMatch}
+            whichNetwork={this.state.whichNetwork}
+            editReleaseFunds={this.editReleaseFunds}
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+          />
+        ) : (
+          <></>
+        )}
+        {this.state.isModalShowing &&
+        this.state.presentModal === "RetrieveFundsModal" ? (
+          <RetrieveFundsModal
+            sendToName={this.state.signingToSendToWhomNameDoc.label}
+            requestPmtNameDoc={this.state.signingToSendToWhomNameDoc}
+            amountToSend={this.state.requestToEdit.amt}
+            whichNetwork={this.state.whichNetwork}
+            payRetrieveFunds={this.payRetrieveFunds}
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+          />
+        ) : (
+          <></>
+        )}
+        {/* {this.state.isModalShowing &&
+        this.state.presentModal === "RejectReqModal" ? (
+          <RejectReqModal
+            uniqueName={this.state.uniqueName}
+            sendToName={this.state.WALLET_sendToName}
+            requestPmtNameDoc={this.state.WALLET_requestPmtNameDoc}
+            amountToSend={this.state.WALLET_amountToSend}
+            //submitDGMThread={this.submitDGMThread_WALLET}
+            rejectOrReplyRequestThread={this.rejectOrReplyRequestThread_WALLET}
+            messageToWhomName={this.state.WALLET_messageToWhomName}
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+          />
+        ) : (
+          <></>
+        )} */}
         {/* 
 
 *      #############
@@ -6962,7 +9081,6 @@ PROOF OF FUNDS FUNCTIONS^^^^
         ) : (
           <></>
         )}
-
         {this.state.isModalShowing &&
         this.state.presentModal === "PayRequestModal" ? (
           <PayRequestModal
@@ -7001,7 +9119,6 @@ PROOF OF FUNDS FUNCTIONS^^^^
         ) : (
           <></>
         )}
-
         {this.state.isModalShowing &&
         this.state.presentModal === "WalletTXModal" ? (
           <WalletTXModal
@@ -7041,7 +9158,6 @@ PROOF OF FUNDS FUNCTIONS^^^^
         ) : (
           <></>
         )}
-
         {/* *   ################
          *      ###          ####
          *      ################

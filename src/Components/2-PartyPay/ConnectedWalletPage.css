@@ -1,0 +1,19 @@
+.cardTitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.positionButton {
+  display: flex;
+}
+
+.floatLeft {
+  float: left;
+}
+
+.textsmaller {
+  font-size: small;
+  text-align: right;
+  opacity: 0.7;
+}
