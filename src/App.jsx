@@ -42,6 +42,7 @@ import SendFundsModal from "./Components/0-LoginPage/SendFundsModal";
 import LogoutModal from "./Components/0-LoginPage/LogoutModal";
 
 import ProxyPage from "./Components/1-ProxyAccounts/ProxyPage";
+import HowProxyModal from "./Components/1-ProxyAccounts/HowProxyModal";
 
 import AddProxyModal from "./Components/1-ProxyAccounts/AddProxyModal";
 import EditProxyModal from "./Components/1-ProxyAccounts/EditProxyModal";
@@ -8817,6 +8818,19 @@ PROOF OF FUNDS FUNCTIONS^^^^
          *      ################
          *      ###
          *      ###            */}
+
+        {this.state.isModalShowing &&
+        this.state.presentModal === "HowProxyModal" ? (
+          <HowProxyModal
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+            showModal={this.state.showModal}
+          />
+        ) : (
+          <></>
+        )}
+
         {this.state.isModalShowing &&
         this.state.presentModal === "AddProxyModal" ? (
           <AddProxyModal

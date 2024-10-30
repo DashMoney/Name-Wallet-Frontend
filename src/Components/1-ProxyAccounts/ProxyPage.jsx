@@ -230,6 +230,17 @@ class ProxyPage extends React.Component {
             </Button>
           </div>
           <p></p>
+          <div className="d-grid gap-2">
+            <Button
+              // style={{ marginRight: "1rem", marginBottom: ".5rem" }}
+              //size="lg"
+              variant="success"
+              onClick={() => this.props.showModal("HowProxyModal")}
+            >
+              <b>How to Add Proxy?</b>
+            </Button>
+          </div>
+          <p></p>
           {this.props.isLoadingProxy ? (
             <>
               <div id="spinner">
