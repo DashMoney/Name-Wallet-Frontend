@@ -183,12 +183,12 @@ class PayRequestsComponent extends React.Component {
     if (
       theResponse.sigObject === "" &&
       theResponse.txId !== "" &&
-      theResponse.refundtxId === ""
+      theResponse.refundTxId === ""
     ) {
       return <Badge bg="success">In 2-Party</Badge>;
     }
 
-    if (theResponse.sigObject === "" && theResponse.refundtxId !== "") {
+    if (theResponse.sigObject === "" && theResponse.refundTxId !== "") {
       return <Badge bg="primary">Refunded</Badge>;
     }
 

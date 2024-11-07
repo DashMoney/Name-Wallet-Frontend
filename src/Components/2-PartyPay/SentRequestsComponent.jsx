@@ -235,11 +235,9 @@ class SentRequestsComponent extends React.Component {
     // GET THE PUBKEY
     let responsePubKey = undefined;
 
-    if (response !== undefined) {
-      responsePubKey = this.props.ReqsFromYouPubKeys.find((pubKey) => {
-        return pubKey.$ownerId === response.$ownerId;
-      });
-    }
+    responsePubKey = this.props.ReqsFromYouPubKeys.find((pubKey) => {
+      return pubKey.$ownerId === this.props.req.toId;
+    });
 
     //  //ADD THE MSGS HERE !!
 
