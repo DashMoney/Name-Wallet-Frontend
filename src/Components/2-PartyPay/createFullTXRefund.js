@@ -16,7 +16,7 @@ const {
   },
 } = Dash;
 
-export default function createFullTX(
+export default function createFullTXRefund(
   theRequest,
   theRequestPubKeyDoc,
   theResponse,
@@ -32,7 +32,7 @@ export default function createFullTX(
   //68 years this is how long until repeat - no just repeat, run out of room, will need to increase truncate
   //Just truncate - 1,729,873,000,000
 
-  let timeStamp = theRequest.$createdAt - 1729873000000;
+  let timeStamp = theResponse.reqTime;
 
   //console.log("timeStamp", timeStamp);
 
@@ -99,15 +99,15 @@ export default function createFullTX(
 
   //https://github.com/dashpay/dashcore-lib/blob/master/lib/transaction/signature.js
 
-  console.log("sigObject", theResponse.sigObject);
+  console.log("sigObject", theRequest.sigObject);
 
   let signatureThe = {
-    publicKey: new PublicKey(ResponsePublicKey),
+    publicKey: new PublicKey(RequestPublicKey),
     prevTxId: Buffer.from(theTx.hash, "hex"), //theTx.hash,
     outputIndex: 0,
     inputIndex: 0,
     signature: Dash.Core.crypto.Signature.fromDER(
-      Buffer.from(theResponse.sigObject, "hex")
+      Buffer.from(theRequest.sigObject, "hex")
     ),
     sigtype: 2,
   };

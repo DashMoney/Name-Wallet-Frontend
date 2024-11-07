@@ -52,10 +52,10 @@ export default function getSignature(
   let scriptHashOut = redeemScript.toScriptHashOut();
   //console.log("ScriptHashOut: ", scriptHashOut.toString());
 
-  console.log("whichNetwork", whichNetwork);
+  //console.log("whichNetwork", whichNetwork);
 
   let scriptAddress = Address.fromScript(scriptHashOut, whichNetwork);
-  console.log("scriptAddress: ", scriptAddress.toString());
+  // console.log("scriptAddress: ", scriptAddress.toString());
 
   // ////
 
@@ -108,7 +108,7 @@ export default function getSignature(
 
   let theSignatureToPass = signature; //JSON.stringify(signature);
 
-  console.log("theSignatureToPass", JSON.stringify(theSignatureToPass));
+  //console.log("theSignatureToPass", JSON.stringify(theSignatureToPass));
 
   // ALL THE DATA IS THE EXACT SAME AS YOU WOULD THINK!! <- ***
 

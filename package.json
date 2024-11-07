@@ -11,7 +11,10 @@
   },
   "dependencies": {
     "bootstrap": "^5.3.2",
-    "dash": "^4.2.0-rc.1",
+    "buffer": "^6.0.3",
+    "crypto-js": "^4.2.0",
+    "dash": "^4.5.0",
+    "eciesjs": "^0.4.10",
     "localforage": "^1.10.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.9.1",

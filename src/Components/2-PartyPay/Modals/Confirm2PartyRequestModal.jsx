@@ -45,7 +45,7 @@ class Confirm2PartyRequestModal extends React.Component {
           show={this.props.isModalShowing}
         >
           <Modal.Header>
-            <Modal.Title>Confirm Payment Request</Modal.Title>
+            <Modal.Title>Confirm 2-Party Request</Modal.Title>
             {closeButtonColor}
           </Modal.Header>
           <Modal.Body>
@@ -74,14 +74,14 @@ class Confirm2PartyRequestModal extends React.Component {
               </h5>
             </div>
 
-            <h6>
+            {/* <h6>
               <b>Message:</b>
               {this.props.messageToSend !== "" ? (
                 <span>{this.props.messageToSend}</span>
               ) : (
                 <span>(No Message)</span>
               )}
-            </h6>
+            </h6> */}
             <p></p>
           </Modal.Body>
           <Modal.Footer>

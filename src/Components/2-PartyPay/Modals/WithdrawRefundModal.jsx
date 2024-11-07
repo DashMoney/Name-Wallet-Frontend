@@ -8,7 +8,7 @@ import handleDenomDisplay from "../../UnitDisplay";
 
 import "../ConnectedWalletPage.css";
 
-class Refund2PartyModal extends React.Component {
+class WithdrawRefundModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -76,7 +76,7 @@ class Refund2PartyModal extends React.Component {
   handleSubmitClick = (event) => {
     event.preventDefault();
 
-    this.props.editRefundFunds(this.state.commentInput);
+    this.props.payWithdrawRefund(this.state.commentInput);
 
     this.handleCloseClick();
   };
@@ -110,7 +110,7 @@ class Refund2PartyModal extends React.Component {
           show={this.props.isModalShowing}
         >
           <Modal.Header>
-            <Modal.Title>Refund 2-Party Funds</Modal.Title>
+            <Modal.Title>Withdraw Refund from 2-Party</Modal.Title>
             {closeButtonColor}
           </Modal.Header>
           <Modal.Body>
@@ -119,7 +119,7 @@ class Refund2PartyModal extends React.Component {
               <b>{this.props.requestPmtNameDoc.label}</b>?
             </h6> */}
             <p className="textsmaller">
-              This will allow the funds to be released from the 2-Party.
+              This will withdraw funds from 2-Party to your wallet.
             </p>
             <div
               style={{
@@ -132,17 +132,17 @@ class Refund2PartyModal extends React.Component {
               //style={{ color: "green" }}
               //onClick={() => this.handleNameClick()}
               >
-                Refund{" "}
+                Withdraw{" "}
                 <b style={{ color: "#008de4" }}>
                   {handleDenomDisplay(
                     this.props.whichNetwork,
                     this.props.amountToSend
                   )}
                 </b>{" "}
-                from 2-Party to{" "}
-                <b style={{ color: "#008de4" }}>
+                from 2-Party
+                {/* <b style={{ color: "#008de4" }}>
                   {this.props.requestPmtNameDoc.label}
-                </b>
+                </b>{" "} */}
               </h5>
             </div>
 
@@ -191,11 +191,11 @@ class Refund2PartyModal extends React.Component {
             <>
               {this.state.loadTime >= 1 ? (
                 <Button variant="primary" disabled>
-                  <b>Send Refund ({this.state.loadTime})</b>
+                  <b>Withdraw Refund ({this.state.loadTime})</b>
                 </Button>
               ) : (
                 <Button variant="primary" onClick={this.handleSubmitClick}>
-                  <b>Send Refund</b>
+                  <b>Withdraw Refund</b>
                 </Button>
               )}
             </>
@@ -206,4 +206,4 @@ class Refund2PartyModal extends React.Component {
   }
 }
 
-export default Refund2PartyModal;
+export default WithdrawRefundModal;

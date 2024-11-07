@@ -71,6 +71,7 @@ class TwoPartyCombine extends React.Component {
               showAddMessageToResponseModal={
                 this.props.showAddMessageToResponseModal
               }
+              showWithdrawRefundModal={this.props.showWithdrawRefundModal}
             />
           </div>
         );
@@ -107,6 +108,7 @@ class TwoPartyCombine extends React.Component {
               ReqsFromYouResponses={this.props.ReqsFromYouResponses}
               showRetrieveFundsModal={this.props.showRetrieveFundsModal}
               showAddMsgToRequestModal={this.props.showAddMsgToRequestModal}
+              showRefundFundsModal={this.props.showRefundFundsModal}
             />
           </div>
         );

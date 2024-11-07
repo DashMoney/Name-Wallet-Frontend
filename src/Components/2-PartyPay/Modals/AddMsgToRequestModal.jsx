@@ -30,9 +30,19 @@ class AddMsgToRequestModal extends React.Component {
   };
 
   commentValidate = (comment) => {
-    let regex = /^.[\S\s]{0,450}$/;
+    let regex1 = /^.[\S\s]{0,450}$/;
 
-    let valid = regex.test(comment);
+    let valid1 = regex1.test(comment);
+
+    let regex2 = /^(?:[^\r\n]*(?:\r\n?|\n)){0,4}[^\r\n]*$/;
+
+    let valid2 = regex2.test(comment);
+
+    let valid = false;
+
+    if (valid1 && valid2) {
+      valid = true;
+    }
 
     if (valid) {
       this.setState({
@@ -41,7 +51,7 @@ class AddMsgToRequestModal extends React.Component {
         tooLongCommentError: false,
       });
     } else {
-      if (comment.length > 450) {
+      if (comment.length > 450 || !valid2) {
         this.setState({
           commentInput: comment,
           validComment: false,
@@ -117,12 +127,19 @@ class AddMsgToRequestModal extends React.Component {
                 <></>
               )}
               <p></p>
-              <Button
-                variant="primary"
-                onClick={() => this.handleSubmitClick()}
-              >
-                <b>Send Message</b>
-              </Button>
+              {this.state.commentInput !== "" &&
+              !this.state.tooLongCommentError ? (
+                <Button
+                  variant="primary"
+                  onClick={() => this.handleSubmitClick()}
+                >
+                  <b>Send Message</b>
+                </Button>
+              ) : (
+                <Button variant="primary" disabled>
+                  <b>Send Message</b>
+                </Button>
+              )}
             </Form.Group>
           </Modal.Body>
         </Modal>

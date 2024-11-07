@@ -12,16 +12,19 @@ import Col from "react-bootstrap/Col";
 import TopNav from "./Components/TopNav/TopNav";
 
 //import WhyMoney from "./Components/WhyMoney";
+import encryptMyReq from "./Components/2-PartyPay/encryptMyReq";
+import encryptMyResp from "./Components/2-PartyPay/encryptMyResp";
+
+import decryptMyReqs from "./Components/2-PartyPay/decryptMyReqs";
+import decryptTheirResps from "./Components/2-PartyPay/decryptTheirResps";
+
+import decryptMyResps from "./Components/2-PartyPay/decryptMyResps";
+import decryptTheirReqs from "./Components/2-PartyPay/decryptTheirReqs";
 
 import "./App.css";
 import LoginForm from "./Components/0-LoginPage/LoginForm";
 import AccountLogin from "./Components/0-LoginPage/AccountLogin";
 import IdentityControlPage from "./Components/0-LoginPage/IdentityControlPage";
-
-//import MessagesPage from "./Components/5-Messages/MessagesPage";
-
-// import GroupsPage from "./Components/6-Groups/GroupsPage";
-// import Group from "./Components/6-Groups/Group";
 
 import WalletPage from "./Components/9-Wallet/WalletPage";
 
@@ -63,11 +66,11 @@ import RetrieveFundsModal from "./Components/2-PartyPay/Modals/RetrieveFundsModa
 import AddMsgToRequestModal from "./Components/2-PartyPay/Modals/AddMsgToRequestModal";
 import AddMessageToResponseModal from "./Components/2-PartyPay/Modals/AddMessageToResponseModal";
 
-import createFullTX from "./Components/2-PartyPay/createFullTX";
+import Refund2PartyModal from "./Components/2-PartyPay/Modals/Refund2PartyModal";
+import WithdrawRefundModal from "./Components/2-PartyPay/Modals/WithdrawRefundModal";
 
-import CreateGroupModal from "./Components/6-Groups/CreateGroupModal";
-import JoinGroupModal from "./Components/6-Groups/JoinGroupModal";
-import DeleteGroupModal from "./Components/6-Groups/DeleteGroupModal";
+import createFullTX from "./Components/2-PartyPay/createFullTX";
+import createFullTXRefund from "./Components/2-PartyPay/createFullTXRefund";
 
 import ConfirmAddrPaymentModal from "./Components/9-Wallet/ConfirmAddrPaymentModal";
 import RegisterDGMModal from "./Components/RegisterDGMModal";
@@ -103,9 +106,6 @@ const {
     //Networks,
     //Block,
   },
-} = Dash;
-
-const {
   Essentials: { Buffer },
   PlatformProtocol: { Identifier },
 } = Dash;
@@ -204,6 +204,7 @@ class App extends React.Component {
       requestPmtReqDoc2Party: "",
       sendToNameDoc2Party: "",
       requestPubKeyDoc2Party: "",
+      responsePubKeyDoc2Party: "",
       amountToSend2Party: 0,
       messageToSend2Party: "",
 
@@ -213,6 +214,8 @@ class App extends React.Component {
 
       signingToSendToWhomNameDoc: "",
 
+      requestToUse: "", // FOR showWithdrawRefundModal
+      requestPubKeyDocToUse: "",
       responseToUse: "",
       responsePubKeyDocToUse: "",
 
@@ -221,172 +224,6 @@ class App extends React.Component {
       txToUse: "",
 
       // 2 PARTY PAGE STATE^^^^
-
-      //MESSAGES PAGE
-      // isLoading={this.state.isLoading}
-      whichMessagesTab: "Everyone",
-
-      isLoadingRefresh: false, //-> WHAT IS THIS CONNECTED TO ? -> a single spinner on MessagesPage , can I get rid of this because I think i had it for the manual updating but there is now auto updateing with messages ? =>
-      errorToDisplay: false,
-
-      isLoadingEveryone: true,
-
-      isLoadingForYou: true,
-
-      EveryoneMsgs: [
-        {
-          $ownerId: "4h5j6j",
-          $id: "7ku98rj",
-          msg: "Thanks for trying out the dapps! You can even host the front end yourself and earn Dash.",
-          sh: "out",
-          $createdAt: Date.now() - 1000000,
-        },
-      ],
-      EveryoneNames: [
-        {
-          $ownerId: "4h5j6j",
-          label: "Miles",
-        },
-      ],
-
-      Everyone1: false, //2 threads -> msg names and thread names
-      Everyone2: false,
-
-      ForYou1: false, //4 threads -> 2 by 2 path but could have zero on either of the paths?? ->
-      ForYou2: false,
-      ForYou3: false,
-      ForYou4: false,
-
-      ByYouMsgs: [], //MESSAGES
-      ByYouNames: [],
-
-      FromTagsMsgs: [],
-      FromTagsNames: [],
-
-      //Below is the new Thread state
-      EveryoneThreads: [
-        {
-          $ownerId: "hw7o5fh4w",
-          $id: "wg7w54b5l9",
-          msg: "Well that sounds interesting. How do I do that?",
-          msgId: "7ku98rj",
-
-          $createdAt: Date.now() - 800000,
-        },
-        {
-          $ownerId: "4h5j6j",
-          $id: "7ku98rj",
-          msg: 'Just click on the "1% of TopUp" in the Navigation menu.',
-          msgId: "7ku98rj",
-          $createdAt: Date.now() - 500000,
-        },
-      ],
-      EveryoneThreadsNames: [
-        {
-          $ownerId: "hw7o5fh4w",
-          label: "Alice",
-        },
-        {
-          $ownerId: "4h5j6j",
-          label: "Miles",
-        },
-      ],
-
-      ByYouThreads: [],
-      ByYouThreadsNames: [],
-
-      FromTagsThreads: [],
-      FromTagsThreadsNames: [],
-
-      ThreadMessageId: "",
-      //BELOW Most Recent Initial For You
-      InitialMessages1: false,
-      InitialMessages2: false,
-      InitialMessages3: false,
-      InitialMessages4: false,
-
-      InitialByYouMsgs: [],
-      InitialByYouNames: [],
-
-      InitialFromTagsMsgs: [],
-      InitialFromTagsNames: [],
-
-      InitialByYouThreads: [],
-      InitialByYouThreadsNames: [],
-
-      InitialFromTagsThreads: [],
-      InitialFromTagsThreadsNames: [],
-
-      //ABOVE Most Recent Initial For You
-      //BELOW AutoUpdate Arrays
-      NewSO1: false,
-      NewSO2: false,
-
-      NewSONames: [],
-      NewSOMsgs: [],
-
-      NewSOThreadsNames: [],
-      NewSOThreads: [],
-
-      NewDM1: false,
-      NewDM2: false,
-      NewDM3: false,
-
-      //NewDMByYouNames: [], //Not required bc user would make themselves
-      //NewDMByYouMsgs: [],
-
-      NewDMByYouThreadsNames: [],
-      NewDMByYouThreads: [],
-
-      NewDMFromTagsNames: [],
-      NewDMFromTagsMsgs: [],
-
-      NewDMFromTagsThreadsNames: [],
-      NewDMFromTagsThreads: [],
-
-      //Above AutoUpdate Arrays^^^^
-
-      // SubmitMessages1: false, <- NOT USED?
-      // SubmitMessages2: false, <- NOT USED?
-
-      //DocumentSubmissionSeparatation^^^^
-
-      // handleThread={this.handleThread}
-      // pushNewSOtoView={this.pushNewSOtoView}
-      // pushNewDMtoView={this.pushNewDMtoView}
-
-      //MESSAGES PAGE STATE^^^^^
-
-      //GROUPS PAGE
-
-      isLoadingGroups: false, //Invite Pull, Active(Msgs) Pull, creating Group, deleting group, accepting invite
-      isLoadingGroup: false, // Msgs Pull, Members pull, sending msg,
-      //But that is done in Group -> !!???
-
-      isLoadingActiveGroups: true, //Separate spinner for Active so not lumped in with Groups.
-
-      isLoadingGroupInvite: false, //Control and alert in Groups and on GroupPage because that is the only way you will know if an invite was sent. sending invite,
-
-      InitialPullGROUPS: true,
-
-      dgtInvites: [], //Gets selfinvites && ToYouinvites
-      //dO THE MAP AND FILTERING ON THE ACTUAL DISPLAY COMPONENT
-
-      dgtInvitesNames: [],
-
-      dgtActiveGroups: [],
-
-      selectedGroup: "",
-      isGroupShowing: false,
-
-      GroupsMsgsToAdd: [], //handle in Group so not too difficult, just add together and use set for unique docId ->
-
-      sentGroupMsgError: false, //Thread to Group, all the below
-      sentGroupInviteError: false,
-      sentGroupInviteSuccess: false,
-      sendToNameInvite: "", //For invite
-
-      //GROUPS PAGE STATE^^^^^
 
       //WALLET PAGE
 
@@ -443,28 +280,6 @@ class App extends React.Component {
       WALLET_ToYouMsgs: [],
       WALLET_ToYouNames: [],
       WALLET_ToYouThreads: [],
-
-      //BELOW Most Recent Initial
-      // WALLET_Initial1: false,
-      // WALLET_Initial2: false,
-      // WALLET_Initial3: false,
-      // WALLET_Initial4: false,
-      // WALLET_Initial5: false,
-      // WALLET_Initial6: false,
-
-      // WALLET_InitialDGMAddr: "",
-      // WALLET_InitialIdentityInfo: "",
-      // WALLET_InitialIdentityRaw: "",
-
-      // WALLET_InitialByYouMsgs: [],
-      // WALLET_InitialByYouNames: [],
-      // WALLET_InitialByYouThreads: [],
-
-      // WALLET_InitialToYouMsgs: [],
-      // WALLET_InitialToYouNames: [],
-      // WALLET_InitialToYouThreads: [],
-
-      //ABOVE Most Recent Initial
 
       //BELOW Refresh
       WALLET_Refresh1: false,
@@ -2229,12 +2044,18 @@ class App extends React.Component {
               "base64"
             ).toJSON();
 
-            returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+            // // returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
             //console.log("newReq:\n", returnedDoc);
             docArray = [...docArray, returnedDoc];
             //docArray.push(returnedDoc)
           }
-          this.get2PartyFromYouNames(docArray);
+          //decryptMyReqs(theReqs, theMnemonic, whichNetwork)
+          let decryptedDocs = decryptMyReqs(
+            docArray,
+            this.state.mnemonic,
+            this.state.whichNetwork
+          );
+          this.get2PartyFromYouNames(decryptedDocs);
         }
       })
       .catch((e) => console.error("Something went wrong:\n", e))
@@ -2338,6 +2159,12 @@ class App extends React.Component {
   get2PartyFromYouResponses = (docArray, nameDocArray) => {
     const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
 
+    //*  ***   ***
+
+    //let unencryptedMyDocs = unEncryptMyDocs(docArray, this.state.mnemonic)
+
+    //*  ***   ***
+
     // This Below is to get unique set of FromYou Req doc ids
     let arrayOfReqIds = docArray.map((doc) => {
       return doc.$id;
@@ -2379,17 +2206,27 @@ class App extends React.Component {
             returnedDoc.toId,
             "base64"
           ).toJSON();
-          returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+          // returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
           //console.log("newResponse:\n", returnedDoc);
           responseDocArray = [...responseDocArray, returnedDoc];
         }
 
+        //*  ***   ***
+        // decryptMyResps(theResps, theMnemonic, whichNetwork)
+
+        let decryptedRespArray = decryptTheirResps(
+          responseDocArray,
+          this.state.mnemonic,
+          this.state.whichNetwork
+        );
+        //*  ***   ***
+
         this.setState(
           {
             TwoParty1: true,
-            ReqsFromYou: docArray,
+            ReqsFromYou: docArray, //
             ReqsFromYouNames: nameDocArray,
-            ReqsFromYouResponses: responseDocArray,
+            ReqsFromYouResponses: decryptedRespArray, //
           },
           () => this.check2PartyRace()
         );
@@ -2446,11 +2283,20 @@ class App extends React.Component {
               "base64"
             ).toJSON();
 
-            returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+            //use an if 100
+
+            //returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
             //console.log("newReq:\n", returnedDoc);
             docArray = [...docArray, returnedDoc];
           }
-          this.get2PartyToYouNames(docArray);
+          //decryptTheirReqs(theReqs, theMnemonic, whichNetwork)
+          let decryptedDocs = decryptTheirReqs(
+            docArray,
+            this.state.mnemonic,
+            this.state.whichNetwork
+          );
+
+          this.get2PartyToYouNames(decryptedDocs);
         }
       })
       .catch((e) => console.error("Something went wrong:\n", e))
@@ -2595,17 +2441,25 @@ class App extends React.Component {
             returnedDoc.toId,
             "base64"
           ).toJSON();
-          returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+          // returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
           //console.log("newResponse:\n", returnedDoc);
           responseDocArray = [...responseDocArray, returnedDoc];
         }
+
+        // decryptMyResps(theResps, theMnemonic, whichNetwork)
+
+        let decryptedRespArray = decryptMyResps(
+          responseDocArray,
+          this.state.mnemonic,
+          this.state.whichNetwork
+        );
 
         this.setState(
           {
             TwoParty2: true,
             ReqsToYou: docArray,
             ReqsToYouNames: nameDocArray,
-            ReqsToYouResponses: responseDocArray,
+            ReqsToYouResponses: decryptedRespArray, //responseDocArray,
           },
           () => this.check2PartyRace()
         );
@@ -2618,42 +2472,45 @@ class App extends React.Component {
 
   // BELOW - PAYMENT REQUEST
   // Request(Merch) - Confirm/sendTo2Party(Cust) - Release(Cust) -
-  show2PartyRequestModal = (inputNameDoc, inputNumber, message) => {
+  show2PartyRequestModal = (
+    inputNameDoc,
+    inputNumber //, message
+  ) => {
     this.setState({
       sendPmtMsgSuccess2Party: false,
       sendPmtMsgFailure2Party: false,
 
       sendToNameDoc2Party: inputNameDoc, // removed .label
       amountToSend2Party: Number((inputNumber * 100000000).toFixed(0)),
-      messageToSend2Party: message,
+      // messageToSend2Party: message,
       presentModal: "Confirm2PartyRequestModal",
       isModalShowing: true,
     });
   };
 
-  show2PartyRejectReplyModal = (
-    inputNameDoc, //name and OwnerId
-    reqMsgDoc //NEED FOR MSGID***
-    //inputNumber //Should already be in duffs
-  ) => {
-    this.setState({
-      sendSuccess2Party: false,
-      sendFailure2Party: false,
-      sendMsgSuccess2Party: false,
-      sendMsgFailure2Party: false,
-      sendPmtMsgSuccess2Party: false,
-      sendPmtMsgFailure2Party: false,
+  // show2PartyRejectReplyModal = (
+  //   inputNameDoc, //name and OwnerId
+  //   reqMsgDoc //NEED FOR MSGID***
+  //   //inputNumber //Should already be in duffs
+  // ) => {
+  //   this.setState({
+  //     sendSuccess2Party: false,
+  //     sendFailure2Party: false,
+  //     sendMsgSuccess2Party: false,
+  //     sendMsgFailure2Party: false,
+  //     sendPmtMsgSuccess2Party: false,
+  //     sendPmtMsgFailure2Party: false,
 
-      requestPmtReqDoc2Party: reqMsgDoc,
-      sendToNameDoc2Party: inputNameDoc,
-      amountToSend2Party: Number(reqMsgDoc.amt),
-      //
-      presentModal: "RejectReqModal",
-      isModalShowing: true,
-    });
-  };
+  //     requestPmtReqDoc2Party: reqMsgDoc,
+  //     sendToNameDoc2Party: inputNameDoc,
+  //     amountToSend2Party: Number(reqMsgDoc.amt),
+  //     //
+  //     presentModal: "RejectReqModal",
+  //     isModalShowing: true,
+  //   });
+  // };
 
-  showAddMsgToRequestModal = (theRequest, theRequestIndex, theResponseName) => {
+  showAddMsgToRequestModal = (theRequest, theResponseName, pubKeyDoc) => {
     let requestIndex = this.state.ReqsFromYou.findIndex((req) => {
       return req.$id === theRequest.$id;
     });
@@ -2661,6 +2518,7 @@ class App extends React.Component {
       requestToEdit: theRequest,
       requestToEditIndex: requestIndex, //<- Need this for the editingfunction!!
       signingToSendToWhomNameDoc: theResponseName,
+      responsePubKeyDoc2Party: pubKeyDoc,
 
       presentModal: "AddMsgToRequestModal",
       isModalShowing: true,
@@ -2680,6 +2538,7 @@ class App extends React.Component {
         this.state.skipSynchronizationBeforeHeight
       )
     );
+    let propsToEncrypt;
 
     const edit2PartyDoc = async () => {
       const { platform } = client;
@@ -2691,12 +2550,46 @@ class App extends React.Component {
         identity = await platform.identities.get(this.state.identity);
       } // Your identity ID
 
+      // *** *** ***
+
       let theTime = Date.now();
 
-      let theMsgObject = {
-        msg: addedMessage,
-        time: theTime,
+      let theMsgObject = [];
+
+      if (addedMessage !== "") {
+        //SHouldnt get here anyway..
+        theMsgObject = [
+          {
+            msg: addedMessage,
+            time: theTime,
+          },
+        ];
+      } else {
+        theMsgObject = [];
+      }
+
+      propsToEncrypt = {
+        txId: this.state.requestToEdit.txId,
+        sig: this.state.requestToEdit.sigObject,
+        msgs: [...theMsgObject, ...this.state.requestToEdit.msgObject],
       };
+
+      console.log("propsToEncrypt: ", propsToEncrypt);
+
+      let timeStamp = this.state.requestToEdit.$createdAt - 1729873000000;
+
+      //SEND OBJECT TO ENCRYPT ->
+
+      let encryptedProps = encryptMyReq(
+        timeStamp,
+        propsToEncrypt,
+        // this.state.Your2PartyPubKey
+        this.state.responsePubKeyDoc2Party,
+        this.state.mnemonic,
+        this.state.whichNetwork
+      );
+
+      // *** *** ***
 
       const [document] = await client.platform.documents.get(
         "TwoPartyContract.request",
@@ -2705,17 +2598,16 @@ class App extends React.Component {
         }
       );
 
-      //Add message is just push to object!! ->
-      //console.log(typeof this.state.requestToEdit.msgObject);
+      //CHANGE THE DOCUMENT.SET ->
 
-      let theMsgsToAddTo = [...this.state.requestToEdit.msgObject];
-
-      theMsgsToAddTo.push(theMsgObject);
+      // let theMsgsToAddTo = [...this.state.requestToEdit.msgObject];
+      // theMsgsToAddTo.push(theMsgObject);
 
       //console.log("theMsgsToAddTo", theMsgsToAddTo);
 
       if (addedMessage !== "") {
-        document.set("msgObject", JSON.stringify(theMsgsToAddTo));
+        document.set("req", Buffer.from(encryptedProps.req).toString("base64"));
+        document.set("fromReq", encryptedProps.fromReq);
       }
 
       await platform.documents.broadcast({ replace: [document] }, identity);
@@ -2741,11 +2633,19 @@ class App extends React.Component {
           "base64"
         ).toJSON();
 
-        returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+        //returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        // let propsToEncrypt = {
+        //   txId: this.state.requestToEdit.txId,
+        //   sig: this.state.requestToEdit.sigObject,
+        //   msgs: [theMsgObject, ...this.state.requestToEdit.msgObject],
+        // };
+
+        returnedDoc.txId = propsToEncrypt.txId;
+        returnedDoc.sigObject = propsToEncrypt.sig;
+        returnedDoc.msgObject = propsToEncrypt.msgs;
 
         console.log("Edited 2Party Req:\n", returnedDoc);
-
-        //
 
         let editedRequests = this.state.ReqsFromYou;
 
@@ -2770,11 +2670,7 @@ class App extends React.Component {
       .finally(() => client.disconnect());
   };
 
-  showAddMessageToResponseModal = (
-    theResponse,
-    theResponseIndex,
-    theRequestName
-  ) => {
+  showAddMessageToResponseModal = (theResponse, theRequestName, pubKeyDoc) => {
     let responseIndex = this.state.ReqsToYouResponses.findIndex((resp) => {
       return resp.$id === theResponse.$id;
     });
@@ -2782,6 +2678,7 @@ class App extends React.Component {
       responseToEdit: theResponse,
       responseToEditIndex: responseIndex, //<- Need this for the editingfunction!!
       signingToSendToWhomNameDoc: theRequestName,
+      requestPubKeyDoc2Party: pubKeyDoc,
 
       presentModal: "AddMessageToResponseModal",
       isModalShowing: true,
@@ -2802,12 +2699,45 @@ class App extends React.Component {
       )
     );
 
+    // *** *** ***
+
     let theTime = Date.now();
 
-    let theMsgObject = {
-      msg: addedMessage,
-      time: theTime,
+    let theMsgObject = [];
+
+    if (addedMessage !== "") {
+      //SHouldnt get here anyway..
+      theMsgObject = [
+        {
+          msg: addedMessage,
+          time: theTime,
+        },
+      ];
+    } else {
+      theMsgObject = [];
+    }
+
+    let propsToEncrypt = {
+      txId: this.state.responseToEdit.txId,
+      refund: this.state.responseToEdit.refundTxId,
+      sig: this.state.responseToEdit.sigObject,
+      msgs: [...theMsgObject, ...this.state.responseToEdit.msgObject],
     };
+
+    console.log("propsToEncrypt: ", propsToEncrypt);
+
+    //SEND OBJECT TO ENCRYPT ->
+
+    let encryptedProps = encryptMyResp(
+      this.state.responseToEdit.reqTime,
+      propsToEncrypt,
+      // this.state.Your2PartyPubKey
+      this.state.requestPubKeyDoc2Party,
+      this.state.mnemonic,
+      this.state.whichNetwork
+    );
+
+    // *** *** ***
 
     const submit2PartyDoc = async () => {
       const { platform } = client;
@@ -2826,18 +2756,14 @@ class App extends React.Component {
         }
       );
 
-      // if (this.state.responseToEdit.description !== rentalObject.description) {
-      //   document.set("description", rentalObject.description);
-      // }
-
-      let theMsgsToAddTo = [...this.state.responseToEdit.msgObject];
-
-      theMsgsToAddTo.push(theMsgObject);
-
-      //console.log("theMsgsToAddTo", theMsgsToAddTo);
+      //CHANGE THE DOCUMENT.SET ->
 
       if (addedMessage !== "") {
-        document.set("msgObject", JSON.stringify(theMsgsToAddTo));
+        document.set(
+          "resp",
+          Buffer.from(encryptedProps.resp).toString("base64")
+        );
+        document.set("fromResp", encryptedProps.fromResp);
       }
 
       await platform.documents.broadcast({ replace: [document] }, identity);
@@ -2863,11 +2789,21 @@ class App extends React.Component {
 
         returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
 
-        returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+        //returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        // let propsToEncrypt = {
+        //   txId: this.state.responseToEdit.txId,
+        //   refund: this.state.responseToEdit.refundTxId,
+        //   sig: this.state.responseToEdit.sigObject,
+        //   msgs: [...theMsgObject, ...this.state.responseToEdit.msgObject],
+        // };
+
+        returnedDoc.txId = propsToEncrypt.txId;
+        returnedDoc.refundTxId = propsToEncrypt.refund;
+        returnedDoc.sigObject = propsToEncrypt.sig;
+        returnedDoc.msgObject = propsToEncrypt.msgs;
 
         console.log("Edited 2Party Doc:\n", returnedDoc);
-
-        //
 
         let editedResponses = this.state.ReqsToYouResponses;
 
@@ -2916,14 +2852,6 @@ class App extends React.Component {
       isModalShowing: true,
     });
   };
-
-  //showReleaseFunds2PartyModal
-
-  //showRetrieveFunds2PartyModal
-
-  //
-  //
-  //
 
   // ^^^^ - PAYMENT REQUEST
 
@@ -3077,22 +3005,6 @@ class App extends React.Component {
 
     let docProperties = {};
 
-    //get time
-    let theTime = Date.now();
-
-    let theMsgObject = [];
-
-    if (this.state.messageToSend2Party !== "") {
-      theMsgObject = JSON.stringify([
-        {
-          msg: this.state.messageToSend2Party,
-          time: theTime,
-        },
-      ]);
-    } else {
-      theMsgObject = JSON.stringify([]);
-    }
-
     const submitDocument = async () => {
       const { platform } = client;
       // const identity = await platform.identities.get(this.state.identity); // Your identity ID
@@ -3107,11 +3019,14 @@ class App extends React.Component {
       docProperties = {
         toId: this.state.sendToNameDoc2Party.$ownerId,
         forId: this.state.sendToNameDoc2Party.$ownerId,
-        txId: "", //Blank txId not paid out of multisig Yet
+        req: "100",
+        fromReq: "100",
         amt: this.state.amountToSend2Party,
-        sigObject: "",
-        msgObject: theMsgObject,
-        encryptObject: "",
+
+        // txId: "", //Blank txId not paid out of multisig Yet
+        // sigObject: "",
+        // msgObject: theMsgObject,
+        //encryptObject: "",
       };
 
       //console.log(docProperties);
@@ -3153,7 +3068,19 @@ class App extends React.Component {
           "base64"
         ).toJSON();
 
-        returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+        //Buffer.from(returnedDoc.req).toString()
+
+        // propsToEncrypt = {
+        //   txId: this.state.requestToEdit.txId,
+        //   sig: this.state.requestToEdit.sigObject,
+        //   msgs: [...theMsgObject, ...this.state.requestToEdit.msgObject],
+        // };
+
+        returnedDoc.txId = "";
+        returnedDoc.sigObject = "";
+        returnedDoc.msgObject = [];
+
+        //returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
 
         console.log("Req Document:\n", returnedDoc);
 
@@ -3264,7 +3191,7 @@ class App extends React.Component {
         recipient: scriptAddress,
         satoshis: dashAmt, //Must be a string!! -> no.
       });
-      //return transaction; //Use to disable TX
+      //return transaction.id; //Use to disable TX
       return account.broadcastTransaction(transaction);
     };
 
@@ -3310,15 +3237,45 @@ class App extends React.Component {
     let theMsgObject = [];
 
     if (addedMessage !== "") {
-      theMsgObject = JSON.stringify([
+      theMsgObject = [
         {
           msg: addedMessage,
           time: theTime,
         },
-      ]);
+      ];
     } else {
-      theMsgObject = JSON.stringify([]);
+      theMsgObject = [];
     }
+
+    let propsToEncrypt = {
+      txId: theTxId,
+      refund: "",
+      sig: "",
+      msgs: theMsgObject,
+    };
+
+    console.log("propsToEncrypt: ", propsToEncrypt);
+
+    // encryptMyResp(
+    //   timeStamp,
+    // theRespInput,
+    // theRequestPubKeyDoc,
+    // //theResponsePubKeyDoc
+    // theMnemonic,
+    // whichNetwork
+    // )
+
+    let timeStamp =
+      this.state.requestPmtReqDoc2Party.$createdAt - 1729873000000;
+
+    let encryptedProps = encryptMyResp(
+      timeStamp,
+      propsToEncrypt,
+      this.state.requestPubKeyDoc2Party,
+      // this.state.Your2PartyPubKey
+      this.state.mnemonic,
+      this.state.whichNetwork
+    );
 
     const submitDocuments = async () => {
       const { platform } = client;
@@ -3330,15 +3287,19 @@ class App extends React.Component {
         identity = await platform.identities.get(this.state.identity);
       } // Your identity ID
 
+      console.log(encryptedProps);
+
       docProperties = {
         reqId: this.state.requestPmtReqDoc2Party.$id,
         toId: this.state.requestPmtReqDoc2Party.$ownerId,
-        txId: theTxId,
-        refundTxId: "",
         amtMatch: this.state.amountToSend2Party,
-        sigObject: "",
-        msgObject: theMsgObject,
-        encryptObject: "",
+        reqTime: timeStamp,
+        resp: Buffer.from(encryptedProps.resp).toString("base64"),
+        fromResp: encryptedProps.fromResp, //Buffer.from(encryptedProps.fromResp).toString("base64"),
+        //txId: theTxId,
+        //refundTxId: "",
+        //sigObject: "",
+        // msgObject: theMsgObject,
       };
 
       // Create the note document
@@ -3377,8 +3338,22 @@ class App extends React.Component {
         ).toJSON();
 
         returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
+        // let propsToEncrypt = {
+        //   txId: theTxId,
+        //   refund: "",
+        //   sig: "",
+        //   msgs: theMsgObject,
+        // };
 
-        returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+        //txId: theTxId,
+        //refundTxId: "",
+        //sigObject: "",
+        // msgObject: theMsgObject,
+
+        returnedDoc.txId = propsToEncrypt.txId;
+        returnedDoc.refundTxId = propsToEncrypt.refund;
+        returnedDoc.sigObject = propsToEncrypt.sig;
+        returnedDoc.msgObject = propsToEncrypt.msgs;
 
         console.log("response Doc:\n", returnedDoc);
 
@@ -3409,128 +3384,128 @@ class App extends React.Component {
       .finally(() => client.disconnect());
   };
 
-  rejectOrReplyRequest = (addedMessage, ifReject) => {
-    this.setState({
-      isLoadingRefresh_WALLET: true,
-      isLoadingWallet: true,
+  // rejectOrReplyRequest = (addedMessage, ifReject) => {
+  //   this.setState({
+  //     isLoadingRefresh_WALLET: true,
+  //     isLoadingWallet: true,
 
-      isLoadingButtons_WALLET: true,
-      isLoadingForm_WALLET: true,
-      isLoadingMsgs_WALLET: true,
-    });
+  //     isLoadingButtons_WALLET: true,
+  //     isLoadingForm_WALLET: true,
+  //     isLoadingMsgs_WALLET: true,
+  //   });
 
-    //console.log(addedMessage);
+  //   //console.log(addedMessage);
 
-    const client = new Dash.Client(
-      dapiClient(
-        this.state.whichNetwork,
-        this.state.mnemonic,
-        this.state.skipSynchronizationBeforeHeight
-      )
-    );
+  //   const client = new Dash.Client(
+  //     dapiClient(
+  //       this.state.whichNetwork,
+  //       this.state.mnemonic,
+  //       this.state.skipSynchronizationBeforeHeight
+  //     )
+  //   );
 
-    let docProperties = {};
+  //   let docProperties = {};
 
-    const submitDocuments = async () => {
-      const { platform } = client;
+  //   const submitDocuments = async () => {
+  //     const { platform } = client;
 
-      let identity = "";
-      if (this.state.identityRaw !== "") {
-        identity = this.state.identityRaw;
-      } else {
-        identity = await platform.identities.get(this.state.identity);
-      } // Your identity ID
-      if (ifReject) {
-        docProperties = {
-          msg: addedMessage,
-          msgId: this.state.WALLET_requestPmtReqDoc.$id,
-          txId: "rej",
-        };
-      } else {
-        docProperties = {
-          msg: addedMessage,
-          msgId: this.state.WALLET_requestPmtReqDoc.$id,
-        };
-      }
+  //     let identity = "";
+  //     if (this.state.identityRaw !== "") {
+  //       identity = this.state.identityRaw;
+  //     } else {
+  //       identity = await platform.identities.get(this.state.identity);
+  //     } // Your identity ID
+  //     if (ifReject) {
+  //       docProperties = {
+  //         msg: addedMessage,
+  //         msgId: this.state.WALLET_requestPmtReqDoc.$id,
+  //         txId: "rej",
+  //       };
+  //     } else {
+  //       docProperties = {
+  //         msg: addedMessage,
+  //         msgId: this.state.WALLET_requestPmtReqDoc.$id,
+  //       };
+  //     }
 
-      // Create the note document
-      const dgmDocument = await platform.documents.create(
-        "DGMContract.dgmthr",
-        identity,
-        docProperties
-      );
+  //     // Create the note document
+  //     const dgmDocument = await platform.documents.create(
+  //       "DGMContract.dgmthr",
+  //       identity,
+  //       docProperties
+  //     );
 
-      //console.log(dsoDocument.toJSON());
+  //     //console.log(dsoDocument.toJSON());
 
-      //############################################################
-      //This below disconnects the document sending..***
+  //     //############################################################
+  //     //This below disconnects the document sending..***
 
-      // return dgmDocument;
+  //     // return dgmDocument;
 
-      //This is to disconnect the Document Creation***
+  //     //This is to disconnect the Document Creation***
 
-      //############################################################
+  //     //############################################################
 
-      const documentBatch = {
-        create: [dgmDocument], // Document(s) to create
-      };
+  //     const documentBatch = {
+  //       create: [dgmDocument], // Document(s) to create
+  //     };
 
-      await platform.documents.broadcast(documentBatch, identity);
-      return dgmDocument;
-    };
+  //     await platform.documents.broadcast(documentBatch, identity);
+  //     return dgmDocument;
+  //   };
 
-    submitDocuments()
-      .then((d) => {
-        let returnedDoc = d.toJSON();
-        console.log("Thread Documents:\n", returnedDoc);
+  //   submitDocuments()
+  //     .then((d) => {
+  //       let returnedDoc = d.toJSON();
+  //       console.log("Thread Documents:\n", returnedDoc);
 
-        let newThread;
+  //       let newThread;
 
-        // required: [' 'msg','msgId', "$createdAt", "$updatedAt"],
-        if (ifReject) {
-          newThread = {
-            $ownerId: returnedDoc.$ownerId,
-            $id: returnedDoc.$id,
-            msgId: this.state.WALLET_requestPmtReqDoc.$id,
-            msg: addedMessage,
-            $createdAt: returnedDoc.$createdAt,
-            txId: "rej",
-          };
-        } else {
-          newThread = {
-            $ownerId: returnedDoc.$ownerId,
-            $id: returnedDoc.$id,
-            msgId: this.state.WALLET_requestPmtReqDoc.$id,
-            msg: addedMessage,
-            $createdAt: returnedDoc.$createdAt,
-          };
-        }
+  //       // required: [' 'msg','msgId', "$createdAt", "$updatedAt"],
+  //       if (ifReject) {
+  //         newThread = {
+  //           $ownerId: returnedDoc.$ownerId,
+  //           $id: returnedDoc.$id,
+  //           msgId: this.state.WALLET_requestPmtReqDoc.$id,
+  //           msg: addedMessage,
+  //           $createdAt: returnedDoc.$createdAt,
+  //           txId: "rej",
+  //         };
+  //       } else {
+  //         newThread = {
+  //           $ownerId: returnedDoc.$ownerId,
+  //           $id: returnedDoc.$id,
+  //           msgId: this.state.WALLET_requestPmtReqDoc.$id,
+  //           msg: addedMessage,
+  //           $createdAt: returnedDoc.$createdAt,
+  //         };
+  //       }
 
-        this.setState({
-          WALLET_ByYouThreads: [newThread, ...this.state.WALLET_ByYouThreads],
+  //       this.setState({
+  //         WALLET_ByYouThreads: [newThread, ...this.state.WALLET_ByYouThreads],
 
-          isLoadingRefresh_WALLET: false,
-          isLoadingWallet: false,
-          isLoadingButtons_WALLET: false,
-          isLoadingForm_WALLET: false,
+  //         isLoadingRefresh_WALLET: false,
+  //         isLoadingWallet: false,
+  //         isLoadingButtons_WALLET: false,
+  //         isLoadingForm_WALLET: false,
 
-          isLoadingMsgs_WALLET: false,
-        });
-      })
-      .catch((e) => {
-        this.setState({
-          isLoadingRefresh_WALLET: false,
-          isLoadingWallet: false,
-          isLoadingButtons_WALLET: false,
-          isLoadingForm_WALLET: false,
+  //         isLoadingMsgs_WALLET: false,
+  //       });
+  //     })
+  //     .catch((e) => {
+  //       this.setState({
+  //         isLoadingRefresh_WALLET: false,
+  //         isLoadingWallet: false,
+  //         isLoadingButtons_WALLET: false,
+  //         isLoadingForm_WALLET: false,
 
-          isLoadingMsgs_WALLET: false,
-        });
+  //         isLoadingMsgs_WALLET: false,
+  //       });
 
-        console.error("Something went wrong creating new thread:\n", e);
-      })
-      .finally(() => client.disconnect());
-  };
+  //       console.error("Something went wrong creating new thread:\n", e);
+  //     })
+  //     .finally(() => client.disconnect());
+  // };
 
   // ^^^ FOR PAYMENT REQUESTS**
   //
@@ -3538,8 +3513,8 @@ class App extends React.Component {
   showReleaseFundsModal = (
     signatureToAdd,
     theResponse,
-    index,
-    toWhomNameDoc
+    toWhomNameDoc,
+    pubKeyDoc
   ) => {
     //console.log("signatureToAdd", signatureToAdd);
     //find the index
@@ -3551,6 +3526,7 @@ class App extends React.Component {
         signature2Party: signatureToAdd,
         responseToEdit: theResponse,
         responseToEditIndex: responseIndex, //<- Need this for the editingfunction!!
+        requestPubKeyDoc2Party: pubKeyDoc,
         signingToSendToWhomNameDoc: toWhomNameDoc,
       },
       () => this.showModal("Release2PartyModal")
@@ -3571,12 +3547,44 @@ class App extends React.Component {
       )
     );
 
-    let theTime = Date.now();
+    // *** *** ***
 
-    let theMsgObject = {
-      msg: addedMessage,
-      time: theTime,
+    let theMsgObject = [];
+
+    if (addedMessage !== "") {
+      let theTime = Date.now();
+
+      theMsgObject = [
+        {
+          msg: addedMessage,
+          time: theTime,
+        },
+      ];
+    }
+
+    let propsToEncrypt = {
+      txId: this.state.responseToEdit.txId,
+      refund: this.state.responseToEdit.refundTxId,
+      sig: this.state.signature2Party.signature.toString(),
+      //sig: this.state.responseToEdit.sigObject,
+      msgs: [...theMsgObject, ...this.state.responseToEdit.msgObject],
     };
+
+    //console.log("propsToEncrypt: ", propsToEncrypt);
+
+    //SEND OBJECT TO ENCRYPT ->
+
+    let encryptedProps = encryptMyResp(
+      this.state.responseToEdit.reqTime,
+      propsToEncrypt,
+      // this.state.Your2PartyPubKey
+      this.state.requestPubKeyDoc2Party,
+      this.state.mnemonic,
+      this.state.whichNetwork
+    );
+
+    // *** *** ***
+
     const submit2PartyDoc = async () => {
       const { platform } = client;
 
@@ -3596,28 +3604,21 @@ class App extends React.Component {
 
       //console.log("signatureToAdd", this.state.signatureToAdd);
       //RELEASE THE FUNDS
-      document.set(
-        "sigObject",
-        this.state.signature2Party.signature.toString()
-      );
-
-      // if (this.state.responseToEdit.description !== rentalObject.description) {
-      //   document.set("description", rentalObject.description);
+      // document.set(
+      //   "sigObject",
+      //   this.state.signature2Party.signature.toString()
+      // );
+      // let theMsgsToAddTo = [...this.state.responseToEdit.msgObject];
+      // theMsgsToAddTo.push(theMsgObject);
+      // //console.log("theMsgsToAddTo", theMsgsToAddTo);
+      // if (addedMessage !== "") {
+      //   document.set("msgObject", JSON.stringify(theMsgsToAddTo));
       // }
 
-      //Add message is just push to object!! ->
+      //CHANGE THE DOCUMENT.SET ->
 
-      //console.log(typeof this.state.responseToEdit.msgObject);
-
-      let theMsgsToAddTo = [...this.state.responseToEdit.msgObject];
-
-      theMsgsToAddTo.push(theMsgObject);
-
-      //console.log("theMsgsToAddTo", theMsgsToAddTo);
-
-      if (addedMessage !== "") {
-        document.set("msgObject", JSON.stringify(theMsgsToAddTo));
-      }
+      document.set("resp", Buffer.from(encryptedProps.resp).toString("base64"));
+      document.set("fromResp", encryptedProps.fromResp);
 
       await platform.documents.broadcast({ replace: [document] }, identity);
       return document;
@@ -3642,11 +3643,14 @@ class App extends React.Component {
 
         returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
 
-        returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+        //returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        returnedDoc.txId = propsToEncrypt.txId;
+        returnedDoc.refundTxId = propsToEncrypt.refund;
+        returnedDoc.sigObject = propsToEncrypt.sig;
+        returnedDoc.msgObject = propsToEncrypt.msgs;
 
         console.log("Edited 2Party Doc:\n", returnedDoc);
-
-        //
 
         let editedResponses = this.state.ReqsToYouResponses;
 
@@ -3674,7 +3678,6 @@ class App extends React.Component {
     theResponsePubKeyDoc,
     toWhomNameDoc,
     theRequest,
-    theRequestIndex,
     theTx
   ) => {
     let requestIndex = this.state.ReqsFromYou.findIndex((req) => {
@@ -3714,19 +3717,6 @@ class App extends React.Component {
     const payToRecipient = async () => {
       const account = await client.getWalletAccount();
 
-      // let dashAmt = this.state.amountToSend2Party;
-      // console.log("sats sent in TX:", dashAmt);
-      // console.log(typeof dashAmt);
-
-      // let amt = dashAmt.toFixed(0).toString();
-      // console.log(amt);
-      // console.log(typeof amt);
-
-      // const transaction = account.createTransaction({
-      //   recipient: scriptAddress,
-      //   satoshis: dashAmt, //Must be a string!! -> no.
-      // });
-
       // createFullTX(
       //   theRequest,
       //   theRequestPubKeyDoc,
@@ -3749,7 +3739,7 @@ class App extends React.Component {
         this.state.accountAddress
       );
 
-      // return transaction.id; //Use to disable TX
+      //return transaction.id; //Use to disable TX
       return account.broadcastTransaction(transaction);
     };
 
@@ -3786,6 +3776,44 @@ class App extends React.Component {
       )
     );
 
+    // *** *** ***
+
+    let theMsgObject = [];
+
+    if (addedMessage !== "") {
+      let theTime = Date.now();
+
+      theMsgObject = [
+        {
+          msg: addedMessage,
+          time: theTime,
+        },
+      ];
+    }
+
+    let propsToEncrypt = {
+      txId: theTxId,
+      sig: this.state.requestToEdit.sigObject,
+      msgs: [...theMsgObject, ...this.state.requestToEdit.msgObject],
+    };
+
+    //console.log("propsToEncrypt: ", propsToEncrypt);
+
+    let timeStamp = this.state.requestToEdit.$createdAt - 1729873000000;
+
+    //SEND OBJECT TO ENCRYPT ->
+
+    let encryptedProps = encryptMyReq(
+      timeStamp,
+      propsToEncrypt,
+      // this.state.Your2PartyPubKey
+      this.state.responsePubKeyDocToUse,
+      this.state.mnemonic,
+      this.state.whichNetwork
+    );
+
+    // *** *** ***
+
     const edit2PartyDoc = async () => {
       const { platform } = client;
 
@@ -3796,13 +3824,6 @@ class App extends React.Component {
         identity = await platform.identities.get(this.state.identity);
       } // Your identity ID
 
-      let theTime = Date.now();
-
-      let theMsgObject = {
-        msg: addedMessage,
-        time: theTime,
-      };
-
       const [document] = await client.platform.documents.get(
         "TwoPartyContract.request",
         {
@@ -3812,20 +3833,18 @@ class App extends React.Component {
 
       //console.log("signatureToAdd", this.state.signatureToAdd);
       //RELEASE THE FUNDS
-      document.set("txId", theTxId);
+      // document.set("txId", theTxId);
+      // let theMsgsToAddTo = [...this.state.requestToEdit.msgObject];
+      // theMsgsToAddTo.push(theMsgObject);
+      // //console.log("theMsgsToAddTo", theMsgsToAddTo);
+      // if (addedMessage !== "") {
+      //   document.set("msgObject", JSON.stringify(theMsgsToAddTo));
+      // }
 
-      //Add message is just push to object!! ->
-      //console.log(typeof this.state.requestToEdit.msgObject);
+      //CHANGE THE DOCUMENT.SET ->
 
-      let theMsgsToAddTo = [...this.state.requestToEdit.msgObject];
-
-      theMsgsToAddTo.push(theMsgObject);
-
-      //console.log("theMsgsToAddTo", theMsgsToAddTo);
-
-      if (addedMessage !== "") {
-        document.set("msgObject", JSON.stringify(theMsgsToAddTo));
-      }
+      document.set("req", Buffer.from(encryptedProps.req).toString("base64"));
+      document.set("fromReq", encryptedProps.fromReq);
 
       await platform.documents.broadcast({ replace: [document] }, identity);
       return document;
@@ -3850,11 +3869,19 @@ class App extends React.Component {
           "base64"
         ).toJSON();
 
-        returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+        //returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        // let propsToEncrypt = {
+        //   txId: this.state.requestToEdit.txId,
+        //   sig: this.state.requestToEdit.sigObject,
+        //   msgs: [theMsgObject, ...this.state.requestToEdit.msgObject],
+        // };
+
+        returnedDoc.txId = propsToEncrypt.txId;
+        returnedDoc.sigObject = propsToEncrypt.sig;
+        returnedDoc.msgObject = propsToEncrypt.msgs;
 
         console.log("Edited 2Party Req:\n", returnedDoc);
-
-        //
 
         let editedRequests = this.state.ReqsFromYou;
 
@@ -3884,6 +3911,405 @@ class App extends React.Component {
       .finally(() => client.disconnect());
   };
 
+  //EDIT ALL 2 BELOW -> Check ->
+  //
+
+  showRefundFundsModal = (
+    signatureToAdd,
+    theRequest,
+    toWhomNameDoc,
+    theResponsePubKeyDoc
+  ) => {
+    //console.log("signatureToAdd", signatureToAdd);
+    //find the index
+    let requestIndex = this.state.ReqsFromYou.findIndex((req) => {
+      return req.$id === theRequest.$id;
+    });
+    this.setState(
+      {
+        signature2Party: signatureToAdd,
+        responsePubKeyDocToUse: theResponsePubKeyDoc,
+        requestToEdit: theRequest,
+        requestToEditIndex: requestIndex, //<- Need this for the editingfunction!!
+        signingToSendToWhomNameDoc: toWhomNameDoc,
+      },
+      () => this.showModal("Refund2PartyModal")
+    );
+  };
+
+  editRefundFunds = (addedMessage) => {
+    //  console.log("Called Edit Refund Funds");
+    this.setState({
+      isLoading2Party: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    // *** *** ***
+
+    let theMsgObject = [];
+
+    if (addedMessage !== "") {
+      let theTime = Date.now();
+
+      theMsgObject = [
+        {
+          msg: addedMessage,
+          time: theTime,
+        },
+      ];
+    }
+
+    let propsToEncrypt = {
+      txId: this.state.requestToEdit.txId,
+      sig: this.state.signature2Party.signature.toString(),
+      msgs: [...theMsgObject, ...this.state.requestToEdit.msgObject],
+    };
+
+    console.log("propsToEncrypt: ", propsToEncrypt);
+
+    let timeStamp = this.state.requestToEdit.$createdAt - 1729873000000;
+
+    //SEND OBJECT TO ENCRYPT ->
+
+    let encryptedProps = encryptMyReq(
+      timeStamp,
+      propsToEncrypt,
+      // this.state.Your2PartyPubKey
+      this.state.responsePubKeyDocToUse,
+      this.state.mnemonic,
+      this.state.whichNetwork
+    );
+
+    // *** *** ***
+
+    const submit2PartyDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      }
+
+      const [document] = await client.platform.documents.get(
+        "TwoPartyContract.request",
+        {
+          where: [["$id", "==", this.state.requestToEdit.$id]],
+        }
+      );
+
+      //console.log("signatureToAdd", this.state.signatureToAdd);
+      //RELEASE THE FUNDS
+      // document.set(
+      //   "sigObject",
+      //   this.state.signature2Party.signature.toString()
+      // );
+      // //console.log(typeof this.state.requestToEdit.msgObject);
+      // let theMsgsToAddTo = [...this.state.requestToEdit.msgObject];
+      // theMsgsToAddTo.push(theMsgObject);
+      // //console.log("theMsgsToAddTo", theMsgsToAddTo);
+      // if (addedMessage !== "") {
+      //   document.set("msgObject", JSON.stringify(theMsgsToAddTo));
+      // }
+
+      //CHANGE THE DOCUMENT.SET ->
+
+      document.set("req", Buffer.from(encryptedProps.req).toString("base64"));
+      document.set("fromReq", encryptedProps.fromReq);
+
+      await platform.documents.broadcast({ replace: [document] }, identity);
+      return document;
+
+      //############################################################
+      //This below disconnects the document editing..***
+
+      //return document;
+
+      //This is to disconnect the Document editing***
+      //############################################################
+    };
+
+    submit2PartyDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
+
+        returnedDoc.forId = Identifier.from(
+          returnedDoc.forId,
+          "base64"
+        ).toJSON();
+
+        // returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        returnedDoc.txId = propsToEncrypt.txId;
+        returnedDoc.sigObject = propsToEncrypt.sig;
+        returnedDoc.msgObject = propsToEncrypt.msgs;
+
+        console.log("Edited 2Party Doc:\n", returnedDoc);
+
+        let editedRequests = this.state.ReqsFromYou;
+
+        editedRequests.splice(this.state.requestToEditIndex, 1, returnedDoc);
+
+        this.setState(
+          {
+            ReqsFromYou: editedRequests,
+            isLoading2Party: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong with Request Edit:\n", e);
+        this.setState({
+          isLoading2Party: false,
+        });
+      })
+      .finally(() => client.disconnect());
+  };
+
+  showWithdrawRefundModal = (
+    theResponse,
+    theRequestPubKeyDoc, //theResponsePubKeyDoc
+    toWhomNameDoc,
+    theRequest,
+    theTx
+  ) => {
+    let responseIndex = this.state.ReqsToYouResponses.findIndex((resp) => {
+      return resp.$id === theResponse.$id;
+    });
+    this.setState(
+      {
+        requestToUse: theRequest,
+        requestPubKeyDocToUse: theRequestPubKeyDoc,
+        signingToSendToWhomNameDoc: toWhomNameDoc, //This will be the responseName
+        responseToEdit: theResponse,
+        responseToEditIndex: responseIndex,
+        txToUse: theTx,
+      },
+      () => this.showModal("WithdrawRefundModal")
+    );
+  };
+
+  //THIS IS THE ACTUAL PAYMENT AND TX
+  payWithdrawRefund = (addedMessage) => {
+    // console.log(addedMessage);
+
+    this.setState({
+      isLoading2Party: true,
+      isLoadingWallet: true,
+      //messageToSend2Party: "MSGFORpaidthr",
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const payToRecipient = async () => {
+      const account = await client.getWalletAccount();
+
+      // createFullTX(
+      //   theRequest,
+      //   theRequestPubKeyDoc,
+      //   theResponse,
+      //   theResponsePubKeyDoc,
+      //   whichNetwork,
+      //   theTx, //txId,script,amt
+      //   theMnemonic,
+      //   theAddress
+      // )
+
+      let transaction = createFullTXRefund(
+        this.state.requestToUse,
+        this.state.requestPubKeyDocToUse,
+        this.state.responseToEdit,
+        this.state.Your2PartyPubKey,
+        this.state.whichNetwork,
+        this.state.txToUse,
+        this.state.mnemonic,
+        this.state.accountAddress
+      );
+
+      return transaction.id; //Use to disable TX
+      // return account.broadcastTransaction(transaction);
+    };
+
+    payToRecipient()
+      .then((d) => {
+        console.log("Payment TX:\n", d);
+
+        this.setState(
+          {
+            sendSuccess2Party: true, //TX go through //DO I NEED THIS? BC THE DOCUMENT WILL JUST CHANGE TO REFLECT
+          },
+          () => this.editWithdrawRefundRespWithTX(d, addedMessage)
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+        this.setState({
+          isLoading2Party: false,
+          isLoadingWallet: false,
+          sendFailure2Party: true, //TX go through
+        });
+      });
+    //.finally(() => client.disconnect()); // <- Caused Error in the past, added back seems to fix more recent payment error. -> YES error dont use
+  };
+
+  editWithdrawRefundRespWithTX = (theTxId, addedMessage) => {
+    //console.log(addedMessage);
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    // *** *** ***
+
+    let theMsgObject = [];
+
+    if (addedMessage !== "") {
+      let theTime = Date.now();
+
+      theMsgObject = [
+        {
+          msg: addedMessage,
+          time: theTime,
+        },
+      ];
+    }
+
+    let propsToEncrypt = {
+      txId: this.state.responseToEdit.txId,
+      refund: theTxId,
+      //sig: this.state.signature2Party,
+      sig: this.state.responseToEdit.sigObject,
+      msgs: [...theMsgObject, ...this.state.responseToEdit.msgObject],
+    };
+
+    console.log("propsToEncrypt: ", propsToEncrypt);
+
+    //SEND OBJECT TO ENCRYPT ->
+
+    let encryptedProps = encryptMyResp(
+      this.state.responseToEdit.reqTime,
+      propsToEncrypt,
+      // this.state.Your2PartyPubKey
+      this.state.requestPubKeyDocToUse,
+      this.state.mnemonic,
+      this.state.whichNetwork
+    );
+
+    // *** *** ***
+
+    const edit2PartyDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      } // Your identity ID
+
+      const [document] = await client.platform.documents.get(
+        "TwoPartyContract.response",
+        {
+          where: [["$id", "==", this.state.responseToEdit.$id]],
+        }
+      );
+
+      //console.log("signatureToAdd", this.state.signatureToAdd);
+      //RELEASE THE FUNDS
+      // document.set("txId", theTxId);
+      // let theMsgsToAddTo = [...this.state.responseToEdit.msgObject];
+      // theMsgsToAddTo.push(theMsgObject);
+      // //console.log("theMsgsToAddTo", theMsgsToAddTo);
+      // if (addedMessage !== "") {
+      //   document.set("msgObject", JSON.stringify(theMsgsToAddTo));
+      // }
+
+      //CHANGE THE DOCUMENT.SET ->
+
+      document.set("resp", Buffer.from(encryptedProps.resp).toString("base64"));
+      document.set("fromResp", encryptedProps.fromResp);
+
+      // await platform.documents.broadcast({ replace: [document] }, identity);
+      // return document;
+
+      //############################################################
+      //This below disconnects the document editing..***
+
+      return document;
+
+      //This is to disconnect the Document editing***
+      //############################################################
+    };
+
+    edit2PartyDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        returnedDoc.reqId = Identifier.from(
+          returnedDoc.reqId,
+          "base64"
+        ).toJSON();
+
+        returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
+
+        //returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        returnedDoc.txId = propsToEncrypt.txId;
+        returnedDoc.refundTxId = propsToEncrypt.refund;
+        returnedDoc.sigObject = propsToEncrypt.sig;
+        returnedDoc.msgObject = propsToEncrypt.msgs;
+
+        console.log("Edited 2Party Resp:\n", returnedDoc);
+
+        let editedResponses = this.state.ReqsToYouResponses;
+
+        editedResponses.splice(this.state.responseToEditIndex, 1, returnedDoc);
+
+        this.setState(
+          {
+            ReqsToYouResponses: editedResponses,
+            isLoading2Party: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+
+        this.get2PartyWallet();
+      })
+      .catch((e) => {
+        this.setState(
+          {
+            isLoading2Party: false,
+            // sendPmtMsgFailure2Party: true,
+          },
+          () => this.get2PartyWallet()
+        );
+
+        console.error("Something went wrong editing 2 Party response:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
   /* 2-Party FUNCTIONS^^^^^
    *
    *
@@ -3894,680 +4320,11 @@ class App extends React.Component {
    *                              ####
    *                            ###############
    *
-   *      #############
-   *     ####        ###
-   *     ###
-   *     ###     ########
-   *     #####      ####
-   *      #############
-   *
-   * GROUP FUNCTIONS
-   */
-
-  //NOT QUITE WHAT i WANT BECAUSE WANT TO PULL EACH PULL.. OR DO I
-  // I WNANT THE GROUPS TO APPEAR BUT ALSO i WANT
-  pullInitialTriggerGROUPS = () => {
-    //DOES THE STATE MAINTAIN AS i PULL NEW? -> and not show loading?
-    this.getDGTInvites(this.state.identity); //invites and names.
-    //will loading state protect if events pulled first?
-
-    if (this.state.InitialPullGROUPS) {
-      this.getActiveGroups();
-      this.setState({
-        InitialPullGROUPS: false, //ADD
-      });
-    }
-  };
-
-  handleSelectedJoinGroup = (groupName) => {
-    this.setState(
-      {
-        selectedGroup: groupName,
-      },
-      () => this.showModal("JoinGroupModal")
-    );
-  };
-
-  hideGroupPage = () => {
-    this.setState({
-      isGroupShowing: false,
-    });
-  };
-
-  showGroupPage = (groupName) => {
-    this.setState({
-      selectedDapp: "Groups", // ADDED THIS FOR THE EVENT FUNCTIONALITY
-      isModalShowing: false, // ADDED THIS FOR THE EVENT FUNCTIONALITY
-      selectedGroup: groupName,
-      isGroupShowing: true,
-    });
-  };
-  //BELOW should not require the names, but can I still use the same state?
-  //Which invites do I need.. just the ones that I sent my self and not invites from others or that I sent to others.
-
-  getDGTInvitesForEvents = () => {
-    if (!this.state.isLoadingGroupEvents) {
-      this.setState({
-        isLoadingGroupEvents: true,
-      });
-    }
-
-    console.log("Calling DGTInvitesForEvents");
-
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-    //DGTInvite Query
-    const getDocuments = async () => {
-      return client.platform.documents.get("DGTContract.dgtinvite", {
-        where: [
-          ["toId", "==", this.state.identity],
-          ["$createdAt", "<=", Date.now()],
-        ],
-        orderBy: [["$createdAt", "desc"]],
-      });
-    };
-
-    getDocuments()
-      .then((d) => {
-        if (d.length === 0) {
-          console.log("There are no DGTInvites");
-          this.setState({
-            dgtInvitesForEvents: [],
-            isLoadingGroupEvents: false,
-          });
-        } else {
-          let docArray = [];
-
-          for (const n of d) {
-            let returnedDoc = n.toJSON();
-            //console.log("Invite:\n", returnedDoc);
-            returnedDoc.toId = Identifier.from(
-              returnedDoc.toId,
-              "base64"
-            ).toJSON();
-            //console.log("newInvite:\n", returnedDoc);
-            docArray = [...docArray, returnedDoc];
-          }
-
-          this.setState({
-            dgtInvitesForEvents: docArray,
-            isLoadingGroupEvents: false,
-          });
-        }
-      })
-      .catch((e) => {
-        console.error("Something went wrong:\n", e);
-        this.setState({
-          isLoadingGroupEvents: false,
-        });
-      })
-
-      .finally(() => client.disconnect());
-  };
-
-  getDGTInvites = (theIdentity) => {
-    this.setState({
-      isLoadingGroups: true,
-    });
-
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-    //DGTInvite Query
-    const getDocuments = async () => {
-      return client.platform.documents.get("DGTContract.dgtinvite", {
-        where: [
-          ["toId", "==", theIdentity],
-          //["$createdAt", "<=", Date.now()],
-        ],
-        orderBy: [["$createdAt", "desc"]],
-      });
-    };
-
-    getDocuments()
-      .then((d) => {
-        if (d.length === 0) {
-          console.log("There are no DGTInvites");
-          this.setState({
-            isLoadingGroups: false,
-          });
-        } else {
-          let docArray = [];
-
-          for (const n of d) {
-            let returnedDoc = n.toJSON();
-            //console.log("Invite:\n", returnedDoc);
-            returnedDoc.toId = Identifier.from(
-              returnedDoc.toId,
-              "base64"
-            ).toJSON();
-            //console.log("newInvite:\n", returnedDoc);
-            docArray = [...docArray, returnedDoc];
-          }
-
-          this.getDGTInvitesNames(docArray);
-        }
-      })
-      .catch((e) => console.error("Something went wrong:\n", e))
-
-      .finally(() => client.disconnect());
-  };
-
-  getDGTInvitesNames = (docArray) => {
-    //console.log("Calling getNamesforDGTInvites");
-
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-    let arrayOfOwnerIds = docArray.map((doc) => {
-      return doc.$ownerId;
-    });
-
-    let setOfOwnerIds = [...new Set(arrayOfOwnerIds)];
-
-    arrayOfOwnerIds = [...setOfOwnerIds];
-
-    const getNameDocuments = async () => {
-      return client.platform.documents.get("DPNSContract.domain", {
-        where: [["records.identity", "in", arrayOfOwnerIds]],
-        orderBy: [["records.identity", "asc"]],
-      });
-    };
-
-    getNameDocuments()
-      .then((d) => {
-        if (d.length === 0) {
-          console.log("No DPNS domain documents retrieved.");
-        }
-
-        let nameDocArray = [];
-
-        for (const n of d) {
-          //console.log("NameDoc:\n", n.toJSON());
-
-          nameDocArray = [n.toJSON(), ...nameDocArray];
-        }
-
-        this.setState({
-          dgtInvitesNames: nameDocArray,
-          dgtInvites: docArray,
-          isLoadingGroups: false,
-        });
-      })
-      .catch((e) => {
-        console.error("Something went wrong:\n", e);
-        this.setState({
-          isLoadingGroups: false,
-        });
-      })
-      .finally(() => client.disconnect());
-  };
-
-  getActiveGroups = () => {
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-    //DGTInvite Query
-    const getDocuments = async () => {
-      return client.platform.documents.get("DGTContract.dgtmsg", {
-        limit: 60,
-        where: [["$createdAt", "<=", Date.now()]],
-        orderBy: [["$createdAt", "desc"]],
-      });
-    };
-
-    getDocuments()
-      .then((d) => {
-        if (d.length === 0) {
-          //console.log("There are no DGTInvites");
-          this.setState({
-            isLoadingActiveGroups: false,
-          });
-        } else {
-          let docArray = [];
-
-          // for (const n of d) {
-          //   let returnedDoc = n.toJSON();
-          //   //console.log("Doc:\n", returnedDoc);
-          //   returnedDoc.msgId = Identifier.from(
-          //     returnedDoc.msgId,
-          //     "base64"
-          //   ).toJSON();
-          //   //console.log("newDoc:\n", returnedDoc);
-          //   docArray = [...docArray, returnedDoc];
-          // }
-
-          for (const n of d) {
-            //console.log("Invite Documents:\n", n.toJSON());
-            docArray = [...docArray, n.toJSON()];
-            //DOES ANY PART OF DOCUMENT NEED CONVERTING? LIKE THE TOID? ->
-          }
-
-          let arrayOfGroups = docArray.map((doc) => {
-            return doc.group;
-          });
-
-          let setOfGroups = [...new Set(arrayOfGroups)];
-
-          let arrayOfUniqueGroups = [...setOfGroups];
-
-          let uniqueActiveGroups = arrayOfUniqueGroups.map((grpName) => {
-            return docArray.find((doc) => doc.group === grpName);
-          });
-
-          this.setState({
-            dgtActiveGroups: uniqueActiveGroups,
-            isLoadingActiveGroups: false,
-          });
-        }
-      })
-      .catch((e) => console.error("Something went wrong:\n", e))
-
-      .finally(() => client.disconnect());
-  };
-
-  //Dont need to, the names are in the messages..! And just use the createdAt for the time =>
-
-  submitCreateGroup = (newGroup) => {
-    //Its just a name.
-    this.setState({
-      isLoadingGroups: true,
-    });
-
-    //Makes sure I dont send 2nd invite to myself
-
-    let document = this.state.dgtInvites.find((invite) => {
-      return (
-        newGroup === invite.group && invite.$ownerId === this.state.identity
-      );
-    });
-
-    if (document !== undefined) {
-      this.setState({
-        isLoadingGroups: false,
-      });
-    } else {
-      //ADD INVITE TO DISPLAY AND CONTINUE TO DISPLAY UNTIL RETURNED
-
-      // const clientOpts = {
-      //   network: this.state.whichNetwork,
-      //   wallet: {
-      //     mnemonic: this.state.mnemonic,
-      //     adapter: LocalForage.createInstance,
-      //     unsafeOptions: {
-      //       skipSynchronizationBeforeHeight:
-      //         this.state.skipSynchronizationBeforeHeight,
-      //       //change to what the actual block height
-      //     },
-      //   },
-      //   apps: {
-      //     DGTContract: {
-      //       contractId: this.state.DataContractDGT,
-      //     },
-      //   },
-      // };
-      const client = new Dash.Client(
-        dapiClient(
-          this.state.whichNetwork,
-          this.state.mnemonic,
-          this.state.skipSynchronizationBeforeHeight
-        )
-      );
-
-      const submitInvite = async () => {
-        const { platform } = client;
-
-        //const identity = await platform.identities.get(this.state.identity); // Your identity ID
-        //const identity = this.state.identityRaw;
-        let identity = "";
-        if (this.state.identityRaw !== "") {
-          identity = this.state.identityRaw;
-        } else {
-          identity = await platform.identities.get(this.state.identity);
-        } // Your identity ID
-
-        const docProperties = {
-          group: newGroup,
-          //toId: Buffer.from(Identifier.from(this.state.identity)),
-          // handle on return or what? did i change it right?
-          toId: this.state.identity,
-          dgt: "self",
-        };
-
-        // Create the note document
-        const dgtDocument = await platform.documents.create(
-          "DGTContract.dgtinvite",
-          identity,
-          docProperties
-        );
-
-        const documentBatch = {
-          create: [dgtDocument], // Document(s) to create
-        };
-        // Sign and submit the document(s)
-        await platform.documents.broadcast(documentBatch, identity);
-        return dgtDocument;
-      };
-
-      submitInvite()
-        .then((d) => {
-          let submittedDoc = d.toJSON();
-
-          this.setState(
-            {
-              dgtInvites: [submittedDoc, ...this.state.dgtInvites],
-              dgtInvitesForEvents: [
-                submittedDoc,
-                ...this.state.dgtInvitesForEvents,
-              ],
-              isLoadingGroups: false,
-            },
-            () => this.loadIdentityCredits()
-          );
-        })
-        .catch((e) => {
-          console.error("Something went wrong:\n", e);
-          this.setState({
-            isLoadingGroups: false,
-            errorGroupsAdd: true, //Needs to add to state and handle
-          });
-        })
-        .finally(() => client.disconnect());
-    } // This is the close of the else statment
-  };
-
-  deleteGroup = (groupRemove) => {
-    this.setState({
-      isLoadingGroups: true,
-      isGroupShowing: false,
-    });
-
-    //create a group to remove array for before display ->
-    //Find the groupName of the doc and return the docId -> DONE
-
-    let documentJSON = this.state.dgtInvites.find((invite) => {
-      return (
-        groupRemove === invite.group && invite.$ownerId === this.state.identity
-      );
-    });
-    console.log(documentJSON);
-
-    //let documentId = document.$id;
-
-    const client = new Dash.Client(
-      dapiClient(
-        this.state.whichNetwork,
-        this.state.mnemonic,
-        this.state.skipSynchronizationBeforeHeight
-      )
-    );
-
-    const deleteDocument = async () => {
-      const { platform } = client;
-      const identity = this.state.identityRaw;
-
-      const [document] = await client.platform.documents.get(
-        "DGTContract.dgtinvite",
-        { where: [["$id", "==", documentJSON.$id]] }
-      );
-
-      // Sign and submit the document delete transition
-      await platform.documents.broadcast({ delete: [document] }, identity);
-      return document;
-    };
-
-    deleteDocument()
-      .then((d) => {
-        console.log("Document deleted:\n", d.toJSON());
-
-        let indexToDelete = this.state.dgtInvites.findIndex((invite) => {
-          return invite.$id === d.toJSON().$id && invite.dgt === "self";
-        });
-
-        let mutableArray = this.state.dgtInvites;
-        mutableArray.splice(indexToDelete, 1);
-
-        this.setState({
-          dgtInvites: mutableArray,
-          dgtInvitesForEvents: mutableArray,
-          isLoadingGroups: false,
-        });
-      })
-      .catch((e) => {
-        console.error("Something went wrong:\n", e);
-        this.setState({
-          isLoadingGroups: false,
-          //Add Error alert ->
-        });
-      })
-      .finally(() => client.disconnect());
-  };
-
-  joinGroup = (groupName) => {
-    //HAHAH
-    // IS THIS THE SAME AS SUBMITCREATEGROUP ABOVE???
-    this.setState({
-      isLoadingGroups: true,
-    });
-
-    const client = new Dash.Client(
-      dapiClient(
-        this.state.whichNetwork,
-        this.state.mnemonic,
-        this.state.skipSynchronizationBeforeHeight
-      )
-    );
-
-    const submitInvite = async () => {
-      const { platform } = client;
-
-      //const identity = await platform.identities.get(this.state.identity); // Your identity ID
-      let identity = "";
-      if (this.state.identityRaw !== "") {
-        identity = this.state.identityRaw;
-      } else {
-        identity = await platform.identities.get(this.state.identity);
-      } // Your identity ID
-
-      const docProperties = {
-        group: groupName,
-        //toId: Buffer.from(Identifier.from(this.state.identity)),
-        // handle on return or what? did i change it right?
-        toId: this.state.identity,
-        dgt: "self",
-      };
-
-      // Create the note document
-      const dgtDocument = await platform.documents.create(
-        "DGTContract.dgtinvite",
-        identity,
-        docProperties
-      );
-
-      const documentBatch = {
-        create: [dgtDocument], // Document(s) to create
-      };
-      // Sign and submit the document(s)
-      await platform.documents.broadcast(documentBatch, identity);
-      return dgtDocument;
-    };
-
-    submitInvite()
-      .then((d) => {
-        let submittedDoc = d.toJSON();
-
-        this.setState(
-          {
-            dgtInvites: [submittedDoc, ...this.state.dgtInvites],
-            dgtInvitesForEvents: [
-              submittedDoc,
-              ...this.state.dgtInvitesForEvents,
-            ],
-            isLoadingGroups: false,
-          },
-          () => this.loadIdentityCredits()
-        );
-      })
-      .catch((e) => {
-        console.error("Something went wrong:\n", e);
-        this.setState({
-          isLoadingGroups: false,
-          errorGroupsAdd: true, //Needs to be more specific
-        });
-      })
-      .finally(() => client.disconnect());
-  };
-
-  // BELOW - Moved here from Group.jsx
-  // Must also move the **state** here as well ->
-  //Just go through the functions and pass the state that is there to app.js ->
-
-  submitDGTmessage = (groupName, msgText) => {
-    this.setState({
-      isLoadingGroup: true,
-    });
-
-    const client = new Dash.Client(
-      dapiClient(
-        this.state.whichNetwork,
-        this.state.mnemonic,
-        this.state.skipSynchronizationBeforeHeight
-      )
-    );
-
-    let docProperties = {
-      group: groupName,
-      message: msgText,
-    };
-
-    const submitMsgDocument = async () => {
-      const { platform } = client;
-      //const identity = this.state.identityRaw; // Your identity ID
-      let identity = "";
-      if (this.state.identityRaw !== "") {
-        identity = this.state.identityRaw;
-      } else {
-        identity = await platform.identities.get(this.state.identity);
-      } // Your identity ID
-
-      // Create the note document
-      const dgtDocument = await platform.documents.create(
-        "DGTContract.dgtmsg", // <- CHECK THIS
-        identity,
-        docProperties
-      );
-
-      const documentBatch = {
-        create: [dgtDocument], // Document(s) to create
-      };
-      // Sign and submit the document(s)
-      await platform.documents.broadcast(documentBatch, identity);
-      return dgtDocument;
-    };
-
-    submitMsgDocument()
-      .then((d) => {
-        //console.log(d.toJSON());
-
-        this.setState(
-          {
-            isLoadingGroup: false,
-            GroupsMsgsToAdd: [d.toJSON(), ...this.state.GroupsMsgsToAdd],
-          },
-          () => this.loadIdentityCredits()
-        );
-      })
-      .catch((e) => {
-        console.error("Something went wrong:\n", e);
-        this.setState({
-          isLoadingGroup: false,
-          sentGroupMsgError: true,
-        });
-      })
-      .finally(() => client.disconnect());
-  };
-
-  submitDGTinvite = (dpnsDoc) => {
-    //have to get the id of the name like DGM
-
-    //Invite Sent alert ??? also add loading
-
-    this.setState({
-      isLoadingGroupInvite: true,
-      // isLoadingGroup: true,
-    });
-
-    const client = new Dash.Client(
-      dapiClient(
-        this.state.whichNetwork,
-        this.state.mnemonic,
-        this.state.skipSynchronizationBeforeHeight
-      )
-    );
-
-    const submitInviteDocument = async () => {
-      const { platform } = client;
-
-      let identity = "";
-      if (this.state.identityRaw !== "") {
-        identity = this.state.identityRaw;
-      } else {
-        identity = await platform.identities.get(this.state.identity);
-      } // Your identity ID
-
-      const docProperties = {
-        toId: dpnsDoc.$ownerId,
-        group: this.state.selectedGroup,
-        dgt: "inv",
-      };
-
-      // Create the note document
-      const dgtDocument = await platform.documents.create(
-        "DGTContract.dgtinvite", // <- CHECK THIS
-        identity,
-        docProperties
-      );
-
-      const documentBatch = {
-        create: [dgtDocument], // Document(s) to create
-      };
-      // Sign and submit the document(s)
-      await platform.documents.broadcast(documentBatch, identity);
-      return dgtDocument;
-    };
-
-    submitInviteDocument()
-      .then((d) => {
-        console.log(d.toJSON());
-        this.setState(
-          {
-            isLoadingGroupInvite: false,
-            sentGroupInviteSuccess: true,
-            sendToNameInvite: dpnsDoc.label,
-          },
-          () => this.loadIdentityCredits()
-        );
-      })
-      .catch((e) => {
-        console.error("Something went wrong:\n", e);
-        this.setState({
-          isLoadingGroupInvite: false,
-          sentGroupInviteError: true,
-        });
-      })
-      .finally(() => client.disconnect());
-  };
-
-  /*
-  *GROUP FUNCTIONS^^^^
-   *                             #############
-   *                            ####        ###
-   *                            ###
-   *                            ###     ########
-   *                            #####      ####
-   *                             #############
-   *##       ###    ###
-   * ###    ####   ##
-   *  ###  ## ## ###
-   *   ## ##  ####
-   *    ###   ###
+   * ###      ###    ###
+   *  ###    ####   ##
+   *   ###  ## ## ###
+   *    ## ##  ####
+   *     ###   ###
    
 
    */ //WALLET FUNCTIONS
@@ -6763,23 +6520,6 @@ class App extends React.Component {
    *                             #############
    *
    *
-   *      ################
-   *      ###
-   *      ################
-   *      ###
-   *      ################
-   */
-  //EXCHANGE FUNCTIONS
-
-  /*
-   *EXCHANGE FUNCTIONS^^^^
-   *                                 ################
-   *                                 ###
-   *                                 ################
-   *                                 ###
-   *                                 ################
-   *
-   *
    *   ################
    *   ###          ####
    *   ################
@@ -8467,6 +8207,8 @@ PROOF OF FUNDS FUNCTIONS^^^^
                     showAddMessageToResponseModal={
                       this.showAddMessageToResponseModal
                     }
+                    showRefundFundsModal={this.showRefundFundsModal}
+                    showWithdrawRefundModal={this.showWithdrawRefundModal}
                   />
                 </>
               ) : (
@@ -8493,66 +8235,6 @@ PROOF OF FUNDS FUNCTIONS^^^^
               ) : (
                 <></>
               )}
-
-              {/* {this.state.selectedDapp === "Groups" ? (
-                //SO THIS WILL BE A 2 PAGE SETUP INSTEAD OF ONE AND ITS NOT A BAD IDEA i SUPPOSE SO THAT WHEN YOU CLICK OFF ITS NOT LOST... ->
-                <> */}
-              {/* {this.state.isGroupShowing ? (
-                    <>
-                      <Group
-                        //isGroupShowing: true,
-                        uniqueName={this.state.uniqueName}
-                        identityRaw={this.state.identityRaw}
-                        isLoadingGroup={this.state.isLoadingGroup}
-                        //IS THIS DOING ANYTHING?? -> msg submission and invite sending ->
-                        isLoadingGroupInvite={this.state.isLoadingGroupInvite}
-                        submitDGTmessage={this.submitDGTmessage}
-                        GroupsMsgsToAdd={this.state.GroupsMsgsToAdd}
-                        submitDGTinvite={this.submitDGTinvite}
-                        showModal={this.showModal}
-                        selectedGroup={this.state.selectedGroup}
-                        whichNetwork={this.state.whichNetwork}
-                        mode={this.state.mode}
-                        hideGroupPage={this.hideGroupPage}
-                        sentGroupInviteError={this.state.sentGroupInviteError}
-                        sentGroupInviteSuccess={
-                          this.state.sentGroupInviteSuccess
-                        }
-                        sendToNameInvite={this.state.sendToNameInvite}
-                      />
-                    </>
-                  ) : (
-                    <GroupsPage
-                      isLoginComplete={isLoginComplete}
-                      pullInitialTriggerGROUPS={this.pullInitialTriggerGROUPS}
-                      InitialPullGROUPS={this.state.InitialPullGROUPS}
-                      identityInfo={this.state.identityInfo}
-                      uniqueName={this.state.uniqueName}
-                      showModal={this.showModal}
-                      identity={this.state.identity}
-                      showGroupPage={this.showGroupPage}
-                      handleSelectedJoinGroup={this.handleSelectedJoinGroup}
-                      mode={this.state.mode}
-                      isLoadingGroups={this.state.isLoadingGroups}
-                      isLoadingGroup={this.state.isLoadingGroup}
-                      isLoadingActiveGroups={this.state.isLoadingActiveGroups}
-                      isLoadingGroupInvite={this.state.isLoadingGroupInvite}
-                      dgtInvites={this.state.dgtInvites}
-                      dgtInvitesNames={this.state.dgtInvitesNames}
-                      dgtActiveGroups={this.state.dgtActiveGroups}
-                      selectedGroup={this.state.selectedGroup} //Do these go here AND where is the modal that displays this?
-                      isGroupShowing={this.state.isGroupShowing}
-                      GroupsMsgsToAdd={this.state.GroupsMsgsToAdd} //handle in Group so not too difficult, just add together and use set for unique docId ->
-                      sentGroupMsgError={this.state.sentGroupMsgError} //Thread to Group, all the below
-                      sentGroupInviteError={this.state.sentGroupInviteError}
-                      sentGroupInviteSuccess={this.state.sentGroupInviteSuccess}
-                      sendToNameInvite={this.state.sendToNameInvite} //For invite
-                    />
-                  )}
-                </>
-              ) : (
-                <></>
-              )} */}
 
               {this.state.selectedDapp === "Wallet" ? (
                 <>
@@ -8988,6 +8670,36 @@ PROOF OF FUNDS FUNCTIONS^^^^
         ) : (
           <></>
         )}
+        {this.state.isModalShowing &&
+        this.state.presentModal === "Refund2PartyModal" ? (
+          <Refund2PartyModal
+            sendToName={this.state.signingToSendToWhomNameDoc.label}
+            requestPmtNameDoc={this.state.signingToSendToWhomNameDoc}
+            amountToSend={this.state.requestToEdit.amt}
+            whichNetwork={this.state.whichNetwork}
+            editRefundFunds={this.editRefundFunds}
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+          />
+        ) : (
+          <></>
+        )}
+        {this.state.isModalShowing &&
+        this.state.presentModal === "WithdrawRefundModal" ? (
+          <WithdrawRefundModal
+            sendToName={this.state.signingToSendToWhomNameDoc.label}
+            requestPmtNameDoc={this.state.signingToSendToWhomNameDoc}
+            amountToSend={this.state.requestToUse.amt}
+            whichNetwork={this.state.whichNetwork}
+            payWithdrawRefund={this.payWithdrawRefund}
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+          />
+        ) : (
+          <></>
+        )}
         {/* {this.state.isModalShowing &&
         this.state.presentModal === "RejectReqModal" ? (
           <RejectReqModal
@@ -9007,48 +8719,7 @@ PROOF OF FUNDS FUNCTIONS^^^^
         )} */}
         {/* 
 
-*      #############
-*     ####        ###
-*     ###
-*     ###     ########
-*     #####      ####
-*      ############# */}
-        {this.state.isModalShowing &&
-        this.state.presentModal === "CreateGroupModal" ? (
-          <CreateGroupModal
-            submitCreateGroup={this.submitCreateGroup}
-            isModalShowing={this.state.isModalShowing}
-            hideModal={this.hideModal}
-            mode={this.state.mode}
-          />
-        ) : (
-          <></>
-        )}
-        {this.state.isModalShowing &&
-        this.state.presentModal === "DeleteGroupModal" ? (
-          <DeleteGroupModal
-            selectedGroup={this.state.selectedGroup}
-            deleteGroup={this.deleteGroup}
-            isModalShowing={this.state.isModalShowing}
-            hideModal={this.hideModal}
-            mode={this.state.mode}
-          />
-        ) : (
-          <></>
-        )}
-        {this.state.isModalShowing &&
-        this.state.presentModal === "JoinGroupModal" ? (
-          <JoinGroupModal
-            submitCreateGroup={this.submitCreateGroup}
-            whichNetwork={this.state.whichNetwork}
-            selectedGroup={this.state.selectedGroup}
-            isModalShowing={this.state.isModalShowing}
-            hideModal={this.hideModal}
-            mode={this.state.mode}
-          />
-        ) : (
-          <></>
-        )}
+
         {/* ##      ###    ###
          *   ###    ####   ##
          *    ###  ## ## ###

@@ -91,13 +91,13 @@ export default function dapiClient(
     //console.log("testnet dapiClient");
     return {
       network: theNetwork,
-      // dapiAddresses: [
-      //   "35.165.50.126:1443",
-      //   "52.10.229.11:1443",
-      //   "54.149.33.167:1443",
-      //   "52.24.124.162:1443",
-      //   "54.187.14.232:1443",
-      // ],
+      dapiAddresses: [
+        // "35.165.50.126:1443",
+        "52.10.229.11:1443",
+        "54.149.33.167:1443",
+        "52.24.124.162:1443",
+        "54.187.14.232:1443",
+      ],
       wallet: {
         mnemonic: theMnemonic,
         adapter: LocalForage.createInstance,
@@ -113,7 +113,7 @@ export default function dapiClient(
           contractId: "7Y342Md8nmw5qFBwBCmpnrbqV9ELhgUfRdNpiLjYkzLD",
         },
         TwoPartyContract: {
-          contractId: "GQ3xHajES5HrGeY6zHS2Zn8nCuknnyCjqzZq9vY6SUJu",
+          contractId: "EDLpeKCEFKGXDieomj4DidpCBJzuKf8paAHXcc1kQ89T",
         },
         // DSOContract: {
         //   contractId: "4kVVrhTJusgrTw4WadjcgQyj9pEiWr3Ee1iad6KG5e9i",

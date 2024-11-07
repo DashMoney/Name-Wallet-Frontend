@@ -43,8 +43,6 @@ class TwoPartyPage extends React.Component {
                     </h4>
                   </div>
 
-                  
-
                   {this.props.is2PartyRefreshReady ? (
                     <>
                       <div className="d-grid gap-2" id="button-edge-noTop">
@@ -118,10 +116,6 @@ class TwoPartyPage extends React.Component {
             <></>
           )}
 
-          
-
-  
-
           {this.props.Your2PartyPubKey === "No Pub Key" &&
           !this.props.isLoading2Party ? (
             <>
@@ -192,10 +186,10 @@ class TwoPartyPage extends React.Component {
                 showAddMessageToResponseModal={
                   this.props.showAddMessageToResponseModal
                 }
+                showRefundFundsModal={this.props.showRefundFundsModal}
+                showWithdrawRefundModal={this.props.showWithdrawRefundModal}
 
                 //showRejectReplyReqModal={this.props.showRejectReplyReqModal}
-
-                //handleThread={this.props.handleThread_WALLET}
               />
             </>
           )}

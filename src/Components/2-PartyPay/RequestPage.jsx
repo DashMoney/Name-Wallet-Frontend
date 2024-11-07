@@ -238,8 +238,8 @@ class RequestPage extends React.Component {
 
           this.props.show2PartyRequestModal(
             theNameDoc, //Needs both name and OwnerId for doc creation
-            this.state.amountToSend,
-            this.state.messageToAdd
+            this.state.amountToSend
+            //this.state.messageToAdd
           );
 
           this.setState({
@@ -430,7 +430,7 @@ class RequestPage extends React.Component {
 
             {/* Add the message form input here */}
 
-            <p></p>
+            {/* <p></p>
             <Form.Group className="mb-3" controlId="validationCustomMessage">
               <Form.Label>
                 <b>Request Message</b>
@@ -465,7 +465,7 @@ class RequestPage extends React.Component {
               ) : (
                 <></>
               )}
-            </Form.Group>
+            </Form.Group> */}
           </Form>
           {/* **** ^^^^ FORMS AND INFO ^^^^ **** */}
           {/* MY SERIES OF ALERTS FOR ERRORS AND NO NAME AND NOT DGM DOC */}

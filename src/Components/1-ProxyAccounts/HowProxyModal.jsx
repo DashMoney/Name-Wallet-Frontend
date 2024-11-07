@@ -42,7 +42,7 @@ class HowProxyModal extends React.Component {
             <p>
               Login with a 12-word mnemonic that will be used as the Proxy
               Account Login. (Do not use your Name-Wallet 12-word mnemonic) It
-              must be a different mnenonic than your Name-Wallet.
+              must be a different mnemonic than your Name-Wallet.
             </p>
             <h3 style={{ color: "#008de4" }}>Second Step</h3>
             <p>
