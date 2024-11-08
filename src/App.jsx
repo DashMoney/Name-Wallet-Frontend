@@ -51,7 +51,6 @@ import AddProxyModal from "./Components/1-ProxyAccounts/AddProxyModal";
 import EditProxyModal from "./Components/1-ProxyAccounts/EditProxyModal";
 import DeleteProxyModal from "./Components/1-ProxyAccounts/DeleteProxyModal";
 
-//import TwoPartyPage from "./Components/2-PartyPay/TwoPartyPage";
 import TwoPartyPage from "./Components/2-PartyPay/TwoPartyActualPage";
 import RequestPage from "./Components/2-PartyPay/RequestPage";
 
@@ -2286,7 +2285,7 @@ class App extends React.Component {
             //use an if 100
 
             //returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
-            //console.log("newReq:\n", returnedDoc);
+            // console.log("newReq:\n", returnedDoc);
             docArray = [...docArray, returnedDoc];
           }
           //decryptTheirReqs(theReqs, theMnemonic, whichNetwork)
@@ -2526,6 +2525,48 @@ class App extends React.Component {
   };
 
   editRequestAddMessage = (addedMessage) => {
+    let timeStamp;
+
+    if (this.state.requestToEdit.req === "100") {
+      const client = new Dash.Client(
+        dapiClientNoWallet(this.state.whichNetwork)
+      );
+
+      const getDocuments = async () => {
+        return client.platform.documents.get("TwoPartyContract.request", {
+          where: [["$id", "==", this.state.requestToEdit.$id]],
+        });
+      };
+
+      getDocuments()
+        .then((d) => {
+          if (d.length === 0) {
+            console.log("There is no Request");
+            timeStamp = this.state.requestToEdit.$createdAt - 1729873000000;
+            // console.log("timeStamp: ", timeStamp);
+            this.editRequestAddMessageWithTimeStamp(addedMessage, timeStamp);
+          } else {
+            let returnedDoc = d[0].toJSON();
+
+            //console.log("returnedDoc: ", returnedDoc);
+            timeStamp = returnedDoc.$createdAt - 1729873000000;
+           // console.log("timeStamp: ", timeStamp);
+            this.editRequestAddMessageWithTimeStamp(addedMessage, timeStamp);
+          }
+        })
+        .catch((e) => {
+          console.error("Something went wrong:\n", e);
+          return undefined;
+        })
+        .finally(() => client.disconnect());
+    } else {
+      timeStamp = this.state.requestToEdit.$createdAt - 1729873000000;
+     // console.log("timeStamp: ", timeStamp);
+      this.editRequestAddMessageWithTimeStamp(addedMessage, timeStamp);
+    }
+  };
+
+  editRequestAddMessageWithTimeStamp = (addedMessage, timeStamp) => {
     //console.log(addedMessage);
     this.setState({
       isLoading2Party: true,
@@ -2576,8 +2617,6 @@ class App extends React.Component {
 
       console.log("propsToEncrypt: ", propsToEncrypt);
 
-      let timeStamp = this.state.requestToEdit.$createdAt - 1729873000000;
-
       //SEND OBJECT TO ENCRYPT ->
 
       let encryptedProps = encryptMyReq(
@@ -2610,8 +2649,8 @@ class App extends React.Component {
         document.set("fromReq", encryptedProps.fromReq);
       }
 
-      await platform.documents.broadcast({ replace: [document] }, identity);
-      return document;
+       await platform.documents.broadcast({ replace: [document] }, identity);
+       return document;
 
       //############################################################
       //This below disconnects the document editing..***
