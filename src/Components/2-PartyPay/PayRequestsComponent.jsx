@@ -474,7 +474,7 @@ class PayRequestsComponent extends React.Component {
               ) : (
                 <>
                   {/*  Completed Refunded- WORDS */}
-                  {response.txId !== "" ? (
+                  {response.refundTxId !== "" ? (
                     <>
                       <div
                         style={{
