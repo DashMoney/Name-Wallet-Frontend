@@ -50,7 +50,7 @@ export default function decryptMyResps(theResps, theMnemonic, whichNetwork) {
 
     let propObject = JSON.parse(originalText);
 
-    console.log(propObject);
+    //console.log(propObject);
 
     // let propsToEncrypt = {
     //   txId: theTxId,

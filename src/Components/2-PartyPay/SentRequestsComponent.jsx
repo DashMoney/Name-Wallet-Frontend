@@ -62,7 +62,8 @@ class SentRequestsComponent extends React.Component {
         result,
         theRequest, //theResponse
         theResponseNameDoc, //theRequestNameDoc
-        theResponsePubKeyDoc
+        theResponsePubKeyDoc,
+        theResponse
       );
     }
   };
@@ -321,7 +322,7 @@ class SentRequestsComponent extends React.Component {
       response !== undefined
     ) {
       if (
-        (this.props.req.sigObject === "" && //so not refund
+        (this.props.req.sigObject === "" && //so not refunded
           this.props.req.txId === "") || //so not retrieved
         (response.sigObject !== "" &&
           this.props.req.sigObject !== "" &&

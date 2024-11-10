@@ -36,7 +36,7 @@ export default function decryptTheirResps(theResps, theMnemonic, whichNetwork) {
     let decryptedObject = JSON.parse(Buffer.from(decrypted).toString());
     //this ^^^ will return an stringified object
 
-    console.log(decryptedObject);
+    //console.log(decryptedObject);
 
     //console.log(Buffer.from(decrypted).toString());
     //return Buffer.from(decrypted).toString();

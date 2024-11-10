@@ -75,7 +75,8 @@ class PayRequestsComponent extends React.Component {
         result,
         theResponse,
         theRequestNameDoc,
-        theRequestPubKeyDoc
+        theRequestPubKeyDoc,
+        theRequest
       );
       //signatureToAdd,
       //theResponse,
@@ -97,7 +98,7 @@ class PayRequestsComponent extends React.Component {
       .then((d) => {
         // console.log('MultiSig Tx:\n', d.transaction.toJSON());
         let txOutput = new Transaction(d.transaction).toJSON();
-        console.log("Tx:\n", txOutput);
+        // console.log("Tx:\n", txOutput);
 
         //console.log("Script from TX", txOutput.outputs[0].script);
 
@@ -325,7 +326,11 @@ class PayRequestsComponent extends React.Component {
     //END OF NEW THING
     //Loading2PartyAddress: true,
     //Display2Party: 'Loading..',
-    if (response !== undefined && this.props.req.txId === "") {
+    if (
+      response !== undefined &&
+      this.props.req.txId === "" && //so not withdraw
+      response.refundTxId === "" //so not withdraw refund
+    ) {
       if (this.state.Loading2PartyAddress && response.sigObject === "") {
         if (requestPubKey !== undefined) {
           this.callDAPIfor2Party(response.txId, requestPubKey);

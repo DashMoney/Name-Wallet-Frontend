@@ -243,6 +243,12 @@ div {
   opacity: 0.7;
 }
 
+.textsmallercenter {
+  font-size: small;
+  text-align: center;
+  opacity: 0.7;
+}
+
 .textsmallest {
   font-size: x-small;
   text-align: right;

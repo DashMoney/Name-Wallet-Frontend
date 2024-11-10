@@ -2469,6 +2469,41 @@ class App extends React.Component {
       .finally(() => client.disconnect());
   };
 
+  // ^^^^ - PAYMENT REQUEST
+
+  //Oh this just closes the alert i think
+  handleSuccessAlert_WALLET = () => {
+    this.setState({
+      WALLET_sendSuccess: false,
+      WALLET_sendMsgSuccess: false,
+    });
+  }; //THis should just show up in wallet of on the request right?
+  //So like
+
+  handleFailureAlert_WALLET = () => {
+    this.setState({
+      WALLET_sendFailure: false,
+    });
+  };
+
+  handleFailureMsgAlert_WALLET = () => {
+    this.setState({
+      WALLET_sendMsgFailure: false,
+    });
+  };
+  // BELOW - PAYMENT REQUEST
+  handleFailurePmtMsgAlert_WALLET = () => {
+    this.setState({
+      WALLET_sendPmtMsgFailure: false,
+    });
+  };
+
+  handleSuccessPmtMsgAlert_WALLET = () => {
+    this.setState({
+      WALLET_sendPmtMsgSuccess: false,
+    });
+  };
+
   // BELOW - PAYMENT REQUEST
   // Request(Merch) - Confirm/sendTo2Party(Cust) - Release(Cust) -
   show2PartyRequestModal = (
@@ -2550,7 +2585,7 @@ class App extends React.Component {
 
             //console.log("returnedDoc: ", returnedDoc);
             timeStamp = returnedDoc.$createdAt - 1729873000000;
-           // console.log("timeStamp: ", timeStamp);
+            // console.log("timeStamp: ", timeStamp);
             this.editRequestAddMessageWithTimeStamp(addedMessage, timeStamp);
           }
         })
@@ -2561,7 +2596,7 @@ class App extends React.Component {
         .finally(() => client.disconnect());
     } else {
       timeStamp = this.state.requestToEdit.$createdAt - 1729873000000;
-     // console.log("timeStamp: ", timeStamp);
+      // console.log("timeStamp: ", timeStamp);
       this.editRequestAddMessageWithTimeStamp(addedMessage, timeStamp);
     }
   };
@@ -2649,8 +2684,8 @@ class App extends React.Component {
         document.set("fromReq", encryptedProps.fromReq);
       }
 
-       await platform.documents.broadcast({ replace: [document] }, identity);
-       return document;
+      await platform.documents.broadcast({ replace: [document] }, identity);
+      return document;
 
       //############################################################
       //This below disconnects the document editing..***
@@ -2892,40 +2927,131 @@ class App extends React.Component {
     });
   };
 
-  // ^^^^ - PAYMENT REQUEST
+  // rejectOrReplyRequest = (addedMessage, ifReject) => {
+  //   this.setState({
+  //     isLoadingRefresh_WALLET: true,
+  //     isLoadingWallet: true,
 
-  //Oh this just closes the alert i think
-  handleSuccessAlert_WALLET = () => {
-    this.setState({
-      WALLET_sendSuccess: false,
-      WALLET_sendMsgSuccess: false,
-    });
-  }; //THis should just show up in wallet of on the request right?
-  //So like
+  //     isLoadingButtons_WALLET: true,
+  //     isLoadingForm_WALLET: true,
+  //     isLoadingMsgs_WALLET: true,
+  //   });
 
-  handleFailureAlert_WALLET = () => {
-    this.setState({
-      WALLET_sendFailure: false,
-    });
-  };
+  //   //console.log(addedMessage);
 
-  handleFailureMsgAlert_WALLET = () => {
-    this.setState({
-      WALLET_sendMsgFailure: false,
-    });
-  };
-  // BELOW - PAYMENT REQUEST
-  handleFailurePmtMsgAlert_WALLET = () => {
-    this.setState({
-      WALLET_sendPmtMsgFailure: false,
-    });
-  };
+  //   const client = new Dash.Client(
+  //     dapiClient(
+  //       this.state.whichNetwork,
+  //       this.state.mnemonic,
+  //       this.state.skipSynchronizationBeforeHeight
+  //     )
+  //   );
 
-  handleSuccessPmtMsgAlert_WALLET = () => {
-    this.setState({
-      WALLET_sendPmtMsgSuccess: false,
-    });
-  };
+  //   let docProperties = {};
+
+  //   const submitDocuments = async () => {
+  //     const { platform } = client;
+
+  //     let identity = "";
+  //     if (this.state.identityRaw !== "") {
+  //       identity = this.state.identityRaw;
+  //     } else {
+  //       identity = await platform.identities.get(this.state.identity);
+  //     } // Your identity ID
+  //     if (ifReject) {
+  //       docProperties = {
+  //         msg: addedMessage,
+  //         msgId: this.state.WALLET_requestPmtReqDoc.$id,
+  //         txId: "rej",
+  //       };
+  //     } else {
+  //       docProperties = {
+  //         msg: addedMessage,
+  //         msgId: this.state.WALLET_requestPmtReqDoc.$id,
+  //       };
+  //     }
+
+  //     // Create the note document
+  //     const dgmDocument = await platform.documents.create(
+  //       "DGMContract.dgmthr",
+  //       identity,
+  //       docProperties
+  //     );
+
+  //     //console.log(dsoDocument.toJSON());
+
+  //     //############################################################
+  //     //This below disconnects the document sending..***
+
+  //     // return dgmDocument;
+
+  //     //This is to disconnect the Document Creation***
+
+  //     //############################################################
+
+  //     const documentBatch = {
+  //       create: [dgmDocument], // Document(s) to create
+  //     };
+
+  //     await platform.documents.broadcast(documentBatch, identity);
+  //     return dgmDocument;
+  //   };
+
+  //   submitDocuments()
+  //     .then((d) => {
+  //       let returnedDoc = d.toJSON();
+  //       console.log("Thread Documents:\n", returnedDoc);
+
+  //       let newThread;
+
+  //       // required: [' 'msg','msgId', "$createdAt", "$updatedAt"],
+  //       if (ifReject) {
+  //         newThread = {
+  //           $ownerId: returnedDoc.$ownerId,
+  //           $id: returnedDoc.$id,
+  //           msgId: this.state.WALLET_requestPmtReqDoc.$id,
+  //           msg: addedMessage,
+  //           $createdAt: returnedDoc.$createdAt,
+  //           txId: "rej",
+  //         };
+  //       } else {
+  //         newThread = {
+  //           $ownerId: returnedDoc.$ownerId,
+  //           $id: returnedDoc.$id,
+  //           msgId: this.state.WALLET_requestPmtReqDoc.$id,
+  //           msg: addedMessage,
+  //           $createdAt: returnedDoc.$createdAt,
+  //         };
+  //       }
+
+  //       this.setState({
+  //         WALLET_ByYouThreads: [newThread, ...this.state.WALLET_ByYouThreads],
+
+  //         isLoadingRefresh_WALLET: false,
+  //         isLoadingWallet: false,
+  //         isLoadingButtons_WALLET: false,
+  //         isLoadingForm_WALLET: false,
+
+  //         isLoadingMsgs_WALLET: false,
+  //       });
+  //     })
+  //     .catch((e) => {
+  //       this.setState({
+  //         isLoadingRefresh_WALLET: false,
+  //         isLoadingWallet: false,
+  //         isLoadingButtons_WALLET: false,
+  //         isLoadingForm_WALLET: false,
+
+  //         isLoadingMsgs_WALLET: false,
+  //       });
+
+  //       console.error("Something went wrong creating new thread:\n", e);
+  //     })
+  //     .finally(() => client.disconnect());
+  // };
+
+  // ^^^ FOR PAYMENT REQUESTS**
+  //
 
   // ^^^^ - PAYMENT REQUEST
 
@@ -3423,133 +3549,64 @@ class App extends React.Component {
       .finally(() => client.disconnect());
   };
 
-  // rejectOrReplyRequest = (addedMessage, ifReject) => {
-  //   this.setState({
-  //     isLoadingRefresh_WALLET: true,
-  //     isLoadingWallet: true,
-
-  //     isLoadingButtons_WALLET: true,
-  //     isLoadingForm_WALLET: true,
-  //     isLoadingMsgs_WALLET: true,
-  //   });
-
-  //   //console.log(addedMessage);
-
-  //   const client = new Dash.Client(
-  //     dapiClient(
-  //       this.state.whichNetwork,
-  //       this.state.mnemonic,
-  //       this.state.skipSynchronizationBeforeHeight
-  //     )
-  //   );
-
-  //   let docProperties = {};
-
-  //   const submitDocuments = async () => {
-  //     const { platform } = client;
-
-  //     let identity = "";
-  //     if (this.state.identityRaw !== "") {
-  //       identity = this.state.identityRaw;
-  //     } else {
-  //       identity = await platform.identities.get(this.state.identity);
-  //     } // Your identity ID
-  //     if (ifReject) {
-  //       docProperties = {
-  //         msg: addedMessage,
-  //         msgId: this.state.WALLET_requestPmtReqDoc.$id,
-  //         txId: "rej",
-  //       };
-  //     } else {
-  //       docProperties = {
-  //         msg: addedMessage,
-  //         msgId: this.state.WALLET_requestPmtReqDoc.$id,
-  //       };
-  //     }
-
-  //     // Create the note document
-  //     const dgmDocument = await platform.documents.create(
-  //       "DGMContract.dgmthr",
-  //       identity,
-  //       docProperties
-  //     );
-
-  //     //console.log(dsoDocument.toJSON());
-
-  //     //############################################################
-  //     //This below disconnects the document sending..***
-
-  //     // return dgmDocument;
-
-  //     //This is to disconnect the Document Creation***
-
-  //     //############################################################
-
-  //     const documentBatch = {
-  //       create: [dgmDocument], // Document(s) to create
-  //     };
-
-  //     await platform.documents.broadcast(documentBatch, identity);
-  //     return dgmDocument;
-  //   };
-
-  //   submitDocuments()
-  //     .then((d) => {
-  //       let returnedDoc = d.toJSON();
-  //       console.log("Thread Documents:\n", returnedDoc);
-
-  //       let newThread;
-
-  //       // required: [' 'msg','msgId', "$createdAt", "$updatedAt"],
-  //       if (ifReject) {
-  //         newThread = {
-  //           $ownerId: returnedDoc.$ownerId,
-  //           $id: returnedDoc.$id,
-  //           msgId: this.state.WALLET_requestPmtReqDoc.$id,
-  //           msg: addedMessage,
-  //           $createdAt: returnedDoc.$createdAt,
-  //           txId: "rej",
-  //         };
-  //       } else {
-  //         newThread = {
-  //           $ownerId: returnedDoc.$ownerId,
-  //           $id: returnedDoc.$id,
-  //           msgId: this.state.WALLET_requestPmtReqDoc.$id,
-  //           msg: addedMessage,
-  //           $createdAt: returnedDoc.$createdAt,
-  //         };
-  //       }
-
-  //       this.setState({
-  //         WALLET_ByYouThreads: [newThread, ...this.state.WALLET_ByYouThreads],
-
-  //         isLoadingRefresh_WALLET: false,
-  //         isLoadingWallet: false,
-  //         isLoadingButtons_WALLET: false,
-  //         isLoadingForm_WALLET: false,
-
-  //         isLoadingMsgs_WALLET: false,
-  //       });
-  //     })
-  //     .catch((e) => {
-  //       this.setState({
-  //         isLoadingRefresh_WALLET: false,
-  //         isLoadingWallet: false,
-  //         isLoadingButtons_WALLET: false,
-  //         isLoadingForm_WALLET: false,
-
-  //         isLoadingMsgs_WALLET: false,
-  //       });
-
-  //       console.error("Something went wrong creating new thread:\n", e);
-  //     })
-  //     .finally(() => client.disconnect());
-  // };
-
-  // ^^^ FOR PAYMENT REQUESTS**
-  //
+  // THIS IS FOR THE RESPONSE DOCUMENT <- **
 
   showReleaseFundsModal = (
+    signatureToAdd,
+    theResponse,
+    toWhomNameDoc,
+    pubKeyDoc,
+    theRequest
+  ) => {
+    this.setState({
+      isLoading2Party: true,
+    });
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    // const getDocuments = async () => {
+    //   return client.platform.documents.get("TwoPartyContract.response", {
+    //     where: [["$id", "==", theResponse.$id]],
+    //   });
+    // };
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("TwoPartyContract.request", {
+        where: [["$id", "==", theResponse.reqId]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          console.log("There is no Document");
+
+          //PUT THE REFRESH HERE..
+          this.handleRefresh_2Party();
+        } else {
+          let returnedDoc = d[0].toJSON();
+
+          //console.log("returnedDoc: ", returnedDoc);
+          if (returnedDoc.req !== theRequest.req) {
+            //JUST REFRESH
+            this.handleRefresh_2Party();
+          } else {
+            this.showReleaseFundsModalPostCheck(
+              signatureToAdd,
+              theResponse,
+              toWhomNameDoc,
+              pubKeyDoc
+            );
+          }
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+        return undefined;
+      })
+      .finally(() => client.disconnect());
+  };
+
+  showReleaseFundsModalPostCheck = (
     signatureToAdd,
     theResponse,
     toWhomNameDoc,
@@ -3560,8 +3617,10 @@ class App extends React.Component {
     let responseIndex = this.state.ReqsToYouResponses.findIndex((resp) => {
       return resp.$id === theResponse.$id;
     });
+
     this.setState(
       {
+        isLoading2Party: false, //ADDED FOR THE CHECK SIGN
         signature2Party: signatureToAdd,
         responseToEdit: theResponse,
         responseToEditIndex: responseIndex, //<- Need this for the editingfunction!!
@@ -3950,10 +4009,58 @@ class App extends React.Component {
       .finally(() => client.disconnect());
   };
 
-  //EDIT ALL 2 BELOW -> Check ->
-  //
+  // THIS IS FOR THE REQUEST DOCUMENT <- **
 
   showRefundFundsModal = (
+    signatureToAdd,
+    theRequest,
+    toWhomNameDoc,
+    theResponsePubKeyDoc,
+    theResponse
+  ) => {
+    this.setState({
+      isLoading2Party: true,
+    });
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("TwoPartyContract.response", {
+        where: [["$id", "==", theResponse.$id]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          console.log("There is no Document");
+
+          //PUT THE REFRESH HERE..
+          this.handleRefresh_2Party();
+        } else {
+          let returnedDoc = d[0].toJSON();
+
+          //console.log("returnedDoc: ", returnedDoc);
+          if (returnedDoc.resp !== theResponse.resp) {
+            //JUST REFRESH
+            this.handleRefresh_2Party();
+          } else {
+            this.showRefundFundsModalPostCheck(
+              signatureToAdd,
+              theRequest,
+              toWhomNameDoc,
+              theResponsePubKeyDoc
+            );
+          }
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+        return undefined;
+      })
+      .finally(() => client.disconnect());
+  };
+
+  showRefundFundsModalPostCheck = (
     signatureToAdd,
     theRequest,
     toWhomNameDoc,
@@ -3966,6 +4073,7 @@ class App extends React.Component {
     });
     this.setState(
       {
+        isLoading2Party: false, //ADDED FOR THE CHECK
         signature2Party: signatureToAdd,
         responsePubKeyDocToUse: theResponsePubKeyDoc,
         requestToEdit: theRequest,
@@ -4182,8 +4290,8 @@ class App extends React.Component {
         this.state.accountAddress
       );
 
-      return transaction.id; //Use to disable TX
-      // return account.broadcastTransaction(transaction);
+      //return transaction.id; //Use to disable TX
+      return account.broadcastTransaction(transaction);
     };
 
     payToRecipient()
@@ -4289,13 +4397,13 @@ class App extends React.Component {
       document.set("resp", Buffer.from(encryptedProps.resp).toString("base64"));
       document.set("fromResp", encryptedProps.fromResp);
 
-      // await platform.documents.broadcast({ replace: [document] }, identity);
-      // return document;
+      await platform.documents.broadcast({ replace: [document] }, identity);
+      return document;
 
       //############################################################
       //This below disconnects the document editing..***
 
-      return document;
+      //return document;
 
       //This is to disconnect the Document editing***
       //############################################################

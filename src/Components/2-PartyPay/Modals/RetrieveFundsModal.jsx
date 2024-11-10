@@ -118,7 +118,7 @@ class RetrieveFundsModal extends React.Component {
               Pay <b>{handleDenomDisplay(this.props.whichNetwork,this.props.amountToSend)}</b> to{" "}
               <b>{this.props.requestPmtNameDoc.label}</b>?
             </h6> */}
-            <p className="textsmaller">
+            <p className="textsmallercenter">
               This will send funds from 2-Party to your wallet.
             </p>
             <div

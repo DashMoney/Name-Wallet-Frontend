@@ -118,7 +118,7 @@ class Refund2PartyModal extends React.Component {
               Pay <b>{handleDenomDisplay(this.props.whichNetwork,this.props.amountToSend)}</b> to{" "}
               <b>{this.props.requestPmtNameDoc.label}</b>?
             </h6> */}
-            <p className="textsmaller">
+            <p className="textsmallercenter">
               This will allow the funds to be released from the 2-Party.
             </p>
             <div
