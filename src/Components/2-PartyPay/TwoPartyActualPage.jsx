@@ -133,7 +133,21 @@ class TwoPartyPage extends React.Component {
             <></>
           )}
 
-          {this.props.Your2PartyPubKey !== "No Pub Key" &&
+          {/* {this.props.Your2PartyPubKey === "Querying" &&
+          this.props.isLoading2Party ? (
+            <>
+              <div className="d-grid gap-2" style={{ margin: "1rem" }}>
+                <Button variant="success" size="lg" disabled>
+                  <b>Enable "2-Party" Pay</b>
+                </Button>
+              </div>
+            </>
+          ) : (
+            <></>
+          )} */}
+
+          {this.props.Your2PartyPubKey !== "Querying" &&
+          this.props.Your2PartyPubKey !== "No Pub Key" &&
           !this.props.isLoading2Party ? (
             <>
               <div className="d-grid gap-2" style={{ margin: "1rem" }}>

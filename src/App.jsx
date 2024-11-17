@@ -71,6 +71,10 @@ import WithdrawRefundModal from "./Components/2-PartyPay/Modals/WithdrawRefundMo
 import createFullTX from "./Components/2-PartyPay/createFullTX";
 import createFullTXRefund from "./Components/2-PartyPay/createFullTXRefund";
 
+import YourRsrvsPage from "./Components/3-Reservations/YourRsrvsPage";
+
+import RequestsPage from "./Components/5-Rentals/RequestsPage";
+
 import ConfirmAddrPaymentModal from "./Components/9-Wallet/ConfirmAddrPaymentModal";
 import RegisterDGMModal from "./Components/RegisterDGMModal";
 import ThreadModal_WALLET from "./Components/9-Wallet/ThreadModal_WALLET";
@@ -172,7 +176,8 @@ class App extends React.Component {
       InitialPull2Party: true,
       is2PartyRefreshReady: true,
 
-      Your2PartyPubKey: [], // When do I query this,
+      Your2PartyPubKey: "Querying", // When do I query this,
+      //While querying, start off -> "Querying"
       //If no 2Party PubKey -> "No Pub Key" and query
 
       ReqsFromYou: [],
@@ -185,7 +190,7 @@ class App extends React.Component {
       ReqsToYouNames: [],
       ReqsToYouResponses: [],
 
-      isLoading2Party: false,
+      isLoading2Party: true,
       DisplayReqsOrPmts: "Payments",
 
       TwoParty1: false,
@@ -223,6 +228,54 @@ class App extends React.Component {
       txToUse: "",
 
       // 2 PARTY PAGE STATE^^^^
+
+      // RESERVATIONS PAGE
+
+      InitialPullReservations: true,
+
+      isRsrvsRefreshReady: true,
+
+      RsrvsRequests: [],
+      RsrvsRentals: [],
+      RsrvsRentalsNames: [],
+      RsrvsRentalsPubkeys: [],
+      isLoadingRsrvsRentals: true,
+      //
+      RsrvsConfirms: [],
+      Rsrvs2PartyReqs: [],
+      Rsrvs2PartyResps: [],
+      isLoadingRsrvs2Party: true,
+
+      // RESERVATIONS PAGE STATE ^^^^
+
+      //ORDERS
+      // ORDERS PAGE STATE ^^^^
+
+      //RENTALS
+
+      InitialPullRentals: true,
+      isRentalsRefreshReady: true,
+
+      DisplayRequests: "Requests",
+
+      RentalsRentals: [],
+      RentalsRequests: [],
+
+      RentalsProxies: [],
+      RentalsNames: [],
+      RentalsControllers: [],
+      RentalsPubkeys: [],
+      isLoadingRentalsMerchant: true,
+
+      RentalsConfirms: [],
+      Rentals2PartyReqs: [],
+      Rentals2PartyResps: [],
+      isLoadingRentals2Party: true,
+
+      // RENTALS PAGE STATE ^^^^
+
+      // RECEIVED ORDERS
+      // RECEIVED ORDERS PAGE STATE ^^^^
 
       //WALLET PAGE
 
@@ -750,6 +803,7 @@ class App extends React.Component {
     this.getIdentityInfo(theIdentity);
     this.getWalletPlatformLogin(theMnemonic);
     this.get2PartyYourPubKey();
+    this.pullInitialTriggerPROXY();
     // this.getNamefromIdentity(theIdentity); DONT NEED <=
     //this.getAliasfromIdentity(theIdentity); // NO MORE ALIASES
     //
@@ -1078,6 +1132,7 @@ class App extends React.Component {
 
   LOGINCOMPLETEQueryTrigger = (theIdentity) => {
     this.get2PartyYourPubKey();
+    this.pullInitialTriggerPROXY();
     //After(Identity/Name) -> trigger added to 2 Functions ABOVE
     // ForYou(Messages)
     // this.startMessagesQuerySeq(theIdentity);
@@ -1239,6 +1294,7 @@ class App extends React.Component {
    *   ################
    *   ###
    *   ###
+   *
    * PROXY FUNCTIONS
    */
 
@@ -3061,6 +3117,7 @@ class App extends React.Component {
     console.log("Called Register 2Party Pub Key");
     this.setState({
       isLoading2Party: true,
+      Your2PartyPubKey: "Querying",
     });
 
     const client = new Dash.Client(
@@ -4467,14 +4524,1766 @@ class App extends React.Component {
    *                              ####
    *                            ###############
    *
+   *      #############
+   *     ####         ##
+   *     ###
+   *     ###
+   *     #####        ##
+   *      #############
+   *
+   */
+  //CUSTOMER FUNCTIONS -- CHANGE TO RESERVATIONS
+
+  pullInitialTriggerRSRVS = () => {
+    if (this.state.InitialPullReservations) {
+      this.getYourRsrvs();
+      this.setState({
+        InitialPullReservations: false,
+      });
+    }
+  };
+
+  handleRefresh_Rsrvs = () => {
+    this.setState(
+      {
+        isLoadingRsrvs2Party: true,
+        isLoadingRsrvsRentals: true,
+        isRsrvsRefreshReady: false, // pass to refresh button
+      },
+      () => this.getYourRsrvs()
+    );
+
+    //REFRESH -> TIMEOUT
+    //if (!this.state.isYourRsrvsRefreshReady) {
+    const yourRsrvsTimeout = setTimeout(this.allowRsrvsRefresh, 15000);
+    // }
+    //REFRESH -> TIMEOUT
+  };
+
+  allowRsrvsRefresh = () => {
+    this.setState({
+      isRsrvsRefreshReady: true,
+    });
+  };
+
+  getYourRsrvs = () => {
+    //console.log("Calling getYourRsrvs");
+    // if (!this.state.isLoadingRsrvs2Party || !this.state.isLoadingRsrvsRentals) {
+    //   this.setState({ isLoadingRsrvs2Party: true, isLoadingRsrvsRentals: true });
+    // }
+
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    // let arrayOfRentalIds = this.state.Rentals.map((doc) => {
+    //   return doc.$id;
+    // });
+
+    let arrayOfProxyIds = this.state.ProxyDocs.map((doc) => {
+      return doc.$ownerId;
+    });
+
+    console.log("arrayOfProxyIds: ", arrayOfProxyIds);
+
+    const getDocuments = async () => {
+      if (arrayOfProxyIds.length !== 0) {
+        return client.platform.documents.get("RENTALSContract.request", {
+          where: [
+            ["$ownerId", "in", arrayOfProxyIds],
+            // ["$ownerId", "==", theIdentity],
+            // ["rentalId", "in", arrayOfRentalIds],
+            ["$createdAt", "<=", Date.now()],
+          ],
+          orderBy: [
+            ["$ownerId", "asc"],
+            ["$createdAt", "desc"],
+          ],
+        });
+      } else {
+        return [];
+      }
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          console.log("There are no Reservation Request");
+          this.setState({
+            RsrvsRequests: [],
+            RsrvsRentals: [],
+            RsrvsRentalsNames: [],
+            RsrvsRentalsPubkeys: [],
+            isLoadingRsrvsRentals: false,
+            //
+            RsrvsConfirms: [],
+            Rsrvs2PartyReqs: [],
+            Rsrvs2PartyResps: [],
+            isLoadingRsrvs2Party: false,
+          });
+        } else {
+          let docArray = [];
+          //console.log("Getting merchant Requests");
+
+          for (const n of d) {
+            let returnedDoc = n.toJSON();
+            //console.log("Requests:\n", returnedDoc);
+            returnedDoc.rentalId = Identifier.from(
+              returnedDoc.rentalId,
+              "base64"
+            ).toJSON();
+            // console.log("newRequest:\n", returnedDoc);
+            docArray = [...docArray, returnedDoc];
+          }
+
+          this.getYourRsrvsConfirms(docArray); //isLoadingRsrvs2Party
+          this.getYourRsrvsRentals(docArray); //isLoadingRsrvsRentals
+        }
+      })
+      .catch((e) => console.error("Something went wrong:\n", e))
+      .finally(() => client.disconnect());
+  };
+
+  //Requests
+  //Confirms             |       Rentals
+  //2-Party (Reqs&Resps) |       NameDocs && PUBKEY(2-Party)
+  //isLoadingRsrvs2Party |       isLoadingRsrvsRentals
+  //
+  //how do i get the name -> From the rental bc their may not be a Confirm
+
+  getYourRsrvsRentals = (theRequests) => {
+    //console.log("Calling getRentals");
+    // if (!this.state.isLoadingRentals) {
+    //   this.setState({ isLoadingRentals: true });
+    // }
+
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    // This Below is to get unique set of Rental doc ids
+    let arrayOfRentalIds = theRequests.map((doc) => {
+      return doc.rentalId;
+    });
+
+    let setOfRentalIds = [...new Set(arrayOfRentalIds)];
+
+    arrayOfRentalIds = [...setOfRentalIds];
+
+    //console.log("Array of Rentalids", arrayOfRentalIds);
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("RENTALSContract.rental", {
+        where: [
+          ["$id", "in", arrayOfRentalIds],
+          // ["$ownerId", "==", this.state.MerchantId],
+          // ["$updatedAt", "<=", Date.now()],
+        ],
+        // orderBy: [
+        //   ["rentalId", "asc"],
+        //   ["$updatedAt", "desc"],
+        // ],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("There are no Rentals");
+
+          this.setState({
+            RsrvsRequests: theRequests,
+            RsrvsRentals: [],
+            RsrvsRentalsNames: [],
+            RsrvsRentalsPubkeys: [],
+            isLoadingRsrvsRentals: false,
+          });
+        } else {
+          let docArray = [];
+          //console.log("Getting Rentals");
+
+          for (const n of d) {
+            let returnedDoc = n.toJSON();
+            //console.log("Rental:\n", returnedDoc);
+            returnedDoc.imgArray = JSON.parse(returnedDoc.imgArray);
+            //console.log("newRental:\n", returnedDoc);
+            docArray = [...docArray, returnedDoc];
+          }
+
+          this.getYourRsrvsRentalsNames(theRequests, docArray);
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  getYourRsrvsRentalsNames = (theRequests, theRentalDocs) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+    //START OF NAME RETRIEVAL
+
+    let ownerarrayOfOwnerIds = theRentalDocs.map((doc) => {
+      return doc.$ownerId;
+    });
+
+    let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
+
+    let arrayOfOwnerIds = [...setOfOwnerIds];
+
+    //console.log("Calling getNamesforOwnerlers");
+
+    const getNameDocuments = async () => {
+      return client.platform.documents.get("DPNSContract.domain", {
+        where: [["records.identity", "in", arrayOfOwnerIds]],
+        orderBy: [["records.identity", "asc"]],
+      });
+    };
+
+    getNameDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("There are no Rentals");
+
+          this.setState({
+            RsrvsRequests: theRequests,
+            RsrvsRentals: theRentalDocs,
+            RsrvsRentalsNames: [],
+            RsrvsRentalsPubkeys: [],
+            isLoadingRsrvsRentals: false,
+          });
+        } else {
+          let nameDocArray = [];
+
+          for (const n of d) {
+            //console.log("NameDoc:\n", n.toJSON());
+            nameDocArray = [n.toJSON(), ...nameDocArray];
+          }
+
+          this.getYourRsrvsRentalsPubkeys(
+            theRequests,
+            theRentalDocs,
+            nameDocArray,
+            arrayOfOwnerIds
+          );
+          //console.log(`DPNS Name Docs: ${nameDocArray}`);
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  getYourRsrvsRentalsPubkeys = (
+    theRequests,
+    theRentalDocs,
+    theNameDocs,
+    arrayOfOwnerIds
+  ) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    //console.log("Calling getYourRsrvsRentalsPubkeys");
+
+    const getPublicKeyDocuments = async () => {
+      return client.platform.documents.get("TwoPartyContract.xPubKeyDoc", {
+        where: [["$ownerId", "in", arrayOfOwnerIds]],
+        orderBy: [["$ownerId", "asc"]],
+      });
+    };
+
+    getPublicKeyDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("No DPNS domain documents retrieved.");
+        }
+
+        let pubKeyDocArray = [];
+
+        for (const n of d) {
+          //console.log("PubKeyDoc:\n", n.toJSON());
+
+          pubKeyDocArray = [n.toJSON(), ...pubKeyDocArray];
+        }
+        //console.log(`Public Key Docs: ${pubKeyDocArray}`);
+
+        this.setState({
+          RsrvsRequests: theRequests,
+          RsrvsRentals: theRentalDocs,
+          RsrvsRentalsNames: theNameDocs,
+          RsrvsRentalsPubkeys: pubKeyDocArray,
+          isLoadingRsrvsRentals: false,
+        });
+      })
+      .catch((e) => {
+        console.error(
+          "Something went wrong gettingYourRsrvsRentalsPubkeys:\n",
+          e
+        );
+      })
+      .finally(() => client.disconnect());
+  };
+
+  getYourRsrvsConfirms = (theDocArray) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    // This Below is to get unique set of Req doc ids
+    let arrayOfReqIds = theDocArray.map((doc) => {
+      return doc.$id;
+    });
+
+    //console.log("Array of Req Req ids", arrayOfReqIds);
+
+    let setOfReqIds = [...new Set(arrayOfReqIds)];
+
+    arrayOfReqIds = [...setOfReqIds];
+
+    //console.log("Array of Req ids", arrayOfReqIds);
+
+    const getDocuments = async () => {
+      //console.log("Called Get Reqs");
+
+      return client.platform.documents.get("RENTALSContract.confirm", {
+        where: [["reqId", "in", arrayOfReqIds]], // check reqId ->
+        orderBy: [["reqId", "asc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        //console.log("Getting YourRsrvsConfirms");
+        if (d.length === 0) {
+          //console.log("There are no YourRsrvsConfirms");
+
+          this.setState({
+            RsrvsConfirms: [],
+            Rsrvs2PartyReqs: [],
+            Rsrvs2PartyResps: [],
+            isLoadingRsrvs2Party: false,
+          });
+        } else {
+          let docArray = [];
+
+          for (const n of d) {
+            let returnedDoc = n.toJSON();
+            //console.log("Confirm:\n", returnedDoc);
+            returnedDoc.reqId = Identifier.from(
+              returnedDoc.reqId,
+              "base64"
+            ).toJSON();
+            returnedDoc.rentalId = Identifier.from(
+              returnedDoc.rentalId,
+              "base64"
+            ).toJSON();
+            console.log("newConfirm:\n", returnedDoc);
+            //Filter so that only the merchant send a confirm to the requester -> JUST DO THIS IN THE CARD ie  WAY DOWN STREAM
+            // if (returnedDoc.$ownerId === this.state.MerchantId) {
+            //   docArray = [...docArray, returnedDoc];
+            // }
+          }
+
+          this.getYourRsrvs2PartyReqs(docArray);
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong YourRsrvsConfirms:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  getYourRsrvs2PartyReqs = (theConfirms) => {
+    // console.log("Called getYourRsrvs2PartyReqs");
+
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    // This Below is to get unique set of For doc ids
+    let arrayOfForIds = theConfirms.map((doc) => {
+      return doc.$id;
+    });
+
+    let setOfForIds = [...new Set(arrayOfForIds)];
+
+    arrayOfForIds = [...setOfForIds];
+
+    //console.log("Array of For ids", arrayOfForIds);
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("TwoPartyContract.request", {
+        where: [["forId", "in", arrayOfForIds]],
+        orderBy: [["forId", "asc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("There are no YourRsrvs2PartyReqs");
+
+          this.setState({
+            RsrvsConfirms: theConfirms,
+            Rsrvs2PartyReqs: [],
+            Rsrvs2PartyResps: [],
+            isLoadingRsrvs2Party: false,
+          });
+        } else {
+          let docArray = [];
+          //console.log("Getting YourRsrvs2PartyReqs");
+          for (const n of d) {
+            let returnedDoc = n.toJSON();
+            //console.log("Req:\n", returnedDoc);
+
+            returnedDoc.toId = Identifier.from(
+              returnedDoc.toId,
+              "base64"
+            ).toJSON();
+
+            returnedDoc.forId = Identifier.from(
+              returnedDoc.forId,
+              "base64"
+            ).toJSON();
+
+            // console.log("newReq:\n", returnedDoc);
+            docArray = [...docArray, returnedDoc];
+          }
+          //decryptTheirReqs(theReqs, theMnemonic, whichNetwork)
+          let decryptedDocs = decryptTheirReqs(
+            docArray,
+            this.state.mnemonic,
+            this.state.whichNetwork
+          );
+
+          this.getYourRsrvs2PartyResps(decryptedDocs, theConfirms);
+        }
+      })
+      .catch((e) => console.error("Something went wrong:\n", e))
+      .finally(() => client.disconnect());
+  };
+
+  getYourRsrvs2PartyResps = (the2PartyReqs, theConfirms) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    // This Below is to get unique set of ToYou Req doc ids
+    let arrayOfReqIds = the2PartyReqs.map((doc) => {
+      return doc.$id;
+    });
+
+    //console.log("Array of ToYou Req ids", arrayOfReqIds);
+
+    let setOfReqIds = [...new Set(arrayOfReqIds)];
+
+    arrayOfReqIds = [...setOfReqIds];
+
+    //console.log("Array of Req ids", arrayOfReqIds);
+
+    const getDocuments = async () => {
+      //console.log("Called Get YourRsrvs2PartyResps");
+
+      return client.platform.documents.get("TwoPartyContract.response", {
+        where: [
+          ["reqId", "in", arrayOfReqIds],
+          // ["$createdAt", "<=", Date.now()],
+        ],
+        orderBy: [
+          ["reqId", "asc"],
+          //  ["$createdAt", "desc"],
+        ],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        let responseDocArray = [];
+
+        for (const n of d) {
+          let returnedDoc = n.toJSON();
+          //console.log("Response:\n", returnedDoc);
+          returnedDoc.reqId = Identifier.from(
+            returnedDoc.reqId,
+            "base64"
+          ).toJSON();
+
+          returnedDoc.toId = Identifier.from(
+            returnedDoc.toId,
+            "base64"
+          ).toJSON();
+          // returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+          //console.log("newResponse:\n", returnedDoc);
+          responseDocArray = [...responseDocArray, returnedDoc];
+        }
+
+        // decryptMyResps(theResps, theMnemonic, whichNetwork)
+
+        let decryptedRespArray = decryptMyResps(
+          responseDocArray,
+          this.state.mnemonic,
+          this.state.whichNetwork
+        );
+
+        this.setState({
+          RsrvsConfirms: theConfirms,
+          Rsrvs2PartyReqs: the2PartyReqs,
+          Rsrvs2PartyResps: decryptedRespArray,
+          isLoadingRsrvs2Party: false,
+        });
+      })
+      .catch((e) => {
+        console.error("Something went wrong YourRsrvs2PartyResps:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  handleCustomerReplyModalShow = (theConfirm) => {
+    this.setState(
+      {
+        selectedConfirm: theConfirm,
+      },
+      () => this.showModal("CustomerReplyModal")
+    );
+  };
+
+  //confirmId createdAt - query
+  // confirmId && msg - attributes
+
+  createCustomerReply = (replyMsgComment) => {
+    //console.log("Called Customer Message Submit: ", replyMsgComment);
+
+    this.setState({
+      isLoadingRequests: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const submitMsgDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      }
+
+      const replyProperties = {
+        confirmId: this.state.selectedConfirm.$id,
+        msg: replyMsgComment,
+      };
+      //console.log('Reply to Create: ', replyProperties);
+
+      // Create the note document
+      const rentalDocument = await platform.documents.create(
+        "RENTALSContract.reply",
+        identity,
+        replyProperties
+      );
+
+      //############################################################
+      //This below disconnects the document sending..***
+
+      //return rentalDocument;
+
+      //This is to disconnect the Document Creation***
+      //############################################################
+
+      const documentBatch = {
+        create: [rentalDocument], // Document(s) to create
+      };
+
+      await platform.documents.broadcast(documentBatch, identity);
+      return rentalDocument;
+    };
+
+    submitMsgDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+        console.log("Document:\n", returnedDoc);
+
+        returnedDoc.confirmId = Identifier.from(
+          returnedDoc.confirmId,
+          "base64"
+        ).toJSON();
+
+        this.setState(
+          {
+            RentalReplies: [...this.state.RentalReplies, returnedDoc],
+            isLoadingRequests: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+      })
+      .catch((e) => {
+        console.error(
+          "Something went wrong with Customer Reply Msg creation:\n",
+          e
+        );
+      })
+      .finally(() => client.disconnect());
+  };
+
+  handleDeleteRequestModal = (theRequest, index) => {
+    let requestRental = this.state.Rentals.find((rental) => {
+      return rental.$id === theRequest.rentalId;
+    });
+    this.setState(
+      {
+        SelectedRental: requestRental,
+        selectedRequest: theRequest,
+        //I also need the name <- NOT FOR MY POSTS
+        selectedRequestIndex: index, //<- Need this for the editingfunction!!
+      },
+      () => this.showModal("DeleteRequestModal")
+    );
+  };
+
+  deleteRequest = () => {
+    //console.log("Called Delete Request");
+
+    this.setState({
+      isLoadingRequests: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const deleteNoteDocument = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      }
+
+      const documentId = this.state.selectedRequest.$id;
+
+      // Retrieve the existing document
+
+      //JUST PUT IN THE DOCUMENT THAT i ALREADY HAVE... => Done
+      // Wrong ^^^ Can not use because changed to JSON
+
+      const [document] = await client.platform.documents.get(
+        "RENTALSContract.request",
+        { where: [["$id", "==", documentId]] }
+      );
+
+      // Sign and submit the document delete transition
+      await platform.documents.broadcast({ delete: [document] }, identity);
+      return document;
+    };
+
+    deleteNoteDocument()
+      .then((d) => {
+        //console.log("Document deleted:\n", d.toJSON());
+
+        let editedRequests = this.state.RentalRequests;
+
+        editedRequests.splice(this.state.selectedRequestIndex, 1);
+
+        this.setState({
+          RentalRequests: editedRequests,
+          isLoadingRequests: false,
+        });
+      })
+      .catch((e) => console.error("Something went wrong:\n", e))
+      .finally(() => client.disconnect());
+  };
+
+  /*
+   *CUSTOMER FUNCTIONS^^^^
+   *                                 #############
+   *                                ####         ##
+   *                                ###
+   *                                ###
+   *                                #####        ##
+   *                                 #############
+   *
+   *
+   *     ###     ###
+   *    ## ##    ####
+   *   ###  ##  ##  ##
+   *  ###    ####    ##
+   * ###      ###     ##
+   *
+   */
+
+  pullInitialTriggerRENTALS = () => {
+    if (this.state.InitialPullRentals) {
+      this.getRentals();
+      this.setState({
+        InitialPullRentals: false,
+      });
+    }
+  };
+
+  handleRefresh_Rentals = () => {
+    this.setState(
+      {
+        isLoadingRentals2Party: true,
+        isLoadingRentalsMerchant: true,
+        isRentalsRefreshReady: false, // pass to refresh button
+      },
+      () => this.getRentals()
+    );
+
+    //REFRESH -> TIMEOUT
+    //if (!this.state.isYourRsrvsRefreshReady) {
+    const rentalsTimeout = setTimeout(this.allowRentalsRefresh, 15000);
+    // }
+    //REFRESH -> TIMEOUT
+  };
+
+  allowRentalsRefresh = () => {
+    this.setState({
+      isRentalsRefreshReady: true,
+    });
+  };
+
+  //SETTIMEOUT WAY ^^^^
+
+  handleMerchantRequestFilter = (theSelected) => {
+    this.setState({
+      DisplayRequests: theSelected,
+    });
+  };
+
+  //Rentals (MERCH)
+  //Requests(fromCUSTs)
+  //Confirms (MERCH)       |       NameDocs&&PROXYs
+  //2-Party (Reqs&Resps)   |      PUBKEY(2-Party) AFterNAME
+  //isLoadingRentals2Party |       isLoadingRentalsMerchant
+  //
+  //how do i get the pubKey -> From the name bc proxy is not OwnerId of pubkey
+
+  getRentals = () => {
+    console.log("Calling getRentals");
+    // if (!this.state.isLoadingRentals) {
+    //   this.setState({ isLoadingRentals: true });
+    // }
+
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("RENTALSContract.rental", {
+        where: [
+          ["$ownerId", "==", this.state.identity],
+          ["$updatedAt", "<=", Date.now()],
+        ],
+        orderBy: [["$updatedAt", "desc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          console.log("There are no Rentals");
+
+          this.setState({
+            RentalsRentals: [],
+            RentalsRequests: [],
+
+            RentalsProxies: [],
+            RentalsNames: [],
+            RentalsControllers: [],
+            RentalsPubkeys: [],
+            isLoadingRentalsMerchant: false,
+
+            RentalsConfirms: [],
+            Rentals2PartyReqs: [],
+            Rentals2PartyResps: [],
+            isLoadingRentals2Party: false,
+          });
+        } else {
+          let docArray = [];
+          //console.log("Getting Rentals");
+
+          for (const n of d) {
+            let returnedDoc = n.toJSON();
+            //console.log("Rental:\n", returnedDoc);
+            // returnedDoc.replyId = Identifier.from(
+            //   returnedDoc.replyId,
+            //   "base64"
+            // ).toJSON();
+            returnedDoc.imgArray = JSON.parse(returnedDoc.imgArray);
+            //console.log("newRental:\n", returnedDoc);
+            docArray = [...docArray, returnedDoc];
+          }
+
+          this.getRentalsRequests(docArray);
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  getRentalsRequests = (theRentalsDocs) => {
+    //console.log("Calling getRequests");
+
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    let arrayOfRentalIds = theRentalsDocs.map((doc) => {
+      return doc.$id;
+    });
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("RENTALSContract.request", {
+        where: [
+          //["$ownerId", "==", this.state.identity],
+          ["rentalId", "in", arrayOfRentalIds],
+          ["$createdAt", "<=", Date.now()],
+        ],
+        orderBy: [
+          ["rentalId", "asc"],
+          ["$createdAt", "desc"],
+        ],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          console.log("There are no Rentals");
+
+          this.setState({
+            RentalsRentals: theRentalsDocs,
+            RentalsRequests: [],
+
+            RentalsProxies: [],
+            RentalsNames: [],
+            RentalsControllers: [],
+            RentalsPubkeys: [],
+            isLoadingRentalsMerchant: false,
+
+            RentalsConfirms: [],
+            Rentals2PartyReqs: [],
+            Rentals2PartyResps: [],
+            isLoadingRentals2Party: false,
+          });
+        } else {
+          let docArray = [];
+          //console.log("Getting YourRsrvs");
+
+          for (const n of d) {
+            let returnedDoc = n.toJSON();
+            //console.log("Requests:\n", returnedDoc);
+            returnedDoc.rentalId = Identifier.from(
+              returnedDoc.rentalId,
+              "base64"
+            ).toJSON();
+            //  console.log("newRequest:\n", returnedDoc);
+            docArray = [...docArray, returnedDoc];
+          }
+          this.getRentalsProxies(docArray, theRentalsDocs);
+          this.getRentalsConfirms(docArray);
+        }
+      })
+      .catch((e) => console.error("Something went wrong:\n", e))
+      .finally(() => client.disconnect());
+  };
+
+  getRentalsProxies = (theRequests, theRentalsDocs) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    const getDocuments = async () => {
+      //console.log("Called Query RequestsProxies");
+
+      let ownerarrayOfOwnerIds = theRequests.map((doc) => {
+        return doc.$ownerId;
+      });
+
+      let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
+
+      let arrayOfOwnerIds = [...setOfOwnerIds];
+
+      return client.platform.documents.get("ProxyContract.proxy", {
+        where: [["$ownerId", "in", arrayOfOwnerIds]],
+        orderBy: [["$ownerId", "asc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        let proxyDocArray = [];
+
+        if (d.length === 0) {
+          console.log("There are no ProxyDocs.");
+          this.setState({
+            RentalsRentals: theRentalsDocs,
+            RentalsRequests: theRequests,
+
+            RentalsProxies: [],
+            RentalsNames: [],
+            RentalsControllers: [],
+            RentalsPubkeys: [],
+            isLoadingRentalsMerchant: false,
+          });
+        } else {
+          for (const n of d) {
+            let proxyDoc = n.toJSON();
+            //console.log("proxyDoc:\n", n.toJSON());
+            proxyDoc.controlId = Identifier.from(
+              proxyDoc.controlId,
+              "base64"
+            ).toJSON();
+
+            proxyDocArray = [proxyDoc, ...proxyDocArray];
+          }
+
+          //console.log(`Proxy Docs: ${proxyDocArray}`);
+
+          this.getRentalsProxyControllers(
+            proxyDocArray,
+            theRequests,
+            theRentalsDocs
+          );
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  getRentalsProxyControllers = (proxyDocs, theRequests, theRentalsDocs) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    const getDocuments = async () => {
+      let ownerarrayOfControlIds = proxyDocs.map((doc) => {
+        return doc.controlId;
+      });
+
+      let setOfControlIds = [...new Set(ownerarrayOfControlIds)];
+
+      let arrayOfControlIds = [...setOfControlIds];
+
+      return client.platform.documents.get("ProxyContract.controller", {
+        where: [["$ownerId", "in", arrayOfControlIds]],
+        orderBy: [["$ownerId", "asc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          console.log("There are no ProxyController.");
+
+          this.setState({
+            RentalsRentals: theRentalsDocs,
+            RentalsRequests: theRequests,
+
+            RentalsProxies: proxyDocs,
+            RentalsNames: [],
+            RentalsControllers: [],
+            RentalsPubkeys: [],
+            isLoadingRentalsMerchant: false,
+          });
+        } else {
+          let controllerDocs = [];
+          for (const n of d) {
+            let controlDoc = n.toJSON();
+            //console.log("controlDoc:\n", n.toJSON());
+
+            // controlDoc.controlId = Identifier.from(
+            //   controlDoc.controlId,
+            //   "base64"
+            // ).toJSON();
+
+            controlDoc.proxyList = JSON.parse(controlDoc.proxyList);
+
+            controllerDocs = [controlDoc, ...controllerDocs];
+          }
+
+          this.getRentalsControllerNames(
+            controllerDocs,
+            proxyDocs,
+            theRequests,
+            theRentalsDocs
+          );
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  getRentalsControllerNames = (
+    theDocArray,
+    proxyDocs,
+    theRequests,
+    theRentalsDocs
+  ) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+    //START OF NAME RETRIEVAL
+
+    let ownerarrayOfControlIds = proxyDocs.map((doc) => {
+      return doc.controlId;
+    });
+
+    let setOfControlIds = [...new Set(ownerarrayOfControlIds)];
+
+    let arrayOfControlIds = [...setOfControlIds];
+
+    //console.log("Calling getNamesforControllers");
+
+    const getNameDocuments = async () => {
+      return client.platform.documents.get("DPNSContract.domain", {
+        where: [["records.identity", "in", arrayOfControlIds]],
+        orderBy: [["records.identity", "asc"]],
+      });
+    };
+
+    getNameDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          console.log("There are no ProxyController.");
+
+          this.setState({
+            RentalsRentals: theRentalsDocs,
+            RentalsRequests: theRequests,
+
+            RentalsProxies: proxyDocs,
+            RentalsNames: [],
+            RentalsControllers: theDocArray,
+            RentalsPubkeys: [],
+            isLoadingRentalsMerchant: false,
+          });
+        } else {
+          let nameDocArray = [];
+
+          for (const n of d) {
+            //console.log("NameDoc:\n", n.toJSON());
+            nameDocArray = [n.toJSON(), ...nameDocArray];
+          }
+          //console.log(`DPNS Name Docs: ${nameDocArray}`);
+          this.getRentalsPubkeys(
+            nameDocArray,
+            theDocArray,
+            proxyDocs,
+            theRequests,
+            theRentalsDocs
+          );
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  getRentalsPubkeys = (
+    nameDocArray,
+    theDocArray,
+    proxyDocs,
+    theRequests,
+    theRentalsDocs
+  ) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    let ownerarrayOfOwnerIds = nameDocArray.map((doc) => {
+      return doc.$ownerId;
+    });
+
+    let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
+
+    let arrayOfOwnerIds = [...setOfOwnerIds];
+
+    console.log("Calling getRentalsPubkeys");
+
+    const getPublicKeyDocuments = async () => {
+      return client.platform.documents.get("TwoPartyContract.xPubKeyDoc", {
+        where: [["$ownerId", "in", arrayOfOwnerIds]],
+        orderBy: [["$ownerId", "asc"]],
+      });
+    };
+
+    getPublicKeyDocuments()
+      .then((d) => {
+        let pubKeyDocArray = [];
+
+        for (const n of d) {
+          //console.log("PubKeyDoc:\n", n.toJSON());
+
+          pubKeyDocArray = [n.toJSON(), ...pubKeyDocArray];
+        }
+        //console.log(`Public Key Docs: ${pubKeyDocArray}`);
+
+        this.setState({
+          RentalsRentals: theRentalsDocs,
+          RentalsRequests: theRequests,
+
+          RentalsProxies: proxyDocs,
+          RentalsNames: nameDocArray,
+          RentalsControllers: theDocArray,
+          RentalsPubkeys: pubKeyDocArray,
+          isLoadingRentalsMerchant: false,
+        });
+      })
+      .catch((e) => {
+        console.error("Something went wrong gettingRentalsPubkeys:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  getRentalsConfirms = (theDocArray) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    // This Below is to get unique set of Req doc ids
+    let arrayOfReqIds = theDocArray.map((doc) => {
+      return doc.$id;
+    });
+
+    //console.log("Array of Req Req ids", arrayOfReqIds);
+
+    let setOfReqIds = [...new Set(arrayOfReqIds)];
+
+    arrayOfReqIds = [...setOfReqIds];
+
+    //console.log("Array of Req ids", arrayOfReqIds);
+
+    const getDocuments = async () => {
+      //console.log("Called Get Reqs");
+
+      return client.platform.documents.get("RENTALSContract.confirm", {
+        where: [["reqId", "in", arrayOfReqIds]], // check reqId ->
+        orderBy: [["reqId", "asc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        //console.log("Getting RentalsConfirms");
+        if (d.length === 0) {
+          console.log("There are no RentalsConfirms");
+
+          this.setState({
+            RentalsConfirms: [],
+            Rentals2PartyReqs: [],
+            Rentals2PartyResps: [],
+            isLoadingRentals2Party: false,
+          });
+        } else {
+          let docArray = [];
+
+          for (const n of d) {
+            let returnedDoc = n.toJSON();
+            //console.log("Confirm:\n", returnedDoc);
+            returnedDoc.reqId = Identifier.from(
+              returnedDoc.reqId,
+              "base64"
+            ).toJSON();
+            returnedDoc.rentalId = Identifier.from(
+              returnedDoc.rentalId,
+              "base64"
+            ).toJSON();
+            console.log("newConfirm:\n", returnedDoc);
+            //Filter so that only the merchant send a confirm to the requester -> JUST DO THIS IN THE CARD ie  WAY DOWN STREAM
+            // if (returnedDoc.$ownerId === this.state.MerchantId) {
+            //   docArray = [...docArray, returnedDoc];
+            // }
+          }
+
+          this.getRentals2PartyReqs(docArray);
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong RentalsConfirms:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  getRentals2PartyReqs = (theConfirms) => {
+    // console.log("Called getRentals2PartyReqs");
+
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    // This Below is to get unique set of For doc ids
+    let arrayOfForIds = theConfirms.map((doc) => {
+      return doc.$id;
+    });
+
+    let setOfForIds = [...new Set(arrayOfForIds)];
+
+    arrayOfForIds = [...setOfForIds];
+
+    //console.log("Array of For ids", arrayOfForIds);
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("TwoPartyContract.request", {
+        where: [["forId", "in", arrayOfForIds]],
+        orderBy: [["forId", "asc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          console.log("There are no Rentals2PartyReqs");
+
+          this.setState({
+            RentalsConfirms: theConfirms,
+            Rentals2PartyReqs: [],
+            Rentals2PartyResps: [],
+            isLoadingRentals2Party: false,
+          });
+        } else {
+          let docArray = [];
+          //console.log("Getting Rentals2PartyReqs");
+          for (const n of d) {
+            let returnedDoc = n.toJSON();
+            //console.log("Req:\n", returnedDoc);
+
+            returnedDoc.toId = Identifier.from(
+              returnedDoc.toId,
+              "base64"
+            ).toJSON();
+
+            returnedDoc.forId = Identifier.from(
+              returnedDoc.forId,
+              "base64"
+            ).toJSON();
+
+            // console.log("newReq:\n", returnedDoc);
+            docArray = [...docArray, returnedDoc];
+          }
+          //decryptTheirReqs(theReqs, theMnemonic, whichNetwork)
+          let decryptedDocs = decryptTheirReqs(
+            docArray,
+            this.state.mnemonic,
+            this.state.whichNetwork
+          );
+
+          this.getRentals2PartyResps(decryptedDocs, theConfirms);
+        }
+      })
+      .catch((e) => console.error("Something went wrong:\n", e))
+      .finally(() => client.disconnect());
+  };
+
+  getRentals2PartyResps = (the2PartyReqs, theConfirms) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    // This Below is to get unique set of ToYou Req doc ids
+    let arrayOfReqIds = the2PartyReqs.map((doc) => {
+      return doc.$id;
+    });
+
+    //console.log("Array of ToYou Req ids", arrayOfReqIds);
+
+    let setOfReqIds = [...new Set(arrayOfReqIds)];
+
+    arrayOfReqIds = [...setOfReqIds];
+
+    //console.log("Array of Req ids", arrayOfReqIds);
+
+    const getDocuments = async () => {
+      //console.log("Called Get Rentals2PartyResps");
+
+      return client.platform.documents.get("TwoPartyContract.response", {
+        where: [
+          ["reqId", "in", arrayOfReqIds],
+          // ["$createdAt", "<=", Date.now()],
+        ],
+        orderBy: [
+          ["reqId", "asc"],
+          //  ["$createdAt", "desc"],
+        ],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        let responseDocArray = [];
+
+        for (const n of d) {
+          let returnedDoc = n.toJSON();
+          //console.log("Response:\n", returnedDoc);
+          returnedDoc.reqId = Identifier.from(
+            returnedDoc.reqId,
+            "base64"
+          ).toJSON();
+
+          returnedDoc.toId = Identifier.from(
+            returnedDoc.toId,
+            "base64"
+          ).toJSON();
+          // returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+          //console.log("newResponse:\n", returnedDoc);
+          responseDocArray = [...responseDocArray, returnedDoc];
+        }
+
+        // decryptMyResps(theResps, theMnemonic, whichNetwork)
+
+        let decryptedRespArray = decryptMyResps(
+          responseDocArray,
+          this.state.mnemonic,
+          this.state.whichNetwork
+        );
+
+        this.setState({
+          RentalsConfirms: theConfirms,
+          Rentals2PartyReqs: the2PartyReqs,
+          Rentals2PartyResps: decryptedRespArray,
+          isLoadingRentals2Party: false,
+        });
+      })
+      .catch((e) => {
+        console.error("Something went wrong Rentals2PartyResps:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  //END OF MERCHANT QUERIES
+
+  handleConfirmRequestModal = (theRequest) => {
+    //HAVE TO DETERMINE THE RENTAL of request ->
+    let requestRental = this.state.Rentals.find((rental) => {
+      return rental.$id === theRequest.rentalId;
+    });
+
+    this.setState(
+      {
+        selectedRequest: theRequest,
+        SelectedRental: requestRental,
+      },
+      () => this.showModal("ConfirmRequestModal")
+    );
+  };
+
+  createConfirmRequest = () => {
+    // console.log("Called Create Confirm Request");
+
+    this.setState({
+      isLoadingRequests: true,
+      isLoadingRentals: true,
+      selectedDapp: "Rentals",
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const submitConfirmDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      }
+
+      const confirmProperties = {
+        arriveDate: this.state.selectedRequest.arriveDate,
+        departDate: this.state.selectedRequest.departDate,
+        rentalId: this.state.SelectedRental.$id,
+        reqId: this.state.selectedRequest.$id,
+        //toId
+        amt: this.state.selectedRequest.amt,
+        // pmtObj
+      };
+      //console.log(' Create: ', confirmProperties);
+
+      // Create the note document
+      const rentalDocument = await platform.documents.create(
+        "RENTALSContract.confirm",
+        identity,
+        confirmProperties
+      );
+
+      //############################################################
+      //This below disconnects the document sending..***
+
+      //return rentalDocument;
+
+      //This is to disconnect the Document Creation***
+      //############################################################
+
+      const documentBatch = {
+        create: [rentalDocument], // Document(s) to create
+      };
+
+      await platform.documents.broadcast(documentBatch, identity);
+      return rentalDocument;
+    };
+
+    submitConfirmDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        returnedDoc.rentalId = Identifier.from(
+          returnedDoc.rentalId,
+          "base64"
+        ).toJSON();
+
+        returnedDoc.reqId = Identifier.from(
+          returnedDoc.reqId,
+          "base64"
+        ).toJSON();
+
+        console.log("Request Confirm:\n", returnedDoc);
+
+        this.setState(
+          {
+            RentalConfirms: [returnedDoc, ...this.state.RentalConfirms],
+
+            isLoadingRequests: false,
+            isLoadingRentals: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong with Block Confirm creation:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  //RENTALS - 2 PARTY REQUEST
+
+  showRentals2PartyReqModal = (
+    inputRentalReqDoc,
+    inputNameDoc,
+    inputNumber
+  ) => {
+    this.setState({
+      sendForConfirmDoc2Party: inputRentalReqDoc,
+      sendToNameDoc2Party: inputNameDoc,
+      amountToSend2Party: Number((inputNumber * 100000000).toFixed(0)),
+
+      presentModal: "ConfirmRentals2PartyReqModal",
+      isModalShowing: true,
+    });
+  };
+
+  requestRentals2PartyPayment = () => {
+    //console.log("Called Request Rental 2Party Doc");
+
+    this.setState({
+      isLoading2Party: true,
+      isModalShowing: false,
+      selectedDapp: "2-Party Pay",
+      DisplayReqsOrPmts: "Requests",
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    let docProperties = {};
+
+    const submitDocument = async () => {
+      const { platform } = client;
+      // const identity = await platform.identities.get(this.state.identity); // Your identity ID
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      } // Your identity ID
+
+      docProperties = {
+        toId: this.state.sendToNameDoc2Party.$ownerId,
+        //forId: this.state.sendToNameDoc2Party.$ownerId,
+        req: "100",
+        fromReq: "100",
+        amt: this.state.amountToSend2Party,
+
+        // txId: "", //Blank txId not paid out of multisig Yet
+        // sigObject: "",
+        // msgObject: theMsgObject,
+        //encryptObject: "",
+      };
+
+      //console.log(docProperties);
+
+      // Create the note document
+      const twoPartyDocument = await platform.documents.create(
+        "TwoPartyContract.request",
+        identity,
+        docProperties
+      );
+
+      //console.log(twoPartyDocument.toJSON());
+
+      //############################################################
+      //This below disconnects the document sending..***
+
+      //return twoPartyDocument;
+
+      //This is to disconnect the Document Creation***
+
+      //############################################################
+
+      const documentBatch = {
+        create: [twoPartyDocument], // Document(s) to create
+      };
+
+      await platform.documents.broadcast(documentBatch, identity);
+      return twoPartyDocument;
+    };
+
+    submitDocument()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
+
+        returnedDoc.forId = Identifier.from(
+          returnedDoc.forId,
+          "base64"
+        ).toJSON();
+
+        //Buffer.from(returnedDoc.req).toString()
+
+        // propsToEncrypt = {
+        //   txId: this.state.requestToEdit.txId,
+        //   sig: this.state.requestToEdit.sigObject,
+        //   msgs: [...theMsgObject, ...this.state.requestToEdit.msgObject],
+        // };
+
+        returnedDoc.txId = "";
+        returnedDoc.sigObject = "";
+        returnedDoc.msgObject = [];
+
+        //returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        console.log("Req Document:\n", returnedDoc);
+
+        this.setState(
+          {
+            ReqsFromYou: [returnedDoc, ...this.state.ReqsFromYou],
+            ReqsFromYouNames: [
+              this.state.sendToNameDoc2Party,
+              ...this.state.ReqsFromYouNames,
+            ],
+            isLoading2Party: false,
+            //send2PartyPmtMsgSuccess: true,
+          },
+          () => this.loadIdentityCredits()
+        );
+      })
+      .catch((e) => {
+        this.setState({
+          isLoading2Party: false,
+          sendReqFailure2Party: true,
+        });
+
+        console.error("Something went wrong creating Rentals 2Party Req:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  handleDeleteBlockConfirmModal = (theBlockConfirm, index) => {
+    // let requestRental = this.state.Rentals.find((rental) => {
+    //   return rental.$id === theBlockConfirm.rentalId;
+    // });
+    this.setState(
+      {
+        //SelectedRental: requestRental,
+        selectedConfirm: theBlockConfirm,
+        //I also need the name <- NOT FOR MY POSTS
+        selectedConfirmIndex: index, //<- Need this for the editingfunction!!
+        // ^^ THE INDEX OF THE BLOCKS IS NOT OF THE RENTALCONFIRMS
+      },
+      () => this.showModal("DeleteBlockConfirmModal")
+    );
+  };
+
+  deleteBlockConfirm = () => {
+    //console.log("Called Delete BlockConfirm");
+
+    this.setState({
+      isLoadingRequests: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const deleteNoteDocument = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      }
+
+      const documentId = this.state.selectedConfirm.$id;
+
+      // Retrieve the existing document
+
+      //JUST PUT IN THE DOCUMENT THAT i ALREADY HAVE... => Done
+      // Wrong ^^^ Can not use because changed to JSON
+
+      const [document] = await client.platform.documents.get(
+        "RENTALSContract.confirm",
+        { where: [["$id", "==", documentId]] }
+      );
+
+      // Sign and submit the document delete transition
+      await platform.documents.broadcast({ delete: [document] }, identity);
+      return document;
+    };
+
+    deleteNoteDocument()
+      .then((d) => {
+        //console.log("Document deleted:\n", d.toJSON());
+
+        let editedConfirms = this.state.RentalConfirms;
+
+        //find the index here!! =>
+        let blockConfirmIndex = this.state.RentalConfirms.findIndex(
+          (confirm) => {
+            return confirm.$id === this.state.selectedConfirm.$id;
+          }
+        );
+
+        editedConfirms.splice(blockConfirmIndex, 1);
+
+        this.setState({
+          RentalConfirms: editedConfirms,
+          isLoadingRequests: false,
+        });
+      })
+      .catch((e) => console.error("Something went wrong:\n", e))
+      .finally(() => client.disconnect());
+  };
+
+  handleMerchantReplyModalShow = (theConfirm, nameDoc) => {
+    this.setState(
+      {
+        selectedConfirm: theConfirm,
+        selectedReplyNameDoc: nameDoc,
+      },
+      () => this.showModal("MerchantReplyModal")
+    );
+  };
+
+  //confirmId createdAt - query
+  // confirmId && msg - attributes
+
+  createMerchantReply = (replyMsgComment) => {
+    //console.log("Called Merchant Message Submit: ", replyMsgComment);
+
+    this.setState({
+      isLoadingRequests: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const submitMsgDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      }
+
+      const replyProperties = {
+        confirmId: this.state.selectedConfirm.$id,
+        msg: replyMsgComment,
+      };
+      //console.log('Reply to Create: ', replyProperties);
+
+      // Create the note document
+      const rentalDocument = await platform.documents.create(
+        "RENTALSContract.reply",
+        identity,
+        replyProperties
+      );
+
+      //############################################################
+      //This below disconnects the document sending..***
+
+      //return rentalDocument;
+
+      //This is to disconnect the Document Creation***
+      //############################################################
+
+      const documentBatch = {
+        create: [rentalDocument], // Document(s) to create
+      };
+
+      await platform.documents.broadcast(documentBatch, identity);
+      return rentalDocument;
+    };
+
+    submitMsgDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+        console.log("Document:\n", returnedDoc);
+
+        returnedDoc.confirmId = Identifier.from(
+          returnedDoc.confirmId,
+          "base64"
+        ).toJSON();
+
+        this.setState(
+          {
+            RentalReplies: [...this.state.RentalReplies, returnedDoc],
+            isLoadingRequests: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+      })
+      .catch((e) => {
+        console.error(
+          "Something went wrong with Merchant Reply Msg creation:\n",
+          e
+        );
+      })
+      .finally(() => client.disconnect());
+  };
+
+  /*
+   * MERCHANT FUNCTIONS^^^^
+   *                                 ###     ###
+   *                                ## ##    ####
+   *                               ###  ##  ##  ##
+   *                              ###    ####    ##
+   *                             ###      ###     ##
+   *
+   *
    * ###      ###    ###
    *  ###    ####   ##
    *   ###  ## ## ###
    *    ## ##  ####
    *     ###   ###
-   
+   */
 
-   */ //WALLET FUNCTIONS
+  //WALLET FUNCTIONS
 
   handleTab_WALLET = (eventKey) => {
     if (eventKey === "Payments")
@@ -8383,6 +10192,153 @@ PROOF OF FUNDS FUNCTIONS^^^^
                 <></>
               )}
 
+              {/* BELOW - CUSTOMER Rental Requests */}
+
+              {this.state.selectedDapp === "Reservations" ? (
+                <>
+                  <YourRsrvsPage
+                    whichNetwork={this.state.whichNetwork}
+                    accountBalance={this.state.accountBalance}
+                    isLoadingWallet={this.state.isLoadingWallet}
+                    Your2PartyPubKey={this.state.Your2PartyPubKey}
+                    isLoginComplete={isLoginComplete}
+                    pullInitialTriggerRSRVS={this.pullInitialTriggerRSRVS}
+                    //InitialPullPROXY={this.state.InitialPullPROXY}
+                    // InitialPullReservations={this.state.InitialPullReservations}
+
+                    isRsrvsRefreshReady={this.state.isRsrvsRefreshReady}
+                    handleRefresh_Rsrvs={this.handleRefresh_Rsrvs}
+                    // RsrvsRequests: [],
+                    // RsrvsRentals: [],
+                    // RsrvsRentalsNames: [],
+                    RsrvsRentalsNames={this.state.RsrvsRentalsNames}
+                    isLoadingRsrvsRentals={this.state.isLoadingRsrvsRentals}
+                    isLoadingRsrvs2Party={this.state.isLoadingRsrvs2Party}
+                    // RsrvsConfirms: [],
+
+                    Rentals={this.state.RsrvsRentals}
+                    RentalRequests={this.state.RsrvsRequests}
+                    RentalConfirms={this.state.RsrvsConfirms}
+                    handleSelectedRental={this.handleSelectedRental}
+                    handleCustomerReplyModalShow={
+                      this.handleCustomerReplyModalShow
+                    }
+                    //
+                    handleDeleteRequestModal={this.handleDeleteRequestModal}
+                    //
+                    identity={this.state.identity}
+                    identityInfo={this.state.identityInfo}
+                    uniqueName={this.state.uniqueName}
+                    //
+                    mode={this.state.mode}
+                    showModal={this.showModal}
+                    //2PartyComponent - BELOW
+                    //req={req}
+                    mnemonic={this.state.mnemonic}
+                    accountHistory={this.state.accountHistory}
+                    //
+                    DisplayReqsOrPmts={this.state.DisplayReqsOrPmts}
+                    isLoading2Party={this.state.isLoadingRsrvs2Party}
+                    // Rsrvs2PartyReqs: [],
+                    // Rsrvs2PartyResps: [],
+                    // RsrvsRentalsPubkeys: [],
+
+                    ReqsToYou={this.state.Rsrvs2PartyReqs}
+                    ReqsToYouPubKeys={this.state.RsrvsRentalsPubkeys}
+                    //ReqsToYouNames={this.state.ReqsToYouNames}
+                    ReqsToYouResponses={this.state.Rsrvs2PartyResps}
+                    show2PartyPayRequestModal={this.show2PartyPayRequestModal}
+                    showReleaseFundsModal={this.showReleaseFundsModal}
+                    showAddMessageToResponseModal={
+                      this.showAddMessageToResponseModal
+                    }
+                    showWithdrawRefundModal={this.showWithdrawRefundModal}
+                  />
+                </>
+              ) : (
+                <></>
+              )}
+
+              {/* BELOW - MERCHANT Rental Requests */}
+
+              {this.state.selectedDapp === "Rentals" ? (
+                <>
+                  <RequestsPage
+                    whichNetwork={this.state.whichNetwork}
+                    accountBalance={this.state.accountBalance}
+                    isLoadingWallet={this.state.isLoadingWallet}
+                    Your2PartyPubKey={this.state.Your2PartyPubKey}
+                    //isLoading2Party={this.state.isLoading2Party}
+                    isLoginComplete={isLoginComplete}
+                    isLoadingRentalsMerchant={
+                      this.state.isLoadingRentalsMerchant
+                    }
+                    isLoadingRentals2Party={this.state.isLoadingRentals2Party}
+                    pullInitialTriggerRENTALS={this.pullInitialTriggerRENTALS}
+                    isRentalsRefreshReady={this.state.isRentalsRefreshReady}
+                    handleRefresh_Rentals={this.handleRefresh_Rentals}
+                    //InitialPullRentals: true,
+
+                    // RentalsRentals: [],
+                    //       RentalsRequests: [],
+
+                    //       RentalsProxies: [],
+                    //       RentalsNames: [],
+                    //       RentalsControllers: [],
+
+                    Rentals={this.state.RentalsRentals}
+                    RentalRequests={this.state.RentalsRequests}
+                    RentalConfirms={this.state.RentalsConfirms}
+                    RentalRequestsNames={this.state.RentalsNames}
+                    RentalRequestsProxies={this.state.RentalsProxies}
+                    RentalRequestsControllers={this.state.RentalsControllers}
+                    //handleSelectedRental={this.handleSelectedRental}
+                    handleConfirmRequestModal={this.handleConfirmRequestModal}
+                    handleMerchantReplyModalShow={
+                      this.handleMerchantReplyModalShow
+                    }
+                    handleMerchantRequestFilter={
+                      this.handleMerchantRequestFilter
+                    }
+                    handleDeleteBlockConfirmModal={
+                      this.handleDeleteBlockConfirmModal
+                    }
+                    //
+
+                    identity={this.state.identity}
+                    identityInfo={this.state.identityInfo}
+                    uniqueName={this.state.uniqueName}
+                    DisplayRequests={this.state.DisplayRequests}
+                    //
+                    mode={this.state.mode}
+                    showModal={this.showModal}
+                    //
+
+                    //2PartyComponent - BELOW
+                    //
+                    mnemonic={this.state.mnemonic}
+                    //
+                    //       RentalsPubkeys: [],
+                    //       RentalsConfirms: [],
+                    //       Rentals2PartyReqs: [],
+                    //       Rentals2PartyResps: [],
+                    DisplayReqsOrPmts={this.state.DisplayReqsOrPmts}
+                    isLoading2Party={this.state.isLoadingRentals2Party}
+                    ReqsFromYou={this.state.Rentals2PartyReqs}
+                    ReqsFromYouPubKeys={this.state.RentalsPubkeys}
+                    //ReqsFromYouNames={this.state.ReqsFromYouNames}
+                    ReqsFromYouResponses={this.state.Rentals2PartyResps}
+                    //PASS CREATE NEW RENTAL 2-PARTY REQUEST
+                    showRentals2PartyReqModal={this.showRentals2PartyReqModal}
+                    showRetrieveFundsModal={this.showRetrieveFundsModal}
+                    showAddMsgToRequestModal={this.showAddMsgToRequestModal}
+                    showRefundFundsModal={this.showRefundFundsModal}
+                  />
+                </>
+              ) : (
+                <></>
+              )}
+
               {this.state.selectedDapp === "Wallet" ? (
                 <>
                   <WalletPage
@@ -8864,8 +10820,44 @@ PROOF OF FUNDS FUNCTIONS^^^^
         ) : (
           <></>
         )} */}
-        {/* 
 
+        {/*
+         *RESERVATIONS
+         *
+         *    #############
+         *   ####         ##
+         *  ###
+         *  ###
+         *   #####        ##
+         *    #############
+         */}
+
+        {/* RENTALS
+         *
+         *     ###     ###
+         *    ## ##    ####
+         *   ###  ##  ##  ##
+         *  ###    ####    ##
+         * ###      ###     ##
+         *
+         */}
+
+        {this.state.isModalShowing &&
+        this.state.presentModal === "ConfirmRentals2PartyReqModal" ? (
+          <ConfirmRentals2PartyReqModal
+            whichNetwork={this.state.whichNetwork}
+            requestPmtNameDoc={this.state.sendToNameDoc2Party}
+            amountToSend={this.state.amountToSend2Party}
+            //messageToSend={this.state.messageToSend2Party}
+            requestRentals2PartyPayment={this.requestRentals2PartyPayment}
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+            closeTopNav={this.closeTopNav}
+          />
+        ) : (
+          <></>
+        )}
 
         {/* ##      ###    ###
          *   ###    ####   ##

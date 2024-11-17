@@ -269,17 +269,23 @@ class RequestPage extends React.Component {
     //if(this.props.whichPayType==="Pay"){
     if (this.state.nameFormat) {
       this.searchName(this.state.sendToName);
-    } else if (this.state.addrFormat) {
-      this.props.showAddrConfirmModal(
-        //Create this function and modal ->
-        this.state.sendToAddr,
-        this.state.amountToSend
-      );
-      this.setState({
-        //No loading of name or DGM doc with Addr Payment
-        isLoadingVerify: false,
-      });
+    } else {
+      //   this.setState({
+      //     //No loading of name or DGM doc with Addr Payment
+      //     isLoadingVerify: false,
+      //   });
     }
+    // else if (this.state.addrFormat) {
+    //   this.props.showAddrConfirmModal(
+    //     //Create this function and modal ->
+    //     this.state.sendToAddr,
+    //     this.state.amountToSend
+    //   );
+    //   this.setState({
+    //     //No loading of name or DGM doc with Addr Payment
+    //     isLoadingVerify: false,
+    //   });
+    // }
   };
 
   // componentDidMount() {

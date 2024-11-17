@@ -115,6 +115,9 @@ export default function dapiClient(
         TwoPartyContract: {
           contractId: "EDLpeKCEFKGXDieomj4DidpCBJzuKf8paAHXcc1kQ89T",
         },
+        RENTALSContract: {
+          contractId: "HjHocG4oyLHgpnRMJEGagaTyrx6HaboCiGdcBzY3RKPU",
+        },
         // DSOContract: {
         //   contractId: "4kVVrhTJusgrTw4WadjcgQyj9pEiWr3Ee1iad6KG5e9i",
         // },

@@ -233,7 +233,7 @@ class TopNav extends React.Component {
                       </h5>
                     </Nav.Link>
                   )}
-                  <p></p>
+
                   {isLoginComplete ? (
                     <NavSelects
                       selection="2-Party Pay"
@@ -247,31 +247,67 @@ class TopNav extends React.Component {
                       </h5>
                     </Nav.Link>
                   )}
-
-                  {/* {isLoginComplete ? (
-                    <NavSelects
-                      selection="Groups"
-                      selectedDapp={this.props.selectedDapp}
-                      handleSelectedDapp={this.props.handleSelectedDapp}
-                    />
-                  ) : (
-                    <Nav.Link className="canvasLinkDisabled" disabled>
-                      <h5>
-                        <b>Groups</b>
-                      </h5>
-                    </Nav.Link>
-                  )} */}
                   <p></p>
+                  <h4 style={{ color: "#008de4" }}>
+                    <b>Customer</b>
+                  </h4>
                   {/* {isLoginComplete ? (
                     <NavSelects
-                      selection="2-Party Pay"
+                      selection="Reservations"
                       selectedDapp={this.props.selectedDapp}
                       handleSelectedDapp={this.props.handleSelectedDapp}
                     />
                   ) : ( */}
                   <Nav.Link className="canvasLinkDisabled" disabled>
                     <h5>
-                      <b>Your Orders</b>
+                      <b>Reservations</b>
+                    </h5>
+                  </Nav.Link>
+                  {/* )} */}
+
+                  {/* {isLoginComplete ? (
+                    <NavSelects
+                      selection="Your Orders"
+                      selectedDapp={this.props.selectedDapp}
+                      handleSelectedDapp={this.props.handleSelectedDapp}
+                    />
+                  ) : ( */}
+                  <Nav.Link className="canvasLinkDisabled" disabled>
+                    <h5>
+                      <b>Placed Orders</b>
+                    </h5>
+                  </Nav.Link>
+                  {/* )} */}
+
+                  <p></p>
+                  <h4 style={{ color: "#008de4" }}>
+                    <b>Merchant</b>
+                  </h4>
+
+                  {/* {isLoginComplete ? (
+                    <NavSelects
+                      selection="Rentals"
+                      selectedDapp={this.props.selectedDapp}
+                      handleSelectedDapp={this.props.handleSelectedDapp}
+                    />
+                  ) : ( */}
+                  <Nav.Link className="canvasLinkDisabled" disabled>
+                    <h5>
+                      <b>Rentals</b>
+                    </h5>
+                  </Nav.Link>
+                  {/* )} */}
+
+                  {/* {isLoginComplete ? (
+                    <NavSelects
+                      selection="Orders Received"
+                      selectedDapp={this.props.selectedDapp}
+                      handleSelectedDapp={this.props.handleSelectedDapp}
+                    />
+                  ) : ( */}
+                  <Nav.Link className="canvasLinkDisabled" disabled>
+                    <h5>
+                      <b>Orders Received</b>
                     </h5>
                   </Nav.Link>
                   {/* )} */}
