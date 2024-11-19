@@ -77,8 +77,8 @@ class Requests extends React.Component {
               handleSelectedYourRsrv={this.props.handleSelectedYourRsrv}
               handleSelectedDapp={this.props.handleSelectedDapp}
               handleSelectedRental={this.props.handleSelectedRental}
-              //isLoadingRentals={this.props.isLoadingRentals}
-              isLoadingRequests={this.props.isLoadingRequests}
+              isLoadingRentals2Party={this.props.isLoadingRentals2Party}
+              isLoadingRequests={this.props.isLoadingRentalsMerchant}
               Rentals={this.props.Rentals}
               // RentalRequests={this.props.RentalRequests}
               RentalConfirms={rsrvConfirms}
@@ -106,7 +106,6 @@ class Requests extends React.Component {
               yesterday={yesterday}
               identity={this.props.identity} //For if my review so can edit
               uniqueName={this.props.uniqueName}
-              handleConfirmRequestModal={this.props.handleConfirmRequestModal}
               handleMerchantReplyModalShow={
                 this.props.handleMerchantReplyModalShow
               }
@@ -115,11 +114,13 @@ class Requests extends React.Component {
               handleSelectedYourRsrv={this.props.handleSelectedYourRsrv}
               handleSelectedDapp={this.props.handleSelectedDapp}
               handleSelectedRental={this.props.handleSelectedRental}
-              //isLoadingRentals={this.props.isLoadingRentals}
-              isLoadingRequests={this.props.isLoadingRequests}
+              isLoadingRentals2Party={this.props.isLoadingRentals2Party}
+              isLoadingRequests={this.props.isLoadingRentalsMerchant}
               Rentals={this.props.Rentals}
               //RentalRequests={this.props.RentalRequests}
               RentalConfirms={rsrvConfirms}
+              RentalRequestsProxies={this.props.RentalRequestsProxies}
+              RentalRequestsControllers={this.props.RentalRequestsControllers}
               RentalRequestsNames={this.props.RentalRequestsNames}
               //
               //2PartyComponent - BELOW

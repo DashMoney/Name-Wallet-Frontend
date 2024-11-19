@@ -9,6 +9,8 @@ import formatDate from "../TimeDisplayLong";
 
 import simpleDate from "../DateDisplay";
 
+import SentRentalsReqsComp from "./SentRentalsReqsComp";
+
 class Request extends React.Component {
   constructor(props) {
     super(props);
@@ -165,7 +167,7 @@ class Request extends React.Component {
           <Button
             variant="success"
             onClick={() =>
-              tthis.props.showRentals2PartyReqModal(
+              this.props.showRentals2PartyReqModal(
                 confirm,
                 requestName,
                 this.props.request.amt
@@ -180,13 +182,13 @@ class Request extends React.Component {
     );
 
     if (confirm !== undefined) {
-      let req2Party = this.props.RentalConfirms.find((req) => {
+      let req2Party = this.props.ReqsFromYou.find((req) => {
         return req.forId === confirm.$id;
       });
 
       if (req2Party !== undefined) {
         the2Party = (
-          <SentRentalsReqComp
+          <SentRentalsReqsComp
             mnemonic={this.props.mnemonic}
             whichNetwork={this.props.whichNetwork}
             mode={this.props.mode}
@@ -286,7 +288,7 @@ class Request extends React.Component {
               </span>
               <span
                 style={{
-                  color: "#008de3",
+                  color: "#008de4",
                   marginTop: ".2rem",
                   marginBottom: "0rem",
                 }}
@@ -354,7 +356,9 @@ class Request extends React.Component {
               </b>
             </h4>
 
-            {confirm === undefined && !this.props.isLoadingRequests ? (
+            {requestName.label !== "No Name Avail" &&
+            confirm === undefined &&
+            !this.props.isLoadingRentalsMerchant ? (
               <>
                 <div className="d-grid gap-2">
                   <Button
@@ -402,11 +406,14 @@ class Request extends React.Component {
                   className="BottomBorder"
                   style={{ paddingTop: ".7rem", marginBottom: ".7rem" }}
                 ></div>
-                <div
-                  className="cardTitle"
-                  style={{ marginTop: ".4rem", marginBottom: ".5rem" }}
-                >
-                  <h5>2-Party Pay</h5>
+                <div className="cardTitle" style={{ marginBottom: ".5rem" }}>
+                  <h5
+                    style={{
+                      color: "#008de4",
+                    }}
+                  >
+                    2-Party Pay
+                  </h5>
                   {/* {this.verifyRequestStatus(this.props.request, confirm)} */}
                 </div>
               </>

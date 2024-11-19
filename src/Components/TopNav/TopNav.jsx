@@ -251,19 +251,19 @@ class TopNav extends React.Component {
                   <h4 style={{ color: "#008de4" }}>
                     <b>Customer</b>
                   </h4>
-                  {/* {isLoginComplete ? (
+                  {isLoginComplete ? (
                     <NavSelects
                       selection="Reservations"
                       selectedDapp={this.props.selectedDapp}
                       handleSelectedDapp={this.props.handleSelectedDapp}
                     />
-                  ) : ( */}
-                  <Nav.Link className="canvasLinkDisabled" disabled>
-                    <h5>
-                      <b>Reservations</b>
-                    </h5>
-                  </Nav.Link>
-                  {/* )} */}
+                  ) : (
+                    <Nav.Link className="canvasLinkDisabled" disabled>
+                      <h5>
+                        <b>Reservations</b>
+                      </h5>
+                    </Nav.Link>
+                  )}
 
                   {/* {isLoginComplete ? (
                     <NavSelects
@@ -284,19 +284,19 @@ class TopNav extends React.Component {
                     <b>Merchant</b>
                   </h4>
 
-                  {/* {isLoginComplete ? (
+                  {isLoginComplete ? (
                     <NavSelects
                       selection="Rentals"
                       selectedDapp={this.props.selectedDapp}
                       handleSelectedDapp={this.props.handleSelectedDapp}
                     />
-                  ) : ( */}
-                  <Nav.Link className="canvasLinkDisabled" disabled>
-                    <h5>
-                      <b>Rentals</b>
-                    </h5>
-                  </Nav.Link>
-                  {/* )} */}
+                  ) : (
+                    <Nav.Link className="canvasLinkDisabled" disabled>
+                      <h5>
+                        <b>Rentals</b>
+                      </h5>
+                    </Nav.Link>
+                  )}
 
                   {/* {isLoginComplete ? (
                     <NavSelects

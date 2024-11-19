@@ -21,7 +21,7 @@ const {
   PlatformProtocol: { Identifier },
 } = Dash;
 
-class ConfirmRequestModal extends React.Component {
+class ConfirmRentalsRequestModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -410,4 +410,4 @@ class ConfirmRequestModal extends React.Component {
   }
 }
 
-export default ConfirmRequestModal;
+export default ConfirmRentalsRequestModal;

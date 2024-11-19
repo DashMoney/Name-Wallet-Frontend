@@ -82,14 +82,26 @@ class YourRsrv extends React.Component {
     //let confirm = undefined;
 
     let confirm = this.props.RentalConfirms.find((confirm) => {
-      return this.props.request.$id === confirm.reqId;
+      return (
+        this.props.request.$id === confirm.reqId &&
+        confirm.$ownerId === rental.$ownerId
+      );
     });
 
     //GET THE 2PARTY STUFF
-    let the2Party = <></>;
+    let the2Party = (
+      <>
+        <p
+          className="textsmaller"
+          style={{ marginTop: "1rem", textAlign: "center" }}
+        >
+          <b>*2-Party Request will appear here when sent by owner*</b>{" "}
+        </p>
+      </>
+    );
 
     if (confirm !== undefined) {
-      let req2Party = this.props.RentalConfirms.find((req) => {
+      let req2Party = this.props.ReqsToYou.find((req) => {
         return req.forId === confirm.$id;
       });
 
@@ -110,12 +122,13 @@ class YourRsrv extends React.Component {
             accountHistory={this.props.accountHistory}
             accountBalance={this.props.accountBalance}
             //
-            DisplayReqsOrPmts={this.props.DisplayReqsOrPmts}
-            isLoading2Party={this.props.isLoading2Party}
+            isLoadingRsrvsRentals={this.props.isLoadingRsrvsRentals}
+            //isLoadingRsrvs2Party={this.props.isLoadingRsrvs2Party}
+            isLoading2Party={this.props.isLoadingRsrvs2Party}
             Your2PartyPubKey={this.props.Your2PartyPubKey}
             ReqsToYou={this.props.ReqsToYou}
             ReqsToYouPubKeys={this.props.ReqsToYouPubKeys}
-            ReqsToYouNames={MerchantNameDoc}
+            ReqsToYouNames={[MerchantNameDoc]}
             ReqsToYouResponses={this.props.ReqsToYouResponses}
             show2PartyPayRequestModal={this.props.show2PartyPayRequestModal}
             showReleaseFundsModal={this.props.showReleaseFundsModal}
@@ -188,6 +201,30 @@ class YourRsrv extends React.Component {
             ) : (
               <></>
             )}
+            <p></p>
+            <h5>
+              <span
+                style={{
+                  marginTop: ".2rem",
+                  marginBottom: "0rem",
+                }}
+              >
+                <b>Owner:</b>
+              </span>
+              <span
+                style={{
+                  color: "#008de3",
+                  marginTop: ".2rem",
+                  marginBottom: "0rem",
+                }}
+              >
+                {" "}
+                <b onClick={() => this.handleNameClick(MerchantNameDoc.label)}>
+                  {MerchantNameDoc.label}
+                </b>
+              </span>
+              <span>{this.state.copiedName ? <span>✅</span> : <></>}</span>
+            </h5>
 
             {/* <p></p>
             <div className="d-grid gap-2">
@@ -206,11 +243,6 @@ class YourRsrv extends React.Component {
             >
               <b> *Please visit rental site to view*</b>{" "}
             </p>
-
-            {/* Description */}
-            {/* <p style={{ marginTop: "1rem", marginBottom: "1rem" }}>
-              {rental.description}
-            </p> */}
 
             {/* ArriveDate*/}
             <p
@@ -287,114 +319,30 @@ class YourRsrv extends React.Component {
               <></>
             )}
 
-            {/* {confirm !== undefined ? (
+            {confirm !== undefined ? (
               <>
-                {this.props.isYourRequestsRefreshReady ? (
-                  <div className="d-grid gap-2" id="button-edge-noTop">
-                    <Button
-                      variant="primary"
-                      // onClick={() => {
-                      //   this.props.refreshYourRequests();
-                      // }}
-                      style={{
-                        fontSize: "larger",
-                        paddingLeft: "1rem",
-                        paddingRight: "1rem",
-                      }}
-                    >
-                      <b>Refresh</b>
-                    </Button>
-                  </div>
-                ) : (
-                  <>
-                    <div className="d-grid gap-2" id="button-edge-noTop">
-                      <Button
-                        variant="primary"
-                        disabled
-                        style={{
-                          fontSize: "larger",
-                          paddingLeft: "1rem",
-                          paddingRight: "1rem",
-                        }}
-                      >
-                        <b>Refresh</b>
-                      </Button>
-                    </div>
-                  </>
-                )}
+                <div
+                  className="BottomBorder"
+                  style={{ paddingTop: ".7rem", marginBottom: ".7rem" }}
+                ></div>
+                <div className="cardTitle" style={{ marginBottom: ".5rem" }}>
+                  <h5
+                    style={{
+                      color: "#008de4",
+                    }}
+                  >
+                    2-Party Pay
+                  </h5>
+                  {/* {this.verifyRequestStatus(this.props.request, confirm)} */}
+                </div>
+                <p></p>
+                {the2Party}
               </>
             ) : (
               <></>
-            )} */}
+            )}
 
-            <div
-              className="BottomBorder"
-              style={{ paddingTop: ".7rem", marginBottom: ".7rem" }}
-            ></div>
-            <div
-              className="cardTitle"
-              style={{ marginTop: ".4rem", marginBottom: ".5rem" }}
-            >
-              <h5>Responses</h5>
-              {this.verifyRequestStatus(this.props.request, confirm)}
-            </div>
-
-            {/* {confirm !== undefined ? (
-              <> */}
-            <h5>
-              <span
-                style={{
-                  marginTop: ".2rem",
-                  marginBottom: "0rem",
-                }}
-              >
-                <b>Owner:</b>
-              </span>
-              <span
-                style={{
-                  color: "#008de3",
-                  marginTop: ".2rem",
-                  marginBottom: "0rem",
-                }}
-              >
-                {" "}
-                <b onClick={() => this.handleNameClick(MerchantNameDoc.label)}>
-                  {MerchantNameDoc.label}
-                </b>
-              </span>
-              <span>{this.state.copiedName ? <span>✅</span> : <></>}</span>
-            </h5>
             <p></p>
-
-            {/* <Pay2PartyReqsComp
-              mnemonic={this.props.mnemonic}
-              whichNetwork={this.props.whichNetwork}
-              //key={index}
-
-              mode={this.props.mode}
-              index={index}
-              req={req}
-              today={today}
-              yesterday={yesterday}
-              identity={this.props.identity} //For if my review so can edit
-              uniqueName={this.props.uniqueName}
-              accountHistory={this.props.accountHistory}
-              accountBalance={this.props.accountBalance}
-              //
-              DisplayReqsOrPmts={this.props.DisplayReqsOrPmts}
-              isLoading2Party={this.props.isLoading2Party}
-              Your2PartyPubKey={this.props.Your2PartyPubKey}
-              ReqsToYou={this.props.ReqsToYou}
-              ReqsToYouPubKeys={this.props.ReqsToYouPubKeys}
-              ReqsToYouNames={this.props.ReqsToYouNames}
-              ReqsToYouResponses={this.props.ReqsToYouResponses}
-              show2PartyPayRequestModal={this.props.show2PartyPayRequestModal}
-              showReleaseFundsModal={this.props.showReleaseFundsModal}
-              showAddMessageToResponseModal={
-                this.props.showAddMessageToResponseModal
-              }
-              showWithdrawRefundModal={this.props.showWithdrawRefundModal}
-            /> */}
           </Card.Body>
         </Card>
       </>

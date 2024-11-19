@@ -38,6 +38,8 @@ class YourRsrvs extends React.Component {
             RentalRequests={this.props.RentalRequests}
             RentalConfirms={this.props.RentalConfirms}
             mnemonic={this.props.mnemonic}
+            isLoadingRsrvsRentals={this.props.isLoadingRsrvsRentals}
+            isLoadingRsrvs2Party={this.props.isLoadingRsrvs2Party}
             //key={index}
             //2PartyComponent - BELOW
             //req={req}

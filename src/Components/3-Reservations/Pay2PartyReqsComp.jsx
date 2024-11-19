@@ -37,12 +37,12 @@ class Pay2PartyReqsComp extends React.Component {
     };
   }
 
-  handleNameClick = (theName) => {
-    navigator.clipboard.writeText(theName);
-    this.setState({
-      copiedName: true,
-    });
-  };
+  // handleNameClick = (theName) => {
+  //   navigator.clipboard.writeText(theName);
+  //   this.setState({
+  //     copiedName: true,
+  //   });
+  // };
 
   //IS CHECKALREADYSENT THE SAME AS CHECKWITHDRAWAL? <- NO
   // SENT IS SENT AND WITH
@@ -347,7 +347,7 @@ class Pay2PartyReqsComp extends React.Component {
 
     return (
       <>
-      {/* <Card
+        {/* <Card
         id="card"
         key={this.props.index}
         bg={cardBkg}
@@ -357,461 +357,455 @@ class Pay2PartyReqsComp extends React.Component {
         }}
       >
         <Card.Body> */}
-          {/* <Card.Title className="cardTitle"> */}
-          <div className="cardTitle">
-            <div>
-              <b>From: </b>{" "}
-              <b
-                style={{ color: "#008de4" }}
-                //style={{ color: "green" }}
-                onClick={() => this.handleNameClick(requestName.label)}
-              >
-                {requestName.label}
-              </b>
-            </div>
-            <span>{this.state.copiedName ? <span>✅</span> : <></>}</span>
-
-            {this.verifyRequestStatus(response)}
-
-            <span className="textsmaller">
-              {formatDate(
-                this.props.req.$createdAt,
-                this.props.today,
-                this.props.yesterday
-              )}
-            </span>
-            </div>
-          {/* </Card.Title> */}
-
-          {/* ADD TXID YET - NEEDS CHECKALREADYSENT */}
-
-          {response === undefined ? ( //|| response.txId === ""
-            <>
-              {/* Requested 1st - WORDS */}
-              <div
-                style={{
-                  textAlign: "center",
-                  marginTop: "1.5rem",
-                  marginBottom: "1.5rem",
-                }}
-              >
-                <h5>
-                  <b style={{ color: "#008de4" }}>{requestName.label}</b>{" "}
-                  requests{" "}
-                  <b style={{ color: "#008de4" }}>
-                    {handleDenomDisplay(
-                      this.props.whichNetwork,
-                      this.props.req.amt
-                    )}
-                  </b>
-                </h5>
-              </div>
-
-              {/* Requested 1st - Insufficient */}
-              {this.props.accountBalance <= this.props.req.amt ? (
-                <>
-                  <p></p>
-                  <div className="d-grid gap-2">
-                    <Button variant="success" disabled>
-                      <b>Pay to 2-Party</b>
-                    </Button>
-                  </div>
-                  <p
-                    className="smallertext"
-                    style={{ color: "red", marginTop: ".2rem" }}
-                  >
-                    <b>Insufficient funds in your wallet.</b>
-                  </p>
-                  <p></p>
-                </>
-              ) : (
-                <></>
-              )}
-
-              {/* Requested 1st - Buttons */}
-              {response === undefined &&
-              this.props.accountBalance > this.props.req.amt &&
-              requestPubKey !== undefined ? (
-                <>
-                  <p></p>
-                  <div className="d-grid gap-2">
-                    <Button
-                      variant="success"
-                      onClick={() =>
-                        this.props.show2PartyPayRequestModal(
-                          this.props.req,
-                          requestName,
-                          requestPubKey
-                        )
-                      }
-                    >
-                      <b>Pay to 2-Party</b>
-                    </Button>
-                  </div>
-                  <p></p>
-                </>
-              ) : (
-                <></>
-              )}
-            </>
-          ) : (
-            <>
-              {/* Completed Payment- WORDS */}
-              {response.sigObject !== "" && response.txId !== "" ? (
-                <>
-                  <div
-                    style={{
-                      textAlign: "center",
-                      marginTop: "1.5rem",
-                      marginBottom: "1.5rem",
-                    }}
-                  >
-                    <h5>
-                      Completed payment to{" "}
-                      <b style={{ color: "#008de4" }}>{requestName.label}</b>{" "}
-                      for{" "}
-                      <b style={{ color: "#008de4" }}>
-                        {handleDenomDisplay(
-                          this.props.whichNetwork,
-                          this.props.req.amt
-                        )}
-                      </b>
-                    </h5>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/*  Completed Refunded- WORDS */}
-                  {response.refundTxId !== "" ? (
-                    <>
-                      <div
-                        style={{
-                          textAlign: "center",
-                          marginTop: "1.5rem",
-                          marginBottom: "1.5rem",
-                        }}
-                      >
-                        <h5>
-                          Refunded{" "}
-                          <b style={{ color: "#008de4" }}>
-                            {handleDenomDisplay(
-                              this.props.whichNetwork,
-                              response.amtMatch
-                            )}
-                          </b>{" "}
-                          from{" "}
-                          <b style={{ color: "#008de4" }}>
-                            {requestName.label}
-                          </b>{" "}
-                        </h5>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      {/* ADD BOTH AVAIL FOR WITHDRAWAL AND WITHDRAW? BUT THEN THIS ALSO NEED THE CHECKWITHDRAWAL -> NEED A CORRECT MISMATCH BUTTON */}
-                      {/* ADD IF BOTH ALLOW RETRIEVE BUT NEITHER TXID YET - NEEDS CHECKTX */}
-
-                      {response.sigObject !== "" &&
-                      this.props.req.sigObject !== "" &&
-                      response.refundTxId === "" &&
-                      this.props.req.txId === "" ? (
-                        <>
-                          {/*  In2Party 2nd - 2Party */}
-                          {/*  */}
-                          <p></p>
-                          {!this.state.Loading2PartyAddress ? (
-                            <>
-                              <div
-                                style={{
-                                  textAlign: "center",
-                                  marginTop: "1.5rem",
-                                  marginBottom: "1.5rem",
-                                }}
-                              >
-                                <h3>
-                                  <Badge bg="primary">
-                                    <b //style={{ color: "#008de4" }}
-                                    >
-                                      {handleDenomDisplay(
-                                        this.props.whichNetwork,
-                                        this.state.Display2Party
-                                      )}
-                                    </b>{" "}
-                                    in{" "}
-                                    <b //style={{ color: "#008de4" }}
-                                    >
-                                      2-Party
-                                    </b>
-                                  </Badge>
-                                </h3>
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <div
-                                style={{
-                                  textAlign: "center",
-                                  marginTop: "1.5rem",
-                                  marginBottom: "1.5rem",
-                                }}
-                              >
-                                <h3>
-                                  <Badge bg="primary">
-                                    <b //style={{ color: "#008de4" }}
-                                    >
-                                      Loading 2-Party..
-                                    </b>
-                                  </Badge>
-                                </h3>
-                              </div>
-                            </>
-                          )}
-                          <p></p>
-
-                          {/* WithDraw - button */}
-                          {response.sigObject !== "" &&
-                          this.props.req.txId === "" ? (
-                            <>
-                              {this.state.Loading2PartyAddress ? (
-                                <>
-                                  <p></p>
-                                  <div className="d-grid gap-2">
-                                    <Button variant="success" disabled>
-                                      <b>Withdraw Amount</b>
-                                    </Button>
-                                  </div>
-                                  <p></p>
-                                </>
-                              ) : (
-                                <>
-                                  <p></p>
-                                  <div className="d-grid gap-2">
-                                    <Button
-                                      variant="success"
-                                      onClick={() =>
-                                        this.props.showWithdrawRefundModal(
-                                          response,
-                                          requestPubKey, //responsePubKey
-                                          requestName, //responseName
-                                          this.props.req,
-                                          this.state.TXfromDAPI
-                                        )
-                                      }
-                                    >
-                                      <b>Withdraw Amount</b>
-                                    </Button>
-                                  </div>
-                                  <p></p>
-                                </>
-                              )}
-                            </>
-                          ) : (
-                            <></>
-                          )}
-                        </>
-                      ) : (
-                        <>
-                          {/*  In2Party 2nd - 2Party */}
-                          {response !== undefined &&
-                          response.sigObject === "" ? (
-                            <>
-                              <p></p>
-                              {!this.state.Loading2PartyAddress ? (
-                                <>
-                                  <div
-                                    style={{
-                                      textAlign: "center",
-                                      marginTop: "1.5rem",
-                                      marginBottom: "1.5rem",
-                                    }}
-                                  >
-                                    <h3>
-                                      <Badge bg="primary">
-                                        <b //style={{ color: "#008de4" }}
-                                        >
-                                          {handleDenomDisplay(
-                                            this.props.whichNetwork,
-                                            this.state.Display2Party
-                                          )}
-                                        </b>{" "}
-                                        in{" "}
-                                        <b //style={{ color: "#008de4" }}
-                                        >
-                                          2-Party
-                                        </b>
-                                      </Badge>
-                                    </h3>
-                                  </div>
-                                </>
-                              ) : (
-                                <>
-                                  <div
-                                    style={{
-                                      textAlign: "center",
-                                      marginTop: "1.5rem",
-                                      marginBottom: "1.5rem",
-                                    }}
-                                  >
-                                    <h3>
-                                      <Badge bg="primary">
-                                        <b //style={{ color: "#008de4" }}
-                                        >
-                                          Loading 2-Party..
-                                        </b>
-                                      </Badge>
-                                    </h3>
-                                  </div>
-                                </>
-                              )}
-                              <p></p>
-                            </>
-                          ) : (
-                            <></>
-                          )}
-
-                          {/* Release Button  - button */}
-                          {response !== undefined &&
-                          response.sigObject === "" &&
-                          this.props.req.sigObject === "" ? (
-                            <>
-                              {this.state.Loading2PartyAddress ? (
-                                <>
-                                  <p></p>
-                                  <div className="d-grid gap-2">
-                                    <Button variant="success" disabled>
-                                      <b>Release Funds</b>
-                                    </Button>
-                                  </div>
-                                  <p></p>
-                                </>
-                              ) : (
-                                <>
-                                  <p></p>
-                                  <div className="d-grid gap-2">
-                                    <Button
-                                      variant="success"
-                                      onClick={() =>
-                                        this.callGetSignature(
-                                          this.props.req,
-                                          requestPubKey,
-                                          response,
-                                          this.props.Your2PartyPubKey,
-                                          requestName
-                                        )
-                                      }
-                                    >
-                                      <b>Release Funds</b>
-                                    </Button>
-                                  </div>
-                                  <p></p>
-                                </>
-                              )}
-                            </>
-                          ) : (
-                            <></>
-                          )}
-
-                          {/* Withdraw Refund - button */}
-                          {response.sigObject === "" &&
-                          this.props.req.sigObject !== "" ? (
-                            <>
-                              {this.state.Loading2PartyAddress ? (
-                                <>
-                                  <p></p>
-                                  <div className="d-grid gap-2">
-                                    <Button variant="success" disabled>
-                                      <b>Withdraw Refund</b>
-                                    </Button>
-                                  </div>
-                                  <p></p>
-                                </>
-                              ) : (
-                                <>
-                                  <p></p>
-                                  <div className="d-grid gap-2">
-                                    <Button
-                                      variant="success"
-                                      onClick={() =>
-                                        this.props.showWithdrawRefundModal(
-                                          response,
-                                          requestPubKey, //responsePubKey
-                                          requestName, //responseName
-                                          this.props.req,
-                                          this.state.TXfromDAPI
-                                        )
-                                      }
-                                    >
-                                      <b>Withdraw Refund</b>
-                                    </Button>
-                                  </div>
-                                  <p></p>
-                                </>
-                              )}
-                            </>
-                          ) : (
-                            <></>
-                          )}
-                          {/* Close of Normal Part ^^^ */}
-                        </>
-                      )}
-                      {/* Close of Double Sigs ^^^ */}
-                    </>
-                  )}
-                  {/* Close of Refund Withdrawal ^^^ */}
-                </>
-              )}
-              {/* Close of Completed^^^ */}
-            </>
-          )}
-          {/* Close of !Responded^^^ */}
-
-          <div
-            className="BottomBorder"
-            style={{ paddingTop: ".7rem", marginBottom: ".7rem" }}
-          ></div>
-          <div
-            className="cardTitle"
-            style={{ marginTop: ".4rem", marginBottom: ".5rem" }}
-          >
-            <h5>Messages</h5>
-            {this.verifyRequestStatus(response)}
+        {/* <Card.Title className="cardTitle"> */}
+        <div className="cardTitle">
+          <div>
+            <b>From: </b>{" "}
+            <b
+              style={{ color: "#008de4" }}
+              //style={{ color: "green" }}
+              // onClick={() => this.handleNameClick(requestName.label)}
+            >
+              {requestName.label}
+            </b>
           </div>
+          {/* <span>{this.state.copiedName ? <span>✅</span> : <></>}</span> */}
 
-          {messages.length === 0 ? (
-            <>
-              <p style={{ textAlign: "center", paddingTop: ".5rem" }}>
-                (Currently, there are no messages.)
-              </p>
-            </>
-          ) : (
-            <></>
-          )}
+          {this.verifyRequestStatus(response)}
 
-          {messages}
-          <p></p>
+          <span className="textsmaller">
+            {formatDate(
+              this.props.req.$createdAt,
+              this.props.today,
+              this.props.yesterday
+            )}
+          </span>
+        </div>
+        {/* </Card.Title> */}
 
-          {response !== undefined ? (
-            <>
-              <div className="ButtonRightNoUnderline">
-                <Button
-                  variant="primary"
-                  onClick={() =>
-                    this.props.showAddMessageToResponseModal(
-                      response,
-                      requestName,
-                      requestPubKey
-                    )
-                  }
+        {/* ADD TXID YET - NEEDS CHECKALREADYSENT */}
+
+        {response === undefined ? ( //|| response.txId === ""
+          <>
+            {/* Requested 1st - WORDS */}
+            <div
+              style={{
+                textAlign: "center",
+                marginTop: "1.5rem",
+                marginBottom: "1.5rem",
+              }}
+            >
+              <h5>
+                <b style={{ color: "#008de4" }}>{requestName.label}</b> requests{" "}
+                <b style={{ color: "#008de4" }}>
+                  {handleDenomDisplay(
+                    this.props.whichNetwork,
+                    this.props.req.amt
+                  )}
+                </b>
+              </h5>
+            </div>
+
+            {/* Requested 1st - Insufficient */}
+            {this.props.accountBalance <= this.props.req.amt ? (
+              <>
+                <p></p>
+                <div className="d-grid gap-2">
+                  <Button variant="success" disabled>
+                    <b>Pay to 2-Party</b>
+                  </Button>
+                </div>
+                <p
+                  className="smallertext"
+                  style={{ color: "red", marginTop: ".2rem" }}
                 >
-                  <b>Add Message</b>
-                </Button>
-              </div>
-            </>
-          ) : (
-            <></>
-          )}
+                  <b>Insufficient funds in your wallet.</b>
+                </p>
+                <p></p>
+              </>
+            ) : (
+              <></>
+            )}
 
-          
+            {/* Requested 1st - Buttons */}
+            {response === undefined &&
+            this.props.accountBalance > this.props.req.amt &&
+            requestPubKey !== undefined ? (
+              <>
+                <p></p>
+                <div className="d-grid gap-2">
+                  <Button
+                    variant="success"
+                    onClick={() =>
+                      this.props.show2PartyPayRequestModal(
+                        this.props.req,
+                        requestName,
+                        requestPubKey
+                      )
+                    }
+                  >
+                    <b>Pay to 2-Party</b>
+                  </Button>
+                </div>
+                <p></p>
+              </>
+            ) : (
+              <></>
+            )}
+          </>
+        ) : (
+          <>
+            {/* Completed Payment- WORDS */}
+            {response.sigObject !== "" && response.txId !== "" ? (
+              <>
+                <div
+                  style={{
+                    textAlign: "center",
+                    marginTop: "1.5rem",
+                    marginBottom: "1.5rem",
+                  }}
+                >
+                  <h5>
+                    Completed payment to{" "}
+                    <b style={{ color: "#008de4" }}>{requestName.label}</b> for{" "}
+                    <b style={{ color: "#008de4" }}>
+                      {handleDenomDisplay(
+                        this.props.whichNetwork,
+                        this.props.req.amt
+                      )}
+                    </b>
+                  </h5>
+                </div>
+              </>
+            ) : (
+              <>
+                {/*  Completed Refunded- WORDS */}
+                {response.refundTxId !== "" ? (
+                  <>
+                    <div
+                      style={{
+                        textAlign: "center",
+                        marginTop: "1.5rem",
+                        marginBottom: "1.5rem",
+                      }}
+                    >
+                      <h5>
+                        Refunded{" "}
+                        <b style={{ color: "#008de4" }}>
+                          {handleDenomDisplay(
+                            this.props.whichNetwork,
+                            response.amtMatch
+                          )}
+                        </b>{" "}
+                        from{" "}
+                        <b style={{ color: "#008de4" }}>{requestName.label}</b>{" "}
+                      </h5>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* ADD BOTH AVAIL FOR WITHDRAWAL AND WITHDRAW? BUT THEN THIS ALSO NEED THE CHECKWITHDRAWAL -> NEED A CORRECT MISMATCH BUTTON */}
+                    {/* ADD IF BOTH ALLOW RETRIEVE BUT NEITHER TXID YET - NEEDS CHECKTX */}
+
+                    {response.sigObject !== "" &&
+                    this.props.req.sigObject !== "" &&
+                    response.refundTxId === "" &&
+                    this.props.req.txId === "" ? (
+                      <>
+                        {/*  In2Party 2nd - 2Party */}
+                        {/*  */}
+                        <p></p>
+                        {!this.state.Loading2PartyAddress ? (
+                          <>
+                            <div
+                              style={{
+                                textAlign: "center",
+                                marginTop: "1.5rem",
+                                marginBottom: "1.5rem",
+                              }}
+                            >
+                              <h3>
+                                <Badge bg="primary">
+                                  <b //style={{ color: "#008de4" }}
+                                  >
+                                    {handleDenomDisplay(
+                                      this.props.whichNetwork,
+                                      this.state.Display2Party
+                                    )}
+                                  </b>{" "}
+                                  in{" "}
+                                  <b //style={{ color: "#008de4" }}
+                                  >
+                                    2-Party
+                                  </b>
+                                </Badge>
+                              </h3>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div
+                              style={{
+                                textAlign: "center",
+                                marginTop: "1.5rem",
+                                marginBottom: "1.5rem",
+                              }}
+                            >
+                              <h3>
+                                <Badge bg="primary">
+                                  <b //style={{ color: "#008de4" }}
+                                  >
+                                    Loading 2-Party..
+                                  </b>
+                                </Badge>
+                              </h3>
+                            </div>
+                          </>
+                        )}
+                        <p></p>
+
+                        {/* WithDraw - button */}
+                        {response.sigObject !== "" &&
+                        this.props.req.txId === "" ? (
+                          <>
+                            {this.state.Loading2PartyAddress ? (
+                              <>
+                                <p></p>
+                                <div className="d-grid gap-2">
+                                  <Button variant="success" disabled>
+                                    <b>Withdraw Amount</b>
+                                  </Button>
+                                </div>
+                                <p></p>
+                              </>
+                            ) : (
+                              <>
+                                <p></p>
+                                <div className="d-grid gap-2">
+                                  <Button
+                                    variant="success"
+                                    onClick={() =>
+                                      this.props.showWithdrawRefundModal(
+                                        response,
+                                        requestPubKey, //responsePubKey
+                                        requestName, //responseName
+                                        this.props.req,
+                                        this.state.TXfromDAPI
+                                      )
+                                    }
+                                  >
+                                    <b>Withdraw Amount</b>
+                                  </Button>
+                                </div>
+                                <p></p>
+                              </>
+                            )}
+                          </>
+                        ) : (
+                          <></>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {/*  In2Party 2nd - 2Party */}
+                        {response !== undefined && response.sigObject === "" ? (
+                          <>
+                            <p></p>
+                            {!this.state.Loading2PartyAddress ? (
+                              <>
+                                <div
+                                  style={{
+                                    textAlign: "center",
+                                    marginTop: "1.5rem",
+                                    marginBottom: "1.5rem",
+                                  }}
+                                >
+                                  <h3>
+                                    <Badge bg="primary">
+                                      <b //style={{ color: "#008de4" }}
+                                      >
+                                        {handleDenomDisplay(
+                                          this.props.whichNetwork,
+                                          this.state.Display2Party
+                                        )}
+                                      </b>{" "}
+                                      in{" "}
+                                      <b //style={{ color: "#008de4" }}
+                                      >
+                                        2-Party
+                                      </b>
+                                    </Badge>
+                                  </h3>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div
+                                  style={{
+                                    textAlign: "center",
+                                    marginTop: "1.5rem",
+                                    marginBottom: "1.5rem",
+                                  }}
+                                >
+                                  <h3>
+                                    <Badge bg="primary">
+                                      <b //style={{ color: "#008de4" }}
+                                      >
+                                        Loading 2-Party..
+                                      </b>
+                                    </Badge>
+                                  </h3>
+                                </div>
+                              </>
+                            )}
+                            <p></p>
+                          </>
+                        ) : (
+                          <></>
+                        )}
+
+                        {/* Release Button  - button */}
+                        {response !== undefined &&
+                        response.sigObject === "" &&
+                        this.props.req.sigObject === "" ? (
+                          <>
+                            {this.state.Loading2PartyAddress ? (
+                              <>
+                                <p></p>
+                                <div className="d-grid gap-2">
+                                  <Button variant="success" disabled>
+                                    <b>Release Funds</b>
+                                  </Button>
+                                </div>
+                                <p></p>
+                              </>
+                            ) : (
+                              <>
+                                <p></p>
+                                <div className="d-grid gap-2">
+                                  <Button
+                                    variant="success"
+                                    onClick={() =>
+                                      this.callGetSignature(
+                                        this.props.req,
+                                        requestPubKey,
+                                        response,
+                                        this.props.Your2PartyPubKey,
+                                        requestName
+                                      )
+                                    }
+                                  >
+                                    <b>Release Funds</b>
+                                  </Button>
+                                </div>
+                                <p></p>
+                              </>
+                            )}
+                          </>
+                        ) : (
+                          <></>
+                        )}
+
+                        {/* Withdraw Refund - button */}
+                        {response.sigObject === "" &&
+                        this.props.req.sigObject !== "" ? (
+                          <>
+                            {this.state.Loading2PartyAddress ? (
+                              <>
+                                <p></p>
+                                <div className="d-grid gap-2">
+                                  <Button variant="success" disabled>
+                                    <b>Withdraw Refund</b>
+                                  </Button>
+                                </div>
+                                <p></p>
+                              </>
+                            ) : (
+                              <>
+                                <p></p>
+                                <div className="d-grid gap-2">
+                                  <Button
+                                    variant="success"
+                                    onClick={() =>
+                                      this.props.showWithdrawRefundModal(
+                                        response,
+                                        requestPubKey, //responsePubKey
+                                        requestName, //responseName
+                                        this.props.req,
+                                        this.state.TXfromDAPI
+                                      )
+                                    }
+                                  >
+                                    <b>Withdraw Refund</b>
+                                  </Button>
+                                </div>
+                                <p></p>
+                              </>
+                            )}
+                          </>
+                        ) : (
+                          <></>
+                        )}
+                        {/* Close of Normal Part ^^^ */}
+                      </>
+                    )}
+                    {/* Close of Double Sigs ^^^ */}
+                  </>
+                )}
+                {/* Close of Refund Withdrawal ^^^ */}
+              </>
+            )}
+            {/* Close of Completed^^^ */}
+          </>
+        )}
+        {/* Close of !Responded^^^ */}
+
+        <div
+          className="BottomBorder"
+          style={{ paddingTop: ".7rem", marginBottom: ".7rem" }}
+        ></div>
+        <div
+          className="cardTitle"
+          style={{ marginTop: ".4rem", marginBottom: ".5rem" }}
+        >
+          <h5>Messages</h5>
+          {this.verifyRequestStatus(response)}
+        </div>
+
+        {messages.length === 0 ? (
+          <>
+            <p style={{ textAlign: "center", paddingTop: ".5rem" }}>
+              (Currently, there are no messages.)
+            </p>
+          </>
+        ) : (
+          <></>
+        )}
+
+        {messages}
+        <p></p>
+
+        {response !== undefined ? (
+          <>
+            <div className="ButtonRightNoUnderline">
+              <Button
+                variant="primary"
+                onClick={() =>
+                  this.props.showAddMessageToResponseModal(
+                    response,
+                    requestName,
+                    requestPubKey
+                  )
+                }
+              >
+                <b>Add Message</b>
+              </Button>
+            </div>
+          </>
+        ) : (
+          <></>
+        )}
+
         {/* </Card.Body>
       </Card> */}
       </>

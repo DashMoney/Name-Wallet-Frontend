@@ -102,7 +102,7 @@ class AddProxyModal extends React.Component {
 
     //console.log(proxyTuple);
 
-    this.props.addProxyToController(proxyTuple);
+    this.props.addOrCreateProxyToController(proxyTuple);
     this.props.hideModal();
   };
 
