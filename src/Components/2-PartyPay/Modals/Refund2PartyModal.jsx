@@ -6,8 +6,6 @@ import CloseButton from "react-bootstrap/CloseButton";
 
 import handleDenomDisplay from "../../UnitDisplay";
 
-import "../ConnectedWalletPage.css";
-
 class Refund2PartyModal extends React.Component {
   constructor(props) {
     super(props);

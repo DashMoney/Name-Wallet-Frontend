@@ -4,7 +4,7 @@ import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 import CloseButton from "react-bootstrap/CloseButton";
 
-class CustomerReplyModal extends React.Component {
+class AddMsgToRequestModalRENTALS extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -30,9 +30,19 @@ class CustomerReplyModal extends React.Component {
   };
 
   commentValidate = (comment) => {
-    let regex = /^.[\S\s]{0,450}$/;
+    let regex1 = /^.[\S\s]{0,450}$/;
 
-    let valid = regex.test(comment);
+    let valid1 = regex1.test(comment);
+
+    let regex2 = /^(?:[^\r\n]*(?:\r\n?|\n)){0,4}[^\r\n]*$/;
+
+    let valid2 = regex2.test(comment);
+
+    let valid = false;
+
+    if (valid1 && valid2) {
+      valid = true;
+    }
 
     if (valid) {
       this.setState({
@@ -41,7 +51,7 @@ class CustomerReplyModal extends React.Component {
         tooLongCommentError: false,
       });
     } else {
-      if (comment.length > 450) {
+      if (comment.length > 450 || !valid2) {
         this.setState({
           commentInput: comment,
           validComment: false,
@@ -57,7 +67,7 @@ class CustomerReplyModal extends React.Component {
   };
 
   handleSubmitClick = () => {
-    this.props.createCustomerReply(this.state.commentInput);
+    this.props.editRequestAddMessage_RENTALS(this.state.commentInput);
     this.props.hideModal();
   };
 
@@ -96,7 +106,7 @@ class CustomerReplyModal extends React.Component {
           <Modal.Body>
             <Form.Group className="mb-3" controlId="formComment">
               <Form.Label>
-                <b>Message for {this.props.MerchantNameDoc.label}</b>
+                <b>Message for {this.props.SelectedReplyNameDoc.label}</b>
               </Form.Label>
 
               <Form.Control
@@ -117,12 +127,19 @@ class CustomerReplyModal extends React.Component {
                 <></>
               )}
               <p></p>
-              <Button
-                variant="primary"
-                onClick={() => this.handleSubmitClick()}
-              >
-                <b>Send Message</b>
-              </Button>
+              {this.state.commentInput !== "" &&
+              !this.state.tooLongCommentError ? (
+                <Button
+                  variant="primary"
+                  onClick={() => this.handleSubmitClick()}
+                >
+                  <b>Send Message</b>
+                </Button>
+              ) : (
+                <Button variant="primary" disabled>
+                  <b>Send Message</b>
+                </Button>
+              )}
             </Form.Group>
           </Modal.Body>
         </Modal>
@@ -131,4 +148,4 @@ class CustomerReplyModal extends React.Component {
   }
 }
 
-export default CustomerReplyModal;
+export default AddMsgToRequestModalRENTALS;

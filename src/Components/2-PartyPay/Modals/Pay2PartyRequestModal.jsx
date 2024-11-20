@@ -6,8 +6,6 @@ import CloseButton from "react-bootstrap/CloseButton";
 
 import handleDenomDisplay from "../../UnitDisplay";
 
-import "../ConnectedWalletPage.css";
-
 class Pay2PartyRequestModal extends React.Component {
   constructor(props) {
     super(props);

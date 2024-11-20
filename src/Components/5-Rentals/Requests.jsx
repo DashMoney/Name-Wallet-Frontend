@@ -230,8 +230,38 @@ class Requests extends React.Component {
 
         <p></p>
         {this.props.DisplayRequests === "Requests" ? <>{requests}</> : <></>}
+        {this.props.DisplayRequests === "Requests" &&
+        unconfirmedReqs.length === 0 ? (
+          <>
+            <p style={{ textAlign: "center" }}>
+              There are no unconfirmed requests presently.
+            </p>
+          </>
+        ) : (
+          <></>
+        )}
         {this.props.DisplayRequests === "Confirmed" ? <>{requests}</> : <></>}
+        {this.props.DisplayRequests === "Confirmed" &&
+        confirmedReqs.length === 0 ? (
+          <>
+            <p style={{ textAlign: "center" }}>
+              There are no confirmations presently.
+            </p>
+          </>
+        ) : (
+          <></>
+        )}
         {this.props.DisplayRequests === "Blocked Off" ? <>{blocks}</> : <></>}
+        {this.props.DisplayRequests === "Blocked Off" &&
+        blockedConfirms.length === 0 ? (
+          <>
+            <p style={{ textAlign: "center" }}>
+              There are blocked off dates presently.
+            </p>
+          </>
+        ) : (
+          <></>
+        )}
       </>
     );
   }

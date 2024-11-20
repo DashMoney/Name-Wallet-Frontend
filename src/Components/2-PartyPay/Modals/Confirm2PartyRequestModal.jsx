@@ -6,7 +6,6 @@ import CloseButton from "react-bootstrap/CloseButton";
 import handleDenomDisplay from "../../UnitDisplay";
 
 //import "./ConfirmPaymentModal.css";
-import "../ConnectedWalletPage.css";
 
 class Confirm2PartyRequestModal extends React.Component {
   handleCloseClick = () => {

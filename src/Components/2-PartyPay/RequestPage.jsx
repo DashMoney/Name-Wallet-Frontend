@@ -19,7 +19,6 @@ import { IoMdArrowRoundBack } from "react-icons/io";
 import CreditsOnPage from "../CreditsOnPage";
 import handleDenomDisplay from "../UnitDisplay";
 
-import "./ConnectedWalletPage.css";
 import dapiClientNoWallet from "../DapiClientNoWallet";
 import Dash from "dash";
 

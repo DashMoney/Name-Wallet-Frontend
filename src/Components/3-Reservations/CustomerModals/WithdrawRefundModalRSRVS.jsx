@@ -6,7 +6,7 @@ import CloseButton from "react-bootstrap/CloseButton";
 
 import handleDenomDisplay from "../../UnitDisplay";
 
-class WithdrawRefundModal extends React.Component {
+class WithdrawRefundModalRSRVS extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -74,7 +74,7 @@ class WithdrawRefundModal extends React.Component {
   handleSubmitClick = (event) => {
     event.preventDefault();
 
-    this.props.payWithdrawRefund(this.state.commentInput);
+    this.props.payWithdrawRefund_RSRVS(this.state.commentInput);
 
     this.handleCloseClick();
   };
@@ -204,4 +204,4 @@ class WithdrawRefundModal extends React.Component {
   }
 }
 
-export default WithdrawRefundModal;
+export default WithdrawRefundModalRSRVS;

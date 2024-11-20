@@ -21,7 +21,6 @@ import WalletPageFormTabs from "./WalletPageFormTabs";
 
 import handleDenomDisplay from "../UnitDisplay";
 
-import "./ConnectedWalletPage.css";
 import dapiClientNoWallet from "../DapiClientNoWallet";
 import Dash from "dash";
 

@@ -6,7 +6,7 @@ import CloseButton from "react-bootstrap/CloseButton";
 
 import handleDenomDisplay from "../../UnitDisplay";
 
-class WithdrawRefundModal extends React.Component {
+class RetrieveFundsModalRENTALS extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -74,7 +74,7 @@ class WithdrawRefundModal extends React.Component {
   handleSubmitClick = (event) => {
     event.preventDefault();
 
-    this.props.payWithdrawRefund(this.state.commentInput);
+    this.props.payRetrieveFunds_RENTALS(this.state.commentInput);
 
     this.handleCloseClick();
   };
@@ -108,7 +108,7 @@ class WithdrawRefundModal extends React.Component {
           show={this.props.isModalShowing}
         >
           <Modal.Header>
-            <Modal.Title>Withdraw Refund from 2-Party</Modal.Title>
+            <Modal.Title>Withdraw from 2-Party</Modal.Title>
             {closeButtonColor}
           </Modal.Header>
           <Modal.Body>
@@ -117,7 +117,7 @@ class WithdrawRefundModal extends React.Component {
               <b>{this.props.requestPmtNameDoc.label}</b>?
             </h6> */}
             <p className="textsmallercenter">
-              This will withdraw funds from 2-Party to your wallet.
+              This will send funds from 2-Party to your wallet.
             </p>
             <div
               style={{
@@ -189,11 +189,11 @@ class WithdrawRefundModal extends React.Component {
             <>
               {this.state.loadTime >= 1 ? (
                 <Button variant="primary" disabled>
-                  <b>Withdraw Refund ({this.state.loadTime})</b>
+                  <b>Withdraw Funds ({this.state.loadTime})</b>
                 </Button>
               ) : (
                 <Button variant="primary" onClick={this.handleSubmitClick}>
-                  <b>Withdraw Refund</b>
+                  <b>Withdraw Funds</b>
                 </Button>
               )}
             </>
@@ -204,4 +204,4 @@ class WithdrawRefundModal extends React.Component {
   }
 }
 
-export default WithdrawRefundModal;
+export default RetrieveFundsModalRENTALS;
