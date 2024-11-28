@@ -42,9 +42,26 @@ export default function decryptTheirReqs(theReqs, theMnemonic, whichNetwork) {
           symmetricAlgorithm: "xchacha20", // Use XChaCha20-Poly1305
         }
       );
+      //Or does the try catch need to be here ^^^
 
-      let decryptedObject = JSON.parse(Buffer.from(decrypted).toString());
+      let decryptedObject = {};
       //this ^^^ will return an stringified object
+      try {
+        decryptedObject = JSON.parse(Buffer.from(decrypted).toString());
+      } catch (e) {
+        console.warn(e);
+        decryptedObject.txId = "";
+        decryptedObject.sigObject = "";
+        decryptedObject.msgObject = [];
+      }
+
+      //THIS WILL CATCH ERROR AND RETURN WITH OUT BREAKING ALL.**
+      // try {
+      //   return JSON.parse(plainText)
+      // } catch (e) {
+      //   console.warn(e)
+      //   return plainText
+      // }
 
       // console.log(decryptedObject);
 

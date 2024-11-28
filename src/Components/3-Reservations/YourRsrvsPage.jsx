@@ -27,7 +27,7 @@ class YourRsrvsPage extends React.Component {
           ) : (
             <>
               <div className="paddingBadge">
-                <div className="cardTitle">
+                <div className="cardCenterTitle">
                   <div>
                     <b>Wallet Balance</b>
                     <h4 style={{ color: "#008de4" }}>
@@ -43,41 +43,31 @@ class YourRsrvsPage extends React.Component {
                   {this.props.isRsrvsRefreshReady &&
                   !this.props.isLoadingRsrvs2Party &&
                   !this.props.isLoadingRsrvsRentals ? (
-                    <>
-                      <div className="d-grid gap-2" id="button-edge-noTop">
-                        <Button
-                          variant="primary"
-                          onClick={() => {
-                            this.props.handleRefresh_Rsrvs();
-                          }}
-                          style={{
-                            fontSize: "larger",
-                            paddingLeft: "1rem",
-                            paddingRight: "1rem",
-                          }}
-                        >
-                          <b>Refresh</b>
-                        </Button>
-                      </div>
-                      <p></p>
-                    </>
+                    <Button
+                      variant="primary"
+                      onClick={() => {
+                        this.props.handleRefresh_Rsrvs();
+                      }}
+                      style={{
+                        fontSize: "larger",
+                        paddingLeft: "1rem",
+                        paddingRight: "1rem",
+                      }}
+                    >
+                      <b>Refresh</b>
+                    </Button>
                   ) : (
-                    <>
-                      <div className="d-grid gap-2" id="button-edge-noTop">
-                        <Button
-                          variant="primary"
-                          disabled
-                          style={{
-                            fontSize: "larger",
-                            paddingLeft: "1rem",
-                            paddingRight: "1rem",
-                          }}
-                        >
-                          <b>Refresh</b>
-                        </Button>
-                      </div>
-                      <p></p>
-                    </>
+                    <Button
+                      variant="primary"
+                      disabled
+                      style={{
+                        fontSize: "larger",
+                        paddingLeft: "1rem",
+                        paddingRight: "1rem",
+                      }}
+                    >
+                      <b>Refresh</b>
+                    </Button>
                   )}
                 </div>
               </div>

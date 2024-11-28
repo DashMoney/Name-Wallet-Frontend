@@ -30,8 +30,6 @@ import WalletPage from "./Components/9-Wallet/WalletPage";
 
 import ReviewsPage from "./Components/7-Reviews/ReviewsPage";
 
-import ProofsPage from "./Components/8-ProofOfFunds/ProofsPage";
-
 import TopUpIdentityModal from "./Components/TopUpIdentityModal";
 
 import NameWalletExplaination from "./Components/NameWalletExplaination";
@@ -81,6 +79,18 @@ import WithdrawRefundModalRSRVS from "./Components/3-Reservations/CustomerModals
 
 import DeleteRequestModal from "./Components/3-Reservations/CustomerModals/DeleteRequestModal";
 
+import YourOrdersPage from "./Components/4-YourOrders/YourOrdersPage";
+
+import DeleteOrderModal from "./Components/4-YourOrders/CustomerModals/DeleteOrderModal";
+
+import AddMessageToResponseModalYOURORDERS from "./Components/4-YourOrders/CustomerModals/AddMessageToResponseModalYOURORDERS";
+import Pay2PartyRequestModalYOURORDERS from "./Components/4-YourOrders/CustomerModals/Pay2PartyRequestModalYOURORDERS";
+
+import Release2PartyModalYOURORDERS from "./Components/4-YourOrders/CustomerModals/Release2PartyModalYOURORDERS";
+import WithdrawRefundModalYOURORDERS from "./Components/4-YourOrders/CustomerModals/WithdrawRefundModalYOURORDERS";
+
+//CUSTOMER ^^^ || MERCHANT (BELOW)
+
 import RequestsPage from "./Components/5-Rentals/RequestsPage";
 
 import ConfirmRentalsRequestModal from "./Components/5-Rentals/MerchantModals/ConfirmRentalsRequestModal";
@@ -90,6 +100,15 @@ import AddMsgToRequestModalRENTALS from "./Components/5-Rentals/MerchantModals/A
 import RetrieveFundsModalRENTALS from "./Components/5-Rentals/MerchantModals/RetrieveFundsModalRENTALS";
 import Refund2PartyModalRENTALS from "./Components/5-Rentals/MerchantModals/Refund2PartyModalRENTALS";
 import DeleteBlockConfirmModal from "./Components/5-Rentals/MerchantModals/DeleteBlockConfirmModal";
+
+import OrdersPage from "./Components/6-OrdersReceived/OrdersPage";
+
+import ConfirmOrderModal from "./Components/6-OrdersReceived/MerchantModals/ConfirmOrderModal";
+import ConfirmOrders2PartyReqModal from "./Components/6-OrdersReceived/MerchantModals/ConfirmOrders2PartyReqModal";
+import AddMsgToRequestModalORDERS from "./Components/6-OrdersReceived/MerchantModals/AddMsgToRequestModalORDERS";
+
+import Refund2PartyModalORDERS from "./Components/6-OrdersReceived/MerchantModals/Refund2PartyModalORDERS";
+import RetrieveFundsModalORDERS from "./Components/6-OrdersReceived/MerchantModals/RetrieveFundsModalORDERS";
 
 import ConfirmAddrPaymentModal from "./Components/9-Wallet/ConfirmAddrPaymentModal";
 import RegisterDGMModal from "./Components/RegisterDGMModal";
@@ -102,9 +121,6 @@ import CreateReviewModal from "./Components/7-Reviews/ReviewModals/CreateReviewM
 import EditReviewModal from "./Components/7-Reviews/ReviewModals/EditReviewModal";
 import CreateReplyModal from "./Components/7-Reviews/ReviewModals/CreateReplyModal";
 import EditReplyModal from "./Components/7-Reviews/ReviewModals/EditReplyModal";
-
-import CreateProofModal from "./Components/8-ProofOfFunds/YourProofs/CreateProofModal";
-import DeleteProofModal from "./Components/8-ProofOfFunds/YourProofs/DeleteProofModal";
 
 import dapiClient from "./Components/DapiClient";
 import dapiClientNoWallet from "./Components/DapiClientNoWallet";
@@ -264,8 +280,24 @@ class App extends React.Component {
 
       // RESERVATIONS PAGE STATE ^^^^
 
-      //ORDERS
-      // ORDERS PAGE STATE ^^^^
+      //YOUR ORDERS
+
+      InitialPullYourOrders: true,
+
+      isYourOrdersRefreshReady: true,
+
+      YourOrdersOrders: [], //UnconfirmedOrders: [],
+      YourOrdersInventories: [],
+      YourOrdersNames: [],
+      YourOrdersPubkeys: [],
+      isLoadingYourOrders: true,
+      //
+      YourOrdersConfirms: [], //ConfirmedOrders: [],
+      YourOrders2PartyReqs: [],
+      YourOrders2PartyResps: [],
+      isLoadingYourOrders2Party: true,
+
+      //YOUR ORDERS PAGE STATE ^^^^
 
       //RENTALS
 
@@ -291,6 +323,28 @@ class App extends React.Component {
       // RENTALS PAGE STATE ^^^^
 
       // RECEIVED ORDERS
+
+      InitialPullOrders: true,
+      isOrdersRefreshReady: true,
+
+      DisplayOrders: "Orders",
+
+      OrdersInventory: [],
+      //     Inventory: [],
+      //     InventoryDoc: [],
+
+      OrdersOrders: [], //Request
+      OrdersProxies: [],
+      OrdersControllers: [],
+      OrdersNames: [],
+      OrdersPubkeys: [],
+      isLoadingOrdersMerchant: false,
+
+      OrdersConfirms: [],
+      Orders2PartyReqs: [],
+      Orders2PartyResps: [],
+      isLoadingOrders2Party: false,
+
       // RECEIVED ORDERS PAGE STATE ^^^^
 
       //WALLET PAGE
@@ -5030,7 +5084,7 @@ class App extends React.Component {
       .finally(() => client.disconnect());
   };
 
-  handleDeleteRequestModal = (theRequest, index) => {
+  handleDeleteRequestModal = (theRequest, index, theNameDoc) => {
     let requestRental = this.state.RsrvsRentals.find((rental) => {
       return rental.$id === theRequest.rentalId;
     });
@@ -6029,8 +6083,1480 @@ class App extends React.Component {
       .finally(() => client.disconnect());
   };
 
-  /*CHANGE TO RESERVATIONS
-   *CUSTOMER FUNCTIONS^^^^
+  // RSRVS ^^^ || YOUR ORDERS (BELOW)
+
+  pullInitialTriggerYOURORDERS = () => {
+    if (this.state.InitialPullYourOrders) {
+      this.getYourOrders();
+      this.setState({
+        InitialPullYourOrders: false,
+      });
+    }
+  };
+
+  handleRefresh_YourOrders = () => {
+    this.setState(
+      {
+        isLoadingYourOrders2Party: true,
+        isLoadingYourOrders: true,
+        isYourOrdersRefreshReady: false, // pass to refresh button
+      },
+      () => this.getYourOrders()
+    );
+
+    //REFRESH -> TIMEOUT
+    const yourOrdersTimeout = setTimeout(this.allowYourOrdersRefresh, 15000);
+    //REFRESH -> TIMEOUT
+  };
+
+  allowYourOrdersRefresh = () => {
+    this.setState({
+      isYourOrdersRefreshReady: true,
+    });
+  };
+
+  //SETTIMEOUT WAY ^^^^
+
+  //STRAIGHT FROM ONLINE STORE
+
+  getYourOrders = () => {
+    //console.log("Calling getYourOrders");
+    if (!this.state.isLoadingYourOrders) {
+      this.setState({ isLoadingYourOrders: true });
+    }
+
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    let arrayOfProxyIds = this.state.ProxyDocs.map((doc) => {
+      return doc.$ownerId;
+    });
+
+    const getDocuments = async () => {
+      if (arrayOfProxyIds.length !== 0) {
+        return client.platform.documents.get("ONLINESTOREContract.order", {
+          where: [
+            ["$ownerId", "in", arrayOfProxyIds],
+            //["$ownerId", "==", this.state.identity],
+            ["$createdAt", "<=", Date.now()],
+          ],
+          orderBy: [
+            ["$ownerId", "asc"],
+            ["$createdAt", "desc"],
+          ],
+        });
+      } else {
+        return [];
+      }
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("There are no merchant Orders");
+          this.setState({
+            YourOrdersOrders: [], //UnconfirmedOrders: [],
+            YourOrdersInventories: [],
+            YourOrdersNames: [],
+            YourOrdersPubkeys: [],
+            isLoadingYourOrders: false,
+            //
+            YourOrdersConfirms: [], //ConfirmedOrders: [],
+            YourOrders2PartyReqs: [],
+            YourOrders2PartyResps: [],
+            isLoadingYourOrders2Party: false,
+          });
+        } else {
+          let docArray = [];
+          //console.log("Getting merchant Orders");
+
+          for (const n of d) {
+            let returnedDoc = n.toJSON();
+            //console.log("Orders:\n", returnedDoc);
+            returnedDoc.toId = Identifier.from(
+              returnedDoc.toId,
+              "base64"
+            ).toJSON();
+
+            returnedDoc.cart = JSON.parse(returnedDoc.cart);
+            // console.log("newRequest:\n", returnedDoc);
+            docArray = [...docArray, returnedDoc];
+          }
+          this.getYourOrdersConfirms(docArray);
+          //isLoadingYourOrders2Party
+          this.getYourOrdersInventories(docArray); //isLoadingYourOrders
+        }
+      })
+      .catch((e) => console.error("Something went wrong:\n", e))
+      .finally(() => client.disconnect());
+  };
+
+  //Orders
+  //Confirms             |       Inventory (need for order info)
+  //2-Party (Reqs&Resps) |       NameDocs && PUBKEY(2-Party)
+  //isLoadingYourOrders2Party |   isLoadingYourOrders
+
+  //how do i get the name -> From the orders bc there may not be a Confirm
+
+  getYourOrdersInventories = (theOrders) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    // This Below is to get unique set of Inventory doc ids
+    let arrayOfInventoryIds = theOrders.map((doc) => {
+      return doc.toId; //This is the MerchantId SO OWNERID!!
+    });
+
+    let setOfInventoryIds = [...new Set(arrayOfInventoryIds)];
+
+    arrayOfInventoryIds = [...setOfInventoryIds];
+
+    //console.log("Array of Inventoryids", arrayOfInventoryIds);
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("ONLINESTOREContract.inventory", {
+        where: [["$ownerId", "in", arrayOfInventoryIds]],
+        orderBy: [["$ownerId", "asc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("There are no Inventories");
+
+          this.setState({
+            YourOrdersOrders: theOrders, //UnconfirmedOrders: [],
+            YourOrdersInventories: [],
+            YourOrdersNames: [],
+            YourOrdersPubkeys: [],
+            isLoadingYourOrders: false,
+          });
+        } else {
+          let docArray = [];
+          //console.log("Getting Inventories");
+
+          for (const n of d) {
+            let returnedDoc = n.toJSON();
+            //console.log("Inventories:\n", returnedDoc);
+            returnedDoc.items = JSON.parse(returnedDoc.items);
+            //console.log("newInventories:\n", returnedDoc);
+            docArray = [...docArray, returnedDoc];
+          }
+
+          this.getYourOrdersNames(theOrders, docArray);
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  getYourOrdersNames = (theOrders, theInventoryDocs) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+    //START OF NAME RETRIEVAL
+
+    let ownerarrayOfOwnerIds = theInventoryDocs.map((doc) => {
+      return doc.$ownerId;
+    });
+
+    let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
+
+    let arrayOfOwnerIds = [...setOfOwnerIds];
+
+    //console.log("Calling getNamesforOwnerlers");
+
+    const getNameDocuments = async () => {
+      return client.platform.documents.get("DPNSContract.domain", {
+        where: [["records.identity", "in", arrayOfOwnerIds]],
+        orderBy: [["records.identity", "asc"]],
+      });
+    };
+
+    getNameDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("There are no YourOrderNames");
+
+          this.setState({
+            YourOrdersOrders: theOrders, //UnconfirmedOrders: [],
+            YourOrdersInventories: theInventoryDocs,
+            YourOrdersNames: [],
+            YourOrdersPubkeys: [],
+            isLoadingYourOrders: false,
+          });
+        } else {
+          let nameDocArray = [];
+
+          for (const n of d) {
+            //console.log("NameDoc:\n", n.toJSON());
+            nameDocArray = [n.toJSON(), ...nameDocArray];
+          }
+
+          this.getYourOrdersPubkeys(
+            theOrders,
+            theInventoryDocs,
+            nameDocArray,
+            arrayOfOwnerIds
+          );
+          //console.log(`DPNS Name Docs: ${nameDocArray}`);
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  getYourOrdersPubkeys = (
+    theOrders,
+    theInventoryDocs,
+    theNameDocs,
+    arrayOfOwnerIds
+  ) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    //console.log("Calling getYourOrdersPubkeys");
+
+    const getPublicKeyDocuments = async () => {
+      return client.platform.documents.get("TwoPartyContract.xPubKeyDoc", {
+        where: [["$ownerId", "in", arrayOfOwnerIds]],
+        orderBy: [["$ownerId", "asc"]],
+      });
+    };
+
+    getPublicKeyDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("No DPNS domain documents retrieved.");
+        }
+
+        let pubKeyDocArray = [];
+
+        for (const n of d) {
+          //console.log("PubKeyDoc:\n", n.toJSON());
+
+          pubKeyDocArray = [n.toJSON(), ...pubKeyDocArray];
+        }
+        //console.log(`Public Key Docs: ${pubKeyDocArray}`);
+
+        this.setState({
+          YourOrdersOrders: theOrders, //UnconfirmedOrders: [],
+          YourOrdersInventories: theInventoryDocs,
+          YourOrdersNames: theNameDocs,
+          YourOrdersPubkeys: pubKeyDocArray,
+          isLoadingYourOrders: false,
+        });
+      })
+      .catch((e) => {
+        console.error("Something went wrong gettingYourOrdersPubkeys:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  getYourOrdersConfirms = (theDocArray) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    // This Below is to get unique set of Order doc ids
+    let arrayOfOrderIds = theDocArray.map((doc) => {
+      return doc.$id;
+    });
+
+    //console.log("Array of Order Order ids", arrayOfOrderIds);
+
+    let setOfOrderIds = [...new Set(arrayOfOrderIds)];
+
+    arrayOfOrderIds = [...setOfOrderIds];
+
+    //console.log("Array of Order ids", arrayOfOrderIds);
+
+    const getDocuments = async () => {
+      //console.log("Called Get Order Replies");
+
+      return client.platform.documents.get("ONLINESTOREContract.confirm", {
+        where: [
+          // ["$ownerId", "in", this.state.MerchantId], //Filtered Below
+          ["orderId", "in", arrayOfOrderIds],
+        ],
+        orderBy: [["orderId", "asc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        //console.log("Getting YourOrdersConfirms");
+        if (d.length === 0) {
+          //console.log("There are no YourOrdersConfirms");
+
+          this.setState({
+            YourOrdersConfirms: theDocArray, //ConfirmedOrders: [],
+            YourOrders2PartyReqs: [],
+            YourOrders2PartyResps: [],
+            isLoadingYourOrders2Party: false,
+          });
+        } else {
+          let docArray = [];
+
+          for (const n of d) {
+            let returnedDoc = n.toJSON();
+            //console.log("Confirm:\n", returnedDoc);
+            returnedDoc.orderId = Identifier.from(
+              returnedDoc.orderId,
+              "base64"
+            ).toJSON();
+
+            console.log("newConfirm:\n", returnedDoc);
+            //Filter so that only the merchant send a confirm to the customer -> JUST DO THIS IN THE CARD ie DOWN STREAM
+            //confirm.$ownerId === inventory.$ownerId -> Done in YourOrder.jsx to filter out
+            docArray = [...docArray, returnedDoc];
+          }
+
+          this.getYourOrders2PartyReqs(docArray);
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong YourOrdersConfirms:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  getYourOrders2PartyReqs = (theConfirms) => {
+    // console.log("Called getYourRsrvs2PartyReqs");
+
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    // This Below is to get unique set of For doc ids
+    let arrayOfForIds = theConfirms.map((doc) => {
+      return doc.$id;
+    });
+
+    let setOfForIds = [...new Set(arrayOfForIds)];
+
+    arrayOfForIds = [...setOfForIds];
+
+    //console.log("Array of For ids", arrayOfForIds);
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("TwoPartyContract.request", {
+        where: [["forId", "in", arrayOfForIds]],
+        orderBy: [["forId", "asc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("There are no YourOrders2PartyReqs");
+
+          this.setState({
+            YourOrdersConfirms: theConfirms, //ConfirmedOrders: [],
+            YourOrders2PartyReqs: [],
+            YourOrders2PartyResps: [],
+            isLoadingYourOrders2Party: false,
+          });
+        } else {
+          let docArray = [];
+          //console.log("Getting YourOrders2PartyReqs");
+          for (const n of d) {
+            let returnedDoc = n.toJSON();
+            //console.log("Req:\n", returnedDoc);
+
+            returnedDoc.toId = Identifier.from(
+              returnedDoc.toId,
+              "base64"
+            ).toJSON();
+
+            returnedDoc.forId = Identifier.from(
+              returnedDoc.forId,
+              "base64"
+            ).toJSON();
+
+            // console.log("newReq:\n", returnedDoc);
+            docArray = [...docArray, returnedDoc];
+          }
+          //decryptTheirReqs(theReqs, theMnemonic, whichNetwork)
+          let decryptedDocs = decryptTheirReqs(
+            docArray,
+            this.state.mnemonic,
+            this.state.whichNetwork
+          );
+
+          this.getYourOrders2PartyResps(decryptedDocs, theConfirms);
+        }
+      })
+      .catch((e) => console.error("Something went wrong:\n", e))
+      .finally(() => client.disconnect());
+  };
+
+  getYourOrders2PartyResps = (the2PartyReqs, theConfirms) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    // This Below is to get unique set of ToYou Req doc ids
+    let arrayOfReqIds = the2PartyReqs.map((doc) => {
+      return doc.$id;
+    });
+
+    //console.log("Array of ToYou Req ids", arrayOfReqIds);
+
+    let setOfReqIds = [...new Set(arrayOfReqIds)];
+
+    arrayOfReqIds = [...setOfReqIds];
+
+    //console.log("Array of Req ids", arrayOfReqIds);
+
+    const getDocuments = async () => {
+      //console.log("Called Get YourOrders2PartyResps");
+
+      return client.platform.documents.get("TwoPartyContract.response", {
+        where: [
+          ["reqId", "in", arrayOfReqIds],
+          // ["$createdAt", "<=", Date.now()],
+        ],
+        orderBy: [
+          ["reqId", "asc"],
+          //  ["$createdAt", "desc"],
+        ],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        let responseDocArray = [];
+
+        for (const n of d) {
+          let returnedDoc = n.toJSON();
+          //console.log("Response:\n", returnedDoc);
+          returnedDoc.reqId = Identifier.from(
+            returnedDoc.reqId,
+            "base64"
+          ).toJSON();
+
+          returnedDoc.toId = Identifier.from(
+            returnedDoc.toId,
+            "base64"
+          ).toJSON();
+          // returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+          //console.log("newResponse:\n", returnedDoc);
+          responseDocArray = [...responseDocArray, returnedDoc];
+        }
+
+        // decryptMyResps(theResps, theMnemonic, whichNetwork)
+
+        let decryptedRespArray = decryptMyResps(
+          responseDocArray,
+          this.state.mnemonic,
+          this.state.whichNetwork
+        );
+
+        this.setState({
+          YourOrdersConfirms: theConfirms, //ConfirmedOrders: [],
+          YourOrders2PartyReqs: the2PartyReqs,
+          YourOrders2PartyResps: decryptedRespArray,
+          isLoadingYourOrders2Party: false,
+        });
+      })
+      .catch((e) => {
+        console.error("Something went wrong YourOrders2PartyResps:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  handleDeleteOrderModal = (theOrder, index) => {
+    // let requestItem = this.state.Inventory.find((item) => {
+    //   return item.$id === theRequest.itemId;
+    // });
+    this.setState(
+      {
+        //SelectedOrder: requestItem,
+        SelectedOrder: theOrder,
+        //I also need the name <- NOT FOR MY POSTS
+        SelectedOrderIndex: index, //<- Need this for the editingfunction!!
+      },
+      () => this.showModal("DeleteOrderModal")
+    );
+  };
+
+  deleteOrder = () => {
+    //console.log("Called Delete Order");
+
+    this.setState({
+      isLoadingYourOrders: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const deleteNoteDocument = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      }
+
+      const documentId = this.state.SelectedOrder.$id;
+
+      // Retrieve the existing document
+
+      //JUST PUT IN THE DOCUMENT THAT i ALREADY HAVE... => Done
+      // Wrong ^^^ Can not use because changed to JSON
+
+      const [document] = await client.platform.documents.get(
+        "ONLINESTOREContract.order",
+        { where: [["$id", "==", documentId]] }
+      );
+
+      // Sign and submit the document delete transition
+      await platform.documents.broadcast({ delete: [document] }, identity);
+      return document;
+    };
+
+    deleteNoteDocument()
+      .then((d) => {
+        //console.log("Document deleted:\n", d.toJSON());
+
+        let editedOrders = this.state.YourOrdersOrders;
+
+        editedOrders.splice(this.state.SelectedOrderIndex, 1);
+
+        this.setState({
+          YourOrdersOrders: editedOrders,
+          isLoadingYourOrders: false,
+        });
+      })
+      .catch((e) => console.error("Something went wrong:\n", e))
+      .finally(() => client.disconnect());
+  };
+
+  // THIS IS FOR THE RESPONSE DOCUMENT <- **
+
+  showAddMessageToResponseModal_YOURORDERS = (
+    theResponse,
+    theRequestName,
+    pubKeyDoc
+  ) => {
+    let responseIndex = this.state.Rsrvs2PartyResps.findIndex((resp) => {
+      return resp.$id === theResponse.$id;
+    });
+    this.setState({
+      responseToEdit: theResponse,
+      responseToEditIndex: responseIndex, //<- Need this for the editingfunction!!
+      signingToSendToWhomNameDoc: theRequestName,
+      requestPubKeyDoc2Party: pubKeyDoc,
+
+      presentModal: "AddMessageToResponseModalYOURORDERS",
+      isModalShowing: true,
+    });
+  };
+
+  editResponseAddMessage_YOURORDERS = (addedMessage) => {
+    //  console.log("Called Edit ResponseAddMessage");
+    this.setState({
+      isLoadingYourOrders2Party: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    // *** *** ***
+
+    let theTime = Date.now();
+
+    let theMsgObject = [];
+
+    if (addedMessage !== "") {
+      //SHouldnt get here anyway..
+      theMsgObject = [
+        {
+          msg: addedMessage,
+          time: theTime,
+        },
+      ];
+    } else {
+      theMsgObject = [];
+    }
+
+    let propsToEncrypt = {
+      txId: this.state.responseToEdit.txId,
+      refund: this.state.responseToEdit.refundTxId,
+      sig: this.state.responseToEdit.sigObject,
+      msgs: [...theMsgObject, ...this.state.responseToEdit.msgObject],
+    };
+
+    console.log("propsToEncrypt: ", propsToEncrypt);
+
+    //SEND OBJECT TO ENCRYPT ->
+
+    let encryptedProps = encryptMyResp(
+      this.state.responseToEdit.reqTime,
+      propsToEncrypt,
+      // this.state.Your2PartyPubKey
+      this.state.requestPubKeyDoc2Party,
+      this.state.mnemonic,
+      this.state.whichNetwork
+    );
+
+    // *** *** ***
+
+    const submit2PartyDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      }
+
+      const [document] = await client.platform.documents.get(
+        "TwoPartyContract.response",
+        {
+          where: [["$id", "==", this.state.responseToEdit.$id]],
+        }
+      );
+
+      //CHANGE THE DOCUMENT.SET ->
+
+      if (addedMessage !== "") {
+        document.set(
+          "resp",
+          Buffer.from(encryptedProps.resp).toString("base64")
+        );
+        document.set("fromResp", encryptedProps.fromResp);
+      }
+
+      await platform.documents.broadcast({ replace: [document] }, identity);
+      return document;
+
+      //############################################################
+      //This below disconnects the document editing..***
+
+      //return document;
+
+      //This is to disconnect the Document editing***
+      //############################################################
+    };
+
+    submit2PartyDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        returnedDoc.reqId = Identifier.from(
+          returnedDoc.reqId,
+          "base64"
+        ).toJSON();
+
+        returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
+
+        //returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        // let propsToEncrypt = {
+        //   txId: this.state.responseToEdit.txId,
+        //   refund: this.state.responseToEdit.refundTxId,
+        //   sig: this.state.responseToEdit.sigObject,
+        //   msgs: [...theMsgObject, ...this.state.responseToEdit.msgObject],
+        // };
+
+        returnedDoc.txId = propsToEncrypt.txId;
+        returnedDoc.refundTxId = propsToEncrypt.refund;
+        returnedDoc.sigObject = propsToEncrypt.sig;
+        returnedDoc.msgObject = propsToEncrypt.msgs;
+
+        console.log("Edited 2Party Doc:\n", returnedDoc);
+
+        let editedResponses = this.state.YourOrders2PartyResps;
+
+        editedResponses.splice(this.state.responseToEditIndex, 1, returnedDoc);
+
+        this.setState(
+          {
+            YourOrders2PartyResps: editedResponses,
+            isLoadingYourOrders2Party: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong with Response Edit:\n", e);
+        this.setState({
+          isLoadingYourOrders2Party: false,
+        });
+      })
+      .finally(() => client.disconnect());
+  };
+
+  //THIS IS THE ACTUAL PAYMENT AND TX
+  show2PartyPayRequestModal_YOURORDERS = (
+    reqDoc,
+    inputNameDoc, //name and OwnerId
+    pubKeyDoc
+    //NEED FOR MSGID
+    //inputNumber //Should already be in duffs
+  ) => {
+    //THIS IS AFTER YOU CLICK PAY ON PAYMENT REQUEST
+    this.setState({
+      sendSuccess2Party: false, //TX go through
+      sendFailure2Party: false, //TX go through
+      //sendReqSuccess2Party: false, //Req go through
+      // sendReqFailure2Party: false,
+      //sendPmtMsgSuccess2Party: false, //It just go through
+      sendPmtMsgFailure2Party: false, //Response go through
+      requestPmtReqDoc2Party: reqDoc,
+      sendToNameDoc2Party: inputNameDoc,
+      amountToSend2Party: Number(reqDoc.amt),
+      requestPubKeyDoc2Party: pubKeyDoc,
+
+      //messageToSend2Party: message, //Add message in the modal
+
+      presentModal: "Pay2PartyRequestModalYOURORDERS",
+      isModalShowing: true,
+    });
+  };
+
+  payDash2PartyRequest_YOURORDERS = (addedMessage) => {
+    // console.log(addedMessage);
+
+    this.setState({
+      isLoadingYourOrders2Party: true,
+      isLoadingWallet: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const payToRecipient = async () => {
+      const account = await client.getWalletAccount();
+
+      //CREATE THE MULTISIG TO SEND TO -
+
+      //https://github.com/dashpay/dashcore-lib/blob/master/lib/hdpublickey.js
+
+      //2,147,483,648 =  2^31 is deriveChild limit
+      //1,729,873,503,663 TIMENOW
+      //31,536,000 secsInYear
+      //68 years this is how long until repeat - no just repeat, run out of room, will need to increase truncate
+      //Just truncate - 1,729,873,000,000
+
+      let timeStamp =
+        this.state.requestPmtReqDoc2Party.$createdAt - 1729873000000;
+
+      //console.log("timeStamp", timeStamp);
+
+      //console.log("requestPmtReqDoc2Party", this.state.requestPmtReqDoc2Party);
+      //console.log("Your2PartyPubKey", this.state.Your2PartyPubKey.xpubkey);
+
+      let YourPublicKey = new HDPublicKey(this.state.Your2PartyPubKey.xpubkey)
+        .deriveChild(`m/${timeStamp}`)
+        //`m/2147483647` <- LIMIT, will hit in 68 years
+        .toObject().publicKey;
+
+      // console.log("YourPublicKey", YourPublicKey);
+
+      let TheirPublicKey = new HDPublicKey(
+        this.state.requestPubKeyDoc2Party.xpubkey
+      )
+        .deriveChild(`m/${timeStamp}`)
+        .toObject().publicKey;
+
+      // console.log("TheirPublicKey", TheirPublicKey);
+
+      let redeemScript = Script.buildMultisigOut(
+        [YourPublicKey, TheirPublicKey],
+        2
+      );
+
+      //console.log("redeemScript: ", redeemScript);
+
+      let scriptHashOut = redeemScript.toScriptHashOut();
+      //console.log("ScriptHashOut: ", scriptHashOut.toString());
+
+      let scriptAddress = Address.fromScript(
+        scriptHashOut,
+        this.state.whichNetwork
+      );
+      console.log("scriptAddress: ", scriptAddress.toString());
+
+      //CREATE THE MULTISIG TO SEND TO ^^^^
+
+      let dashAmt = this.state.amountToSend2Party;
+      console.log("sats sent in TX:", dashAmt);
+      // console.log(typeof dashAmt);
+
+      // let amt = dashAmt.toFixed(0).toString();
+      // console.log(amt);
+      // console.log(typeof amt);
+
+      const transaction = account.createTransaction({
+        recipient: scriptAddress,
+        satoshis: dashAmt, //Must be a string!! -> no.
+      });
+      //return transaction.id; //Use to disable TX
+      return account.broadcastTransaction(transaction);
+    };
+
+    payToRecipient()
+      .then((d) => {
+        console.log("Payment TX:\n", d);
+
+        this.setState(
+          {
+            sendSuccess2Party: true, //TX go through //DO I NEED THIS? BC THE DOCUMENT WILL JUST CHANGE TO REFLECT
+          },
+          () => this.create2PartyResponseWithTX(d, addedMessage)
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+        this.setState({
+          isLoadingYourOrders2Party: false,
+          isLoadingWallet: false,
+          sendFailure2Party: true, //TX go through
+        });
+      });
+    //.finally(() => client.disconnect()); // <- Caused Error in the past, added back seems to fix more recent payment error. -> YES error dont use
+  };
+
+  create2PartyResponseWithTX_YOURORDERS = (theTxId, addedMessage) => {
+    //console.log(addedMessage);
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    let docProperties = {};
+
+    //get time
+    let theTime = Date.now();
+
+    //build msgObject = id?, time created updated,
+    let theMsgObject = [];
+
+    if (addedMessage !== "") {
+      theMsgObject = [
+        {
+          msg: addedMessage,
+          time: theTime,
+        },
+      ];
+    } else {
+      theMsgObject = [];
+    }
+
+    let propsToEncrypt = {
+      txId: theTxId,
+      refund: "",
+      sig: "",
+      msgs: theMsgObject,
+    };
+
+    console.log("propsToEncrypt: ", propsToEncrypt);
+
+    // encryptMyResp(
+    //   timeStamp,
+    // theRespInput,
+    // theRequestPubKeyDoc,
+    // //theResponsePubKeyDoc
+    // theMnemonic,
+    // whichNetwork
+    // )
+
+    let timeStamp =
+      this.state.requestPmtReqDoc2Party.$createdAt - 1729873000000;
+
+    let encryptedProps = encryptMyResp(
+      timeStamp,
+      propsToEncrypt,
+      this.state.requestPubKeyDoc2Party,
+      // this.state.Your2PartyPubKey
+      this.state.mnemonic,
+      this.state.whichNetwork
+    );
+
+    const submitDocuments = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      } // Your identity ID
+
+      console.log(encryptedProps);
+
+      docProperties = {
+        reqId: this.state.requestPmtReqDoc2Party.$id,
+        toId: this.state.requestPmtReqDoc2Party.$ownerId,
+        amtMatch: this.state.amountToSend2Party,
+        reqTime: timeStamp,
+        resp: Buffer.from(encryptedProps.resp).toString("base64"),
+        fromResp: encryptedProps.fromResp, //Buffer.from(encryptedProps.fromResp).toString("base64"),
+        //txId: theTxId,
+        //refundTxId: "",
+        //sigObject: "",
+        // msgObject: theMsgObject,
+      };
+
+      // Create the note document
+      const twoPartyDocument = await platform.documents.create(
+        "TwoPartyContract.response",
+        identity,
+        docProperties
+      );
+
+      //console.log(dsoDocument.toJSON());
+
+      //############################################################
+      //This below disconnects the document sending..***
+
+      //return twoPartyDocument;
+
+      //This is to disconnect the Document Creation***
+
+      //############################################################
+
+      const documentBatch = {
+        create: [twoPartyDocument], // Document(s) to create
+      };
+
+      await platform.documents.broadcast(documentBatch, identity);
+      return twoPartyDocument;
+    };
+
+    submitDocuments()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        returnedDoc.reqId = Identifier.from(
+          returnedDoc.reqId,
+          "base64"
+        ).toJSON();
+
+        returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
+        // let propsToEncrypt = {
+        //   txId: theTxId,
+        //   refund: "",
+        //   sig: "",
+        //   msgs: theMsgObject,
+        // };
+
+        //txId: theTxId,
+        //refundTxId: "",
+        //sigObject: "",
+        // msgObject: theMsgObject,
+
+        returnedDoc.txId = propsToEncrypt.txId;
+        returnedDoc.refundTxId = propsToEncrypt.refund;
+        returnedDoc.sigObject = propsToEncrypt.sig;
+        returnedDoc.msgObject = propsToEncrypt.msgs;
+
+        console.log("response Doc:\n", returnedDoc);
+
+        this.setState(
+          {
+            YourOrders2PartyResps: [
+              returnedDoc,
+              ...this.state.YourOrders2PartyResps,
+            ],
+            //BELOW handled in the POSTPAYMENTWallet function.
+            //isLoadingWallet: false,
+            isLoadingYourOrders2Party: false,
+            WALLET_sendMsgSuccess: true,
+          },
+          () => this.loadIdentityCredits()
+        );
+
+        this.get2PartyWallet();
+      })
+      .catch((e) => {
+        this.setState(
+          {
+            isLoadingRsrvs2Party: false,
+            sendPmtMsgFailure2Party: true,
+          },
+          () => this.get2PartyWallet()
+        );
+
+        console.error("Something went wrong creating 2 Party response:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  showReleaseFundsModal_YOURORDERS = (
+    signatureToAdd,
+    theResponse,
+    toWhomNameDoc,
+    pubKeyDoc,
+    theRequest
+  ) => {
+    this.setState({
+      isLoadingYourOrders2Party: true,
+    });
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    // const getDocuments = async () => {
+    //   return client.platform.documents.get("TwoPartyContract.response", {
+    //     where: [["$id", "==", theResponse.$id]],
+    //   });
+    // };
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("TwoPartyContract.request", {
+        where: [["$id", "==", theResponse.reqId]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          console.log("There is no Document");
+
+          //PUT THE REFRESH HERE..
+          this.handleRefresh_YourOrders();
+        } else {
+          let returnedDoc = d[0].toJSON();
+
+          //console.log("returnedDoc: ", returnedDoc);
+          if (returnedDoc.req !== theRequest.req) {
+            //Why will the req be different? bc this is checking the other person's document
+            //JUST REFRESH
+            this.handleRefresh_YourOrders();
+          } else {
+            this.showReleaseFundsModalPostCheck_YOURORDERS(
+              signatureToAdd,
+              theResponse,
+              toWhomNameDoc,
+              pubKeyDoc
+            );
+          }
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+        return undefined;
+      })
+      .finally(() => client.disconnect());
+  };
+
+  showReleaseFundsModalPostCheck_YOURORDERS = (
+    signatureToAdd,
+    theResponse,
+    toWhomNameDoc,
+    pubKeyDoc
+  ) => {
+    //console.log("signatureToAdd", signatureToAdd);
+    //find the index
+    let responseIndex = this.state.YourOrders2PartyResps.findIndex((resp) => {
+      return resp.$id === theResponse.$id;
+    });
+
+    this.setState(
+      {
+        isLoadingYourOrders2Party: false, //ADDED FOR THE CHECK SIGN
+        signature2Party: signatureToAdd,
+        responseToEdit: theResponse,
+        responseToEditIndex: responseIndex, //<- Need this for the editingfunction!!
+        requestPubKeyDoc2Party: pubKeyDoc,
+        signingToSendToWhomNameDoc: toWhomNameDoc,
+      },
+      () => this.showModal("Release2PartyModalYOURORDERS")
+    );
+  };
+
+  editReleaseFunds_YOURORDERS = (addedMessage) => {
+    //  console.log("Called Edit ReleaseFunds");
+    this.setState({
+      isLoadingYourOrders2Party: true,
+      // isLoadingYourOrders2Party: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    // *** *** ***
+
+    let theMsgObject = [];
+
+    if (addedMessage !== "") {
+      let theTime = Date.now();
+
+      theMsgObject = [
+        {
+          msg: addedMessage,
+          time: theTime,
+        },
+      ];
+    }
+
+    let propsToEncrypt = {
+      txId: this.state.responseToEdit.txId,
+      refund: this.state.responseToEdit.refundTxId,
+      sig: this.state.signature2Party.signature.toString(),
+      //sig: this.state.responseToEdit.sigObject,
+      msgs: [...theMsgObject, ...this.state.responseToEdit.msgObject],
+    };
+
+    //console.log("propsToEncrypt: ", propsToEncrypt);
+
+    //SEND OBJECT TO ENCRYPT ->
+
+    let encryptedProps = encryptMyResp(
+      this.state.responseToEdit.reqTime,
+      propsToEncrypt,
+      // this.state.Your2PartyPubKey
+      this.state.requestPubKeyDoc2Party,
+      this.state.mnemonic,
+      this.state.whichNetwork
+    );
+
+    // *** *** ***
+
+    const submit2PartyDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      }
+
+      const [document] = await client.platform.documents.get(
+        "TwoPartyContract.response",
+        {
+          where: [["$id", "==", this.state.responseToEdit.$id]],
+        }
+      );
+
+      //console.log("signatureToAdd", this.state.signatureToAdd);
+      //RELEASE THE FUNDS
+      // document.set(
+      //   "sigObject",
+      //   this.state.signature2Party.signature.toString()
+      // );
+      // let theMsgsToAddTo = [...this.state.responseToEdit.msgObject];
+      // theMsgsToAddTo.push(theMsgObject);
+      // //console.log("theMsgsToAddTo", theMsgsToAddTo);
+      // if (addedMessage !== "") {
+      //   document.set("msgObject", JSON.stringify(theMsgsToAddTo));
+      // }
+
+      //CHANGE THE DOCUMENT.SET ->
+
+      document.set("resp", Buffer.from(encryptedProps.resp).toString("base64"));
+      document.set("fromResp", encryptedProps.fromResp);
+
+      await platform.documents.broadcast({ replace: [document] }, identity);
+      return document;
+
+      //############################################################
+      //This below disconnects the document editing..***
+
+      //return document;
+
+      //This is to disconnect the Document editing***
+      //############################################################
+    };
+
+    submit2PartyDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        returnedDoc.reqId = Identifier.from(
+          returnedDoc.reqId,
+          "base64"
+        ).toJSON();
+
+        returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
+
+        //returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        returnedDoc.txId = propsToEncrypt.txId;
+        returnedDoc.refundTxId = propsToEncrypt.refund;
+        returnedDoc.sigObject = propsToEncrypt.sig;
+        returnedDoc.msgObject = propsToEncrypt.msgs;
+
+        console.log("Edited 2Party Doc:\n", returnedDoc);
+
+        let editedResponses = this.state.YourOrders2PartyResps;
+
+        editedResponses.splice(this.state.responseToEditIndex, 1, returnedDoc);
+
+        this.setState(
+          {
+            YourOrders2PartyResps: editedResponses,
+            isLoadingYourOrders2Party: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong with Response Edit:\n", e);
+        this.setState({
+          isLoadingYourOrders2Party: false,
+        });
+      })
+      .finally(() => client.disconnect());
+  };
+
+  showWithdrawRefundModal_YOURORDERS = (
+    theResponse,
+    theRequestPubKeyDoc, //theResponsePubKeyDoc
+    toWhomNameDoc,
+    theRequest,
+    theTx
+  ) => {
+    let responseIndex = this.state.YourOrders2PartyResps.findIndex((resp) => {
+      return resp.$id === theResponse.$id;
+    });
+    this.setState(
+      {
+        requestToUse: theRequest,
+        requestPubKeyDocToUse: theRequestPubKeyDoc,
+        signingToSendToWhomNameDoc: toWhomNameDoc, //This will be the responseName
+        responseToEdit: theResponse,
+        responseToEditIndex: responseIndex,
+        txToUse: theTx,
+      },
+      () => this.showModal("WithdrawRefundModalYOURORDERS")
+    );
+  };
+
+  //THIS IS THE ACTUAL PAYMENT AND TX
+  payWithdrawRefund_YOURORDERS = (addedMessage) => {
+    // console.log(addedMessage);
+
+    this.setState({
+      isLoadingYourOrders2Party: true,
+      isLoadingWallet: true,
+      //messageToSend2Party: "MSGFORpaidthr",
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const payToRecipient = async () => {
+      const account = await client.getWalletAccount();
+
+      // createFullTX(
+      //   theRequest,
+      //   theRequestPubKeyDoc,
+      //   theResponse,
+      //   theResponsePubKeyDoc,
+      //   whichNetwork,
+      //   theTx, //txId,script,amt
+      //   theMnemonic,
+      //   theAddress
+      // )
+
+      let transaction = createFullTXRefund(
+        this.state.requestToUse,
+        this.state.requestPubKeyDocToUse,
+        this.state.responseToEdit,
+        this.state.Your2PartyPubKey,
+        this.state.whichNetwork,
+        this.state.txToUse,
+        this.state.mnemonic,
+        this.state.accountAddress
+      );
+
+      //return transaction.id; //Use to disable TX
+      return account.broadcastTransaction(transaction);
+    };
+
+    payToRecipient()
+      .then((d) => {
+        console.log("Payment TX:\n", d);
+
+        this.setState(
+          {
+            sendSuccess2Party: true, //TX go through //DO I NEED THIS? BC THE DOCUMENT WILL JUST CHANGE TO REFLECT
+          },
+          () => this.editWithdrawRefundRespWithTX_YOURORDERS(d, addedMessage)
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+        this.setState({
+          isLoadingYourOrders2Party: false,
+          isLoadingWallet: false,
+          sendFailure2Party: true, //TX go through
+        });
+      });
+    //.finally(() => client.disconnect()); // <- Caused Error in the past, added back seems to fix more recent payment error. -> YES error dont use
+  };
+
+  editWithdrawRefundRespWithTX_YOURORDERS = (theTxId, addedMessage) => {
+    //console.log(addedMessage);
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    // *** *** ***
+
+    let theMsgObject = [];
+
+    if (addedMessage !== "") {
+      let theTime = Date.now();
+
+      theMsgObject = [
+        {
+          msg: addedMessage,
+          time: theTime,
+        },
+      ];
+    }
+
+    let propsToEncrypt = {
+      txId: this.state.responseToEdit.txId,
+      refund: theTxId,
+      //sig: this.state.signature2Party,
+      sig: this.state.responseToEdit.sigObject,
+      msgs: [...theMsgObject, ...this.state.responseToEdit.msgObject],
+    };
+
+    console.log("propsToEncrypt: ", propsToEncrypt);
+
+    //SEND OBJECT TO ENCRYPT ->
+
+    let encryptedProps = encryptMyResp(
+      this.state.responseToEdit.reqTime,
+      propsToEncrypt,
+      // this.state.Your2PartyPubKey
+      this.state.requestPubKeyDocToUse,
+      this.state.mnemonic,
+      this.state.whichNetwork
+    );
+
+    // *** *** ***
+
+    const edit2PartyDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      } // Your identity ID
+
+      const [document] = await client.platform.documents.get(
+        "TwoPartyContract.response",
+        {
+          where: [["$id", "==", this.state.responseToEdit.$id]],
+        }
+      );
+
+      //console.log("signatureToAdd", this.state.signatureToAdd);
+      //RELEASE THE FUNDS
+      // document.set("txId", theTxId);
+      // let theMsgsToAddTo = [...this.state.responseToEdit.msgObject];
+      // theMsgsToAddTo.push(theMsgObject);
+      // //console.log("theMsgsToAddTo", theMsgsToAddTo);
+      // if (addedMessage !== "") {
+      //   document.set("msgObject", JSON.stringify(theMsgsToAddTo));
+      // }
+
+      //CHANGE THE DOCUMENT.SET ->
+
+      document.set("resp", Buffer.from(encryptedProps.resp).toString("base64"));
+      document.set("fromResp", encryptedProps.fromResp);
+
+      await platform.documents.broadcast({ replace: [document] }, identity);
+      return document;
+
+      //############################################################
+      //This below disconnects the document editing..***
+
+      //return document;
+
+      //This is to disconnect the Document editing***
+      //############################################################
+    };
+
+    edit2PartyDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        returnedDoc.reqId = Identifier.from(
+          returnedDoc.reqId,
+          "base64"
+        ).toJSON();
+
+        returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
+
+        //returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        returnedDoc.txId = propsToEncrypt.txId;
+        returnedDoc.refundTxId = propsToEncrypt.refund;
+        returnedDoc.sigObject = propsToEncrypt.sig;
+        returnedDoc.msgObject = propsToEncrypt.msgs;
+
+        console.log("Edited 2Party Resp:\n", returnedDoc);
+
+        let editedResponses = this.state.YourOrders2PartyResps;
+
+        editedResponses.splice(this.state.responseToEditIndex, 1, returnedDoc);
+
+        this.setState(
+          {
+            YourOrders2PartyResps: editedResponses,
+            isLoadingYourOrders2Party: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+
+        this.get2PartyWallet();
+      })
+      .catch((e) => {
+        this.setState(
+          {
+            isLoadingYourOrders2Party: false,
+          },
+          () => this.get2PartyWallet()
+        );
+
+        console.error("Something went wrong editing 2 Party response:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  /*CUSTOMER FUNCTIONS^^^^
    *                                 #############
    *                                ####         ##
    *                                ###
@@ -6873,100 +8399,6 @@ class App extends React.Component {
       .finally(() => client.disconnect());
   };
 
-  handleMerchantReplyModalShow = (theConfirm, nameDoc) => {
-    this.setState(
-      {
-        selectedConfirm: theConfirm,
-        selectedReplyNameDoc: nameDoc,
-      },
-      () => this.showModal("MerchantReplyModal")
-    );
-  };
-
-  //confirmId createdAt - query
-  // confirmId && msg - attributes
-
-  createMerchantReply = (replyMsgComment) => {
-    //console.log("Called Merchant Message Submit: ", replyMsgComment);
-
-    this.setState({
-      isLoadingRequests: true,
-    });
-
-    const client = new Dash.Client(
-      dapiClient(
-        this.state.whichNetwork,
-        this.state.mnemonic,
-        this.state.skipSynchronizationBeforeHeight
-      )
-    );
-
-    const submitMsgDoc = async () => {
-      const { platform } = client;
-
-      let identity = "";
-      if (this.state.identityRaw !== "") {
-        identity = this.state.identityRaw;
-      } else {
-        identity = await platform.identities.get(this.state.identity);
-      }
-
-      const replyProperties = {
-        confirmId: this.state.selectedConfirm.$id,
-        msg: replyMsgComment,
-      };
-      //console.log('Reply to Create: ', replyProperties);
-
-      // Create the note document
-      const rentalDocument = await platform.documents.create(
-        "RENTALSContract.reply",
-        identity,
-        replyProperties
-      );
-
-      //############################################################
-      //This below disconnects the document sending..***
-
-      //return rentalDocument;
-
-      //This is to disconnect the Document Creation***
-      //############################################################
-
-      const documentBatch = {
-        create: [rentalDocument], // Document(s) to create
-      };
-
-      await platform.documents.broadcast(documentBatch, identity);
-      return rentalDocument;
-    };
-
-    submitMsgDoc()
-      .then((d) => {
-        let returnedDoc = d.toJSON();
-        console.log("Document:\n", returnedDoc);
-
-        returnedDoc.confirmId = Identifier.from(
-          returnedDoc.confirmId,
-          "base64"
-        ).toJSON();
-
-        this.setState(
-          {
-            RentalReplies: [...this.state.RentalReplies, returnedDoc],
-            isLoadingRequests: false,
-          },
-          () => this.loadIdentityCredits()
-        );
-      })
-      .catch((e) => {
-        console.error(
-          "Something went wrong with Merchant Reply Msg creation:\n",
-          e
-        );
-      })
-      .finally(() => client.disconnect());
-  };
-
   //RENTALS - 2 PARTY REQUEST
 
   showRentals2PartyReqModal = (
@@ -7763,8 +9195,1715 @@ class App extends React.Component {
       .finally(() => client.disconnect());
   };
 
-  /*
-   * MERCHANT FUNCTIONS^^^^
+  // RENTALS ^^^ || ORDERS (BELOW)
+
+  pullInitialTriggerORDERS = () => {
+    if (this.state.InitialPullOrders) {
+      this.getOrdersInventory();
+      this.setState({
+        InitialPullOrders: false,
+      });
+    }
+  };
+
+  handleRefresh_Orders = () => {
+    this.setState(
+      {
+        isLoadingOrders2Party: true,
+        isLoadingOrdersMerchant: true,
+        isOrdersRefreshReady: false, // pass to refresh button
+      },
+      () => this.getOrders()
+    );
+
+    //REFRESH -> TIMEOUT
+    const ordersTimeout = setTimeout(this.allowOrdersRefresh, 15000);
+    //REFRESH -> TIMEOUT
+  };
+
+  allowOrdersRefresh = () => {
+    this.setState({
+      isOrdersRefreshReady: true,
+    });
+  };
+
+  //SETTIMEOUT WAY ^^^^
+
+  handleMerchantOrdersFilter = (theSelected) => {
+    this.setState({
+      DisplayOrders: theSelected,
+    });
+  };
+
+  //Orders/InventoryDoc? (MERCH)
+  //Confirms(use the one below) -> Yes
+  // = CombinedInventory
+  //   THIS ONE IS DIFFERENT. -> have to verify amt before can confirm.
+  //                               Orders(fromCUSTs)
+  //Confirms (MERCH)       |       NameDocs&&PROXYs
+  //2-Party (Reqs&Resps)   |       PUBKEY(2-Party) AFterNAME
+  //combineCall() do a naked call
+  //isLoadingOrders2Party |       isLoadingOrdersMerchant
+  //
+  //how do i get the pubKey -> From the name bc proxy is not OwnerId of pubkey
+
+  getOrdersInventory = () => {
+    //console.log("Calling getInventory");
+    // if (!this.state.isLoadingInventory) {
+    //   this.setState({ isLoadingInventory: true });
+    // }
+
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("ONLINESTOREContract.inventory", {
+        where: [
+          ["$ownerId", "==", this.state.identity],
+          ["$updatedAt", "<=", Date.now()],
+        ],
+        orderBy: [["$updatedAt", "desc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("There are no Inventory");
+
+          this.setState({
+            OrdersInventoryDoc: {},
+            OrdersInventory: [],
+
+            //Inventory: [],
+            //     InventoryInitial:[], //Do I need this if no inventory change here?
+
+            OrdersOrders: [], //Request
+            OrdersProxies: [],
+            OrdersControllers: [],
+            OrdersNames: [],
+            OrdersPubkeys: [],
+            isLoadingOrdersMerchant: false,
+
+            OrdersConfirms: [],
+            Orders2PartyReqs: [],
+            Orders2PartyResps: [],
+            isLoadingOrders2Party: false,
+          });
+        } else {
+          let docArray = [];
+          //console.log("Getting Inventory");
+
+          for (const n of d) {
+            let returnedDoc = n.toJSON();
+            //console.log("Inventory:\n", returnedDoc);
+            // returnedDoc.replyId = Identifier.from(
+            //   returnedDoc.replyId,
+            //   "base64"
+            // ).toJSON();
+            returnedDoc.items = JSON.parse(returnedDoc.items);
+            //console.log("newInventory:\n", returnedDoc.items);
+            docArray = [...docArray, returnedDoc];
+          }
+
+          this.getOrdersConfirms(docArray[0]);
+          this.getOrdersOrders(docArray[0]);
+
+          // this.setState(
+          //   {
+          //     InventoryDoc: docArray[0],
+          //     //Inventory: docArray[0].items, //from combineFunction
+          //     Inventory1: true,
+          //   },
+          //   () => this.inventoryRace()
+          // );
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong Getting Inventory:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  // getConfirms = (inventoryUpdateAt) => {}; Just use same confirms for inventory and merchant orders
+
+  getOrdersConfirms = (theInventoryDoc) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    const getDocuments = async () => {
+      //console.log("Called Get Confirms");
+
+      return client.platform.documents.get("ONLINESTOREContract.confirm", {
+        where: [
+          ["$ownerId", "==", this.state.identity],
+          ["$createdAt", "<=", Date.now()],
+        ],
+        orderBy: [["$createdAt", "desc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        //console.log("Getting YourOrdersConfirms");
+
+        // let newArray = JSON.parse(JSON.stringify(theInventory.items)); //deep copy
+        let newArray = JSON.parse(JSON.stringify(theInventoryDoc.items)); //deep copy
+
+        if (d.length === 0) {
+          //console.log("There are no YourOrdersConfirms");
+
+          this.setState(
+            {
+              //OrdersInventoryDoc: theInventoryDoc,
+              //OrdersInventory: theInventoryDoc.items,
+              //Inventory: [],
+              //InventoryInitial:[], //Do I need this if no inventory change here?
+
+              OrdersConfirms: [],
+              Orders2PartyReqs: [],
+              Orders2PartyResps: [],
+              //isLoadingOrders2Party: false,
+            },
+            () => this.combineInventoryANDConfirms(newArray, [])
+          );
+        } else {
+          let docArray = [];
+
+          for (const n of d) {
+            let returnedDoc = n.toJSON();
+            // console.log("Confirm:\n", returnedDoc);
+            returnedDoc.orderId = Identifier.from(
+              returnedDoc.orderId,
+              "base64"
+            ).toJSON();
+
+            returnedDoc.cart = JSON.parse(returnedDoc.cart);
+
+            // console.log("newConfirm:\n", returnedDoc);
+            docArray = [...docArray, returnedDoc];
+          }
+
+          this.combineInventoryANDConfirms(newArray, docArray);
+          this.getOrders2PartyReqs(docArray);
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong Confirms:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  //DO I NEED THIS IF THE INVENTORY IS NOT ADJUSTED HERE?
+  combineInventoryANDConfirms = (theInventory, theConfirms) => {
+    if (theInventory === undefined) {
+      this.setState({
+        Inventory: [],
+      });
+    } else if (theInventory.length === 0) {
+      this.setState({
+        Inventory: [],
+      });
+    } else if (theConfirms.length === 0) {
+      this.setState({
+        Inventory: theInventory,
+      });
+    } else {
+      let filteredConfirms = theConfirms.filter((confirm) => {
+        return confirm.$createdAt > theInventory.$updatedAt;
+      });
+      this.combineInventoryANDConfirmsFunction(
+        JSON.parse(JSON.stringify(theInventory)),
+        filteredConfirms
+      );
+    }
+  };
+
+  combineInventoryANDConfirmsFunction = (theInventory, theConfirms) => {
+    //Inventory.items is array.
+    //take confirms docs so this needs a cart copy.
+
+    //BELOW IS THE TICKET I THINK..
+
+    /** I think the ticket is reduce the confirms to just a block of singleblock of reduced unique items
+     * then find each item in the inventory and splice it
+     */
+    //*** */
+    //1) CONSOLIDATE THE CONFIRMS
+    //console.log("InventoryDoc", theInventory.items);
+    // console.log("theInventory", theInventory?);
+
+    let orderedItems = []; //This will be the reduced/sorted cartItem to reduce theInventory by
+    let confirmsTupleToSort = []; //make this just an array of tuples
+
+    theConfirms.forEach((confirm) => {
+      //(BELOW)filters out old confirms //DO THIS IN PRIOR FUNCTION
+      // if (confirm.$createdAt > theInventory?.$updatedAt) {
+      confirm.cart.forEach((tuple) => {
+        confirmsTupleToSort.push(tuple);
+        // console.log(tuple);
+      });
+      // }
+    });
+
+    // console.log("confirmsTupleToSort: ", confirmsTupleToSort);
+    // console.log(`confirmsTupleToSort[0]: ${confirmsTupleToSort[0]}`);
+
+    // [  // Cart Item Example
+    //   {
+    //     itemId: "Cool T-Shirt345",
+    //     variant: "",
+    //   },
+    //   2,
+    // ],
+
+    if (confirmsTupleToSort.length > 0) {
+      // !== 0
+      //
+      let totalQty = 0;
+      let currentItem = confirmsTupleToSort[0][0];
+      let foundIndex = 0;
+      //let continueSearch = true;
+      //
+      while (
+        confirmsTupleToSort.length > 0 //|| continueSearch
+      ) {
+        //
+        // totalQty = 0;
+        // currentItem = confirmsTupleToSort[0][0];
+        // console.log(currentItem);
+        // foundIndex = 0;
+        //  continueSearch = true;
+
+        //
+        // while (continueSearch) {
+        //
+        //findIndex
+
+        foundIndex = confirmsTupleToSort.findIndex((tuple) => {
+          //console.log(tuple);
+          return (
+            currentItem.itemId === tuple[0].itemId &&
+            currentItem.variant === tuple[0].variant
+          );
+        });
+        //console.log(foundIndex);
+        //
+        // if not -1
+        if (foundIndex !== -1) {
+          //add qty to totalQty
+          totalQty += confirmsTupleToSort[foundIndex][1];
+          //and slice out of array
+
+          //  console.log(`confirmsTupleToSort: ${confirmsTupleToSort}`);
+          if (confirmsTupleToSort.length > 0) {
+            ///TESTING CHANGE FROM 1
+            confirmsTupleToSort.splice(foundIndex, 1);
+          } // else {
+          //I don't think I need this the splice will return and empty array and not undefined so just simplify.
+          //  confirmsTupleToSort = [];
+          //  }
+          // console.log(`confirmsTupleToSort: ${confirmsTupleToSort}`);
+        }
+
+        if (foundIndex === -1 || confirmsTupleToSort.length === 0) {
+          //if -1
+          //
+          // add the current Item to the orderedItems
+          orderedItems.push([currentItem, totalQty]);
+          totalQty = 0;
+          // continueSearch = false;
+          //reset total to 0
+          if (confirmsTupleToSort.length !== 0) {
+            currentItem = confirmsTupleToSort[0][0];
+          }
+          //
+          foundIndex = 0;
+          // change the currentItem to the nextItem
+        }
+
+        //this repeats until there are not more tuples to sort
+        //
+        //  }
+      }
+    }
+
+    // console.log(`confirmsTupleToSort: ${confirmsTupleToSort}`);
+    //console.log(`orderedItems: ${orderedItems}`);
+
+    //2)CHANGE THIS TO INVENTORY INSTEAD OF CART CHANGES AND I THINK ITS GOOD
+    //
+    //and DONT FORGET TO HANDLE THE "" QTY DOESN'T MATTER ONES ->
+    //
+
+    //console.log("orderedItems", orderedItems);
+
+    let updatedInventory = JSON.parse(JSON.stringify(theInventory));
+    // console.log("updatedInventory", updatedInventory);
+    //
+    orderedItems.forEach((removedItem) => {
+      //
+      let theItemIndex = theInventory.findIndex((item) => {
+        return item.itemId === removedItem[0].itemId;
+      });
+
+      let theVariantIndex = theInventory[theItemIndex].variants.findIndex(
+        (vari) => {
+          return vari[0] === removedItem[0].variant;
+        }
+      );
+      //
+      let availQty = "";
+      //
+      if (updatedInventory[theItemIndex].variants[theVariantIndex][1] !== "") {
+        //  console.log("removedItem: ", removedItem);
+        //  console.log(
+        //    "updatedInventory[theItemIndex].variants[theVariantIndex][1]: ",
+        //    updatedInventory[theItemIndex].variants[theVariantIndex][1]
+        //  );
+        availQty =
+          updatedInventory[theItemIndex].variants[theVariantIndex][1] -
+          removedItem[1];
+        //  console.log("availQty: ", availQty);
+        if (availQty >= 0) {
+          updatedInventory[theItemIndex].variants[theVariantIndex][1] =
+            availQty;
+        } else {
+          updatedInventory[theItemIndex].variants[theVariantIndex][1] = 0;
+        }
+      }
+    });
+
+    this.setState(
+      {
+        Inventory: updatedInventory,
+        //InventoryInitial: updatedInventory, //This is what the Save Changes to Platform will compare //DONT NEED FOR NAMEWALLET
+      } //,() => this.getMerchantName()
+    );
+    console.log("updatedInventory", updatedInventory);
+  };
+
+  getOrdersOrders = (theInventoryDoc) => {
+    //console.log("Calling getOrders");
+
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("ONLINESTOREContract.order", {
+        where: [
+          // ["$ownerId", "==", this.state.MerchantId],
+          ["toId", "==", this.state.identity],
+          ["$createdAt", "<=", Date.now()],
+        ],
+        orderBy: [
+          // ["toId", "asc"],
+          ["$createdAt", "desc"],
+        ],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("There are no YourOrders");
+
+          this.setState({
+            OrdersOrders: [], //Requests //UnconfirmedOrders: [],
+            OrdersProxies: [],
+            OrdersControllers: [],
+            OrdersNames: [],
+            OrdersPubkeys: [],
+            isLoadingOrdersMerchant: false,
+          });
+        } else {
+          let docArray = [];
+          //console.log("Getting YourOrders");
+
+          for (const n of d) {
+            let returnedDoc = n.toJSON();
+            //console.log("Orders:\n", returnedDoc);
+            returnedDoc.toId = Identifier.from(
+              returnedDoc.toId,
+              "base64"
+            ).toJSON();
+            returnedDoc.cart = JSON.parse(returnedDoc.cart);
+            //  console.log("newRequest:\n", returnedDoc);
+            docArray = [...docArray, returnedDoc];
+          }
+          this.getOrdersProxies(
+            docArray // theInventoryDoc
+          );
+        }
+      })
+      .catch((e) => console.error("Something went wrong:\n", e))
+      .finally(() => client.disconnect());
+  };
+
+  getOrdersProxies = (
+    theOrders //theInventoryDoc
+  ) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    const getDocuments = async () => {
+      //console.log("Called Query OrdersProxies");
+
+      let ownerarrayOfOwnerIds = theOrders.map((doc) => {
+        return doc.$ownerId;
+      });
+
+      let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
+
+      let arrayOfOwnerIds = [...setOfOwnerIds];
+
+      return client.platform.documents.get("ProxyContract.proxy", {
+        where: [["$ownerId", "in", arrayOfOwnerIds]],
+        orderBy: [["$ownerId", "asc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        let proxyDocArray = [];
+
+        if (d.length === 0) {
+          console.log("There are no ProxyDocs.");
+
+          this.setState({
+            OrdersOrders: theOrders, //Requests //UnconfirmedOrders: [],
+            OrdersProxies: [],
+            OrdersControllers: [],
+            OrdersNames: [],
+            OrdersPubkeys: [],
+            isLoadingOrdersMerchant: false,
+          });
+        } else {
+          for (const n of d) {
+            let proxyDoc = n.toJSON();
+            //console.log("proxyDoc:\n", n.toJSON());
+            proxyDoc.controlId = Identifier.from(
+              proxyDoc.controlId,
+              "base64"
+            ).toJSON();
+            proxyDocArray = [proxyDoc, ...proxyDocArray];
+          }
+
+          //console.log(`Proxy Docs: ${proxyDocArray}`);
+
+          this.getOrdersProxyControllers(
+            proxyDocArray,
+            theOrders
+            //theInventoryDoc
+          );
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  getOrdersProxyControllers = (proxyDocs, theOrders) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    const getDocuments = async () => {
+      let ownerarrayOfControlIds = proxyDocs.map((doc) => {
+        return doc.controlId;
+      });
+
+      let setOfControlIds = [...new Set(ownerarrayOfControlIds)];
+
+      let arrayOfControlIds = [...setOfControlIds];
+
+      return client.platform.documents.get("ProxyContract.controller", {
+        where: [["$ownerId", "in", arrayOfControlIds]],
+        orderBy: [["$ownerId", "asc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          console.log("There are no ProxyController.");
+
+          this.setState({
+            OrdersOrders: theOrders, //Requests //UnconfirmedOrders: [],
+            OrdersProxies: proxyDocs,
+            OrdersControllers: [],
+            OrdersNames: [],
+            OrdersPubkeys: [],
+            isLoadingOrdersMerchant: false,
+          });
+        } else {
+          let controllerDocs = [];
+          for (const n of d) {
+            let controlDoc = n.toJSON();
+            //console.log("controlDoc:\n", n.toJSON());
+
+            // controlDoc.controlId = Identifier.from(
+            //   controlDoc.controlId,
+            //   "base64"
+            // ).toJSON();
+
+            controlDoc.proxyList = JSON.parse(controlDoc.proxyList);
+
+            controllerDocs = [controlDoc, ...controllerDocs];
+          }
+
+          this.getOrdersControllerNames(controllerDocs, proxyDocs, theOrders);
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  getOrdersControllerNames = (theDocArray, proxyDocs, theOrders) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+    //START OF NAME RETRIEVAL
+
+    let ownerarrayOfControlIds = proxyDocs.map((doc) => {
+      return doc.controlId;
+    });
+
+    let setOfControlIds = [...new Set(ownerarrayOfControlIds)];
+
+    let arrayOfControlIds = [...setOfControlIds];
+
+    //console.log("Calling getNamesforControllers");
+
+    const getNameDocuments = async () => {
+      return client.platform.documents.get("DPNSContract.domain", {
+        where: [["records.identity", "in", arrayOfControlIds]],
+        orderBy: [["records.identity", "asc"]],
+      });
+    };
+
+    getNameDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          console.log("There are no ProxyController.");
+
+          this.setState({
+            OrdersOrders: theOrders, //Requests //UnconfirmedOrders: [],
+            OrdersProxies: proxyDocs,
+            OrdersControllers: theDocArray,
+            OrdersNames: [],
+            OrdersPubkeys: [],
+            isLoadingOrdersMerchant: false,
+          });
+        } else {
+          let nameDocArray = [];
+
+          for (const n of d) {
+            //console.log("NameDoc:\n", n.toJSON());
+            nameDocArray = [n.toJSON(), ...nameDocArray];
+          }
+          //console.log(`DPNS Name Docs: ${nameDocArray}`);
+          this.getOrdersPubkeys(
+            nameDocArray,
+            theDocArray,
+            proxyDocs,
+            theOrders
+          );
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  getOrdersPubkeys = (nameDocArray, theDocArray, proxyDocs, theOrders) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    let ownerarrayOfOwnerIds = nameDocArray.map((doc) => {
+      return doc.$ownerId;
+    });
+
+    let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
+
+    let arrayOfOwnerIds = [...setOfOwnerIds];
+
+    //console.log("Calling getOrdersPubkeys");
+
+    const getPublicKeyDocuments = async () => {
+      return client.platform.documents.get("TwoPartyContract.xPubKeyDoc", {
+        where: [["$ownerId", "in", arrayOfOwnerIds]],
+        orderBy: [["$ownerId", "asc"]],
+      });
+    };
+
+    getPublicKeyDocuments()
+      .then((d) => {
+        let pubKeyDocArray = [];
+
+        for (const n of d) {
+          //console.log("PubKeyDoc:\n", n.toJSON());
+
+          pubKeyDocArray = [n.toJSON(), ...pubKeyDocArray];
+        }
+        //console.log(`Public Key Docs: ${pubKeyDocArray}`);
+
+        this.setState({
+          OrdersOrders: theOrders, //Requests //UnconfirmedOrders: [],
+          OrdersProxies: proxyDocs,
+          OrdersControllers: theDocArray,
+          OrdersNames: nameDocArray,
+          OrdersPubkeys: pubKeyDocArray,
+          isLoadingOrdersMerchant: false,
+        });
+      })
+      .catch((e) => {
+        console.error("Something went wrong gettingOrdersPubkeys:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  getOrders2PartyReqs = (theConfirms) => {
+    // console.log("Called getOrders2PartyReqs");
+
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    // This Below is to get unique set of For doc ids
+    let arrayOfForIds = theConfirms.map((doc) => {
+      return doc.$id;
+    });
+
+    let setOfForIds = [...new Set(arrayOfForIds)];
+
+    arrayOfForIds = [...setOfForIds];
+
+    //console.log("Array of For ids", arrayOfForIds);
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("TwoPartyContract.request", {
+        where: [["forId", "in", arrayOfForIds]],
+        orderBy: [["forId", "asc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          console.log("There are no Orders2PartyReqs");
+
+          this.setState({
+            //OrdersInventoryDoc: {},
+            //OrdersInventory: [],
+
+            OrdersConfirms: theConfirms,
+            Orders2PartyReqs: [],
+            Orders2PartyResps: [],
+            isLoadingOrders2Party: false,
+          });
+        } else {
+          let docArray = [];
+          //console.log("Getting Orders2PartyReqs");
+          for (const n of d) {
+            let returnedDoc = n.toJSON();
+            //console.log("Req:\n", returnedDoc);
+
+            returnedDoc.toId = Identifier.from(
+              returnedDoc.toId,
+              "base64"
+            ).toJSON();
+
+            returnedDoc.forId = Identifier.from(
+              returnedDoc.forId,
+              "base64"
+            ).toJSON();
+
+            // console.log("newReq:\n", returnedDoc);
+            docArray = [...docArray, returnedDoc];
+          }
+          //decryptTheirReqs(theReqs, theMnemonic, whichNetwork)
+          let decryptedDocs = decryptTheirReqs(
+            docArray,
+            this.state.mnemonic,
+            this.state.whichNetwork
+          );
+
+          this.getOrders2PartyResps(decryptedDocs, theConfirms);
+        }
+      })
+      .catch((e) => console.error("Something went wrong:\n", e))
+      .finally(() => client.disconnect());
+  };
+
+  getOrders2PartyResps = (the2PartyReqs, theConfirms) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    // This Below is to get unique set of ToYou Req doc ids
+    let arrayOfReqIds = the2PartyReqs.map((doc) => {
+      return doc.$id;
+    });
+
+    //console.log("Array of ToYou Req ids", arrayOfReqIds);
+
+    let setOfReqIds = [...new Set(arrayOfReqIds)];
+
+    arrayOfReqIds = [...setOfReqIds];
+
+    //console.log("Array of Req ids", arrayOfReqIds);
+
+    const getDocuments = async () => {
+      //console.log("Called Get Orders2PartyResps");
+
+      return client.platform.documents.get("TwoPartyContract.response", {
+        where: [
+          ["reqId", "in", arrayOfReqIds],
+          // ["$createdAt", "<=", Date.now()],
+        ],
+        orderBy: [
+          ["reqId", "asc"],
+          //  ["$createdAt", "desc"],
+        ],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        let responseDocArray = [];
+
+        for (const n of d) {
+          let returnedDoc = n.toJSON();
+          //console.log("Response:\n", returnedDoc);
+          returnedDoc.reqId = Identifier.from(
+            returnedDoc.reqId,
+            "base64"
+          ).toJSON();
+
+          returnedDoc.toId = Identifier.from(
+            returnedDoc.toId,
+            "base64"
+          ).toJSON();
+          // returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+          //console.log("newResponse:\n", returnedDoc);
+          responseDocArray = [...responseDocArray, returnedDoc];
+        }
+
+        // decryptMyResps(theResps, theMnemonic, whichNetwork)
+
+        let decryptedRespArray = decryptMyResps(
+          responseDocArray,
+          this.state.mnemonic,
+          this.state.whichNetwork
+        );
+
+        this.setState({
+          OrdersConfirms: theConfirms,
+          Orders2PartyReqs: the2PartyReqs,
+          Orders2PartyResps: decryptedRespArray,
+          isLoadingOrders2Party: false,
+        });
+      })
+      .catch((e) => {
+        console.error("Something went wrong Orders2PartyResps:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  //Change ->
+
+  handleConfirmOrderModal = (theOrder, theNameDoc) => {
+    this.setState(
+      {
+        SelectedOrder: theOrder,
+        SelectedOrderNameDoc: theNameDoc,
+      },
+      () => this.showModal("ConfirmOrderModal")
+    );
+  };
+
+  createConfirmOrder = () => {
+    // console.log("Called Create Confirm Order");
+
+    this.setState({
+      isLoadingOrdersMerchant: true,
+      isLoadingOrders2Party: true,
+      DisplayOrders: "Confirmed",
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const submitConfirmDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      }
+
+      const confirmProperties = {
+        orderId: this.state.SelectedOrder.$id,
+        //toId
+        amt: this.state.SelectedOrder.amt,
+        cart: JSON.stringify(this.state.SelectedOrder.cart),
+      };
+      //console.log(' Create: ', confirmProperties);
+
+      // Create the note document
+      const confirmDocument = await platform.documents.create(
+        "ONLINESTOREContract.confirm",
+        identity,
+        confirmProperties
+      );
+
+      //############################################################
+      //This below disconnects the document sending..***
+
+      //return confirmDocument;
+
+      //This is to disconnect the Document Creation***
+      //############################################################
+
+      const documentBatch = {
+        create: [confirmDocument], // Document(s) to create
+      };
+
+      await platform.documents.broadcast(documentBatch, identity);
+      return confirmDocument;
+    };
+
+    submitConfirmDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        // returnedDoc.itemId = Identifier.from(
+        //   returnedDoc.itemId,
+        //   "base64"
+        // ).toJSON();
+
+        returnedDoc.orderId = Identifier.from(
+          returnedDoc.orderId,
+          "base64"
+        ).toJSON();
+
+        returnedDoc.cart = JSON.parse(returnedDoc.cart);
+
+        console.log("Order Confirm:\n", returnedDoc);
+
+        this.setState(
+          {
+            OrdersConfirms: [returnedDoc, ...this.state.OrdersConfirms],
+
+            isLoadingOrdersMerchant: false,
+            isLoadingOrders2Party: false,
+          }, //combineInventoryANDConfirms and why is it kicking over to Inventory  Page?
+          () => this.loadIdentityCredits()
+        );
+        this.combineInventoryANDConfirms(this.state.Inventory, [
+          returnedDoc,
+          // ...this.state.ConfirmedOrders, //This is bc the Inventory is already updated from the InventoryDoc so its not necessary to add again -> VERIFY ->
+        ]);
+      })
+      .catch((e) => {
+        console.error("Something went wrong with Order Confirm creation:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  //ORDERS - 2 PARTY REQUEST
+
+  showOrders2PartyReqModal = (inputOrderReqDoc, inputNameDoc, inputNumber) => {
+    this.setState({
+      selectedConfirm: inputOrderReqDoc,
+      sendToNameDoc2Party: inputNameDoc,
+      amountToSend2Party: inputNumber, //Number((inputNumber * 100000000).toFixed(0)),
+
+      presentModal: "ConfirmOrders2PartyReqModal",
+      isModalShowing: true,
+    });
+  };
+
+  requestOrders2PartyPayment = () => {
+    //console.log("Called Request Order 2Party Doc");
+
+    this.setState({
+      isLoadingOrders2Party: true,
+      isModalShowing: false,
+      //DisplayOrders: "Confirmed", //Already confirmed, this is 2Party
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    let docProperties = {};
+
+    const submitDocument = async () => {
+      const { platform } = client;
+      // const identity = await platform.identities.get(this.state.identity); // Your identity ID
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      } // Your identity ID
+
+      docProperties = {
+        toId: this.state.sendToNameDoc2Party.$ownerId,
+        forId: this.state.selectedConfirm.$id,
+        req: "100",
+        fromReq: "100",
+        amt: this.state.amountToSend2Party,
+
+        // txId: "", //Blank txId not paid out of multisig Yet
+        // sigObject: "",
+        // msgObject: theMsgObject,
+        //encryptObject: "",
+      };
+
+      //console.log(docProperties);
+
+      // Create the note document
+      const twoPartyDocument = await platform.documents.create(
+        "TwoPartyContract.request",
+        identity,
+        docProperties
+      );
+
+      //console.log(twoPartyDocument.toJSON());
+
+      //############################################################
+      //This below disconnects the document sending..***
+
+      //return twoPartyDocument;
+
+      //This is to disconnect the Document Creation***
+
+      //############################################################
+
+      const documentBatch = {
+        create: [twoPartyDocument], // Document(s) to create
+      };
+
+      await platform.documents.broadcast(documentBatch, identity);
+      return twoPartyDocument;
+    };
+
+    submitDocument()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
+
+        returnedDoc.forId = Identifier.from(
+          returnedDoc.forId,
+          "base64"
+        ).toJSON();
+
+        //Buffer.from(returnedDoc.req).toString()
+
+        // propsToEncrypt = {
+        //   txId: this.state.requestToEdit.txId,
+        //   sig: this.state.requestToEdit.sigObject,
+        //   msgs: [...theMsgObject, ...this.state.requestToEdit.msgObject],
+        // };
+
+        returnedDoc.txId = "";
+        returnedDoc.sigObject = "";
+        returnedDoc.msgObject = [];
+
+        //returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        console.log("Req Document:\n", returnedDoc);
+
+        this.setState(
+          {
+            Orders2PartyReqs: [returnedDoc, ...this.state.Orders2PartyReqs],
+            OrdersNames: [
+              this.state.sendToNameDoc2Party,
+              ...this.state.OrdersNames,
+            ],
+            isLoadingOrders2Party: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong creating Orders 2Party Req:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  // THIS IS FOR THE REQUEST DOCUMENT <- **
+
+  showAddMsgToRequestModal_ORDERS = (
+    theRequest,
+    theResponseName,
+    pubKeyDoc
+  ) => {
+    let requestIndex = this.state.Orders2PartyReqs.findIndex((req) => {
+      return req.$id === theRequest.$id;
+    });
+    this.setState({
+      requestToEdit: theRequest,
+      requestToEditIndex: requestIndex, //<- Need this for the editingfunction!!
+      signingToSendToWhomNameDoc: theResponseName,
+      responsePubKeyDoc2Party: pubKeyDoc,
+
+      presentModal: "AddMsgToRequestModalORDERS",
+      isModalShowing: true,
+    });
+  };
+
+  editRequestAddMessage_ORDERS = (addedMessage) => {
+    this.setState({
+      isLoadingOrders2Party: true,
+    });
+    let timeStamp;
+
+    if (this.state.requestToEdit.req === "100") {
+      const client = new Dash.Client(
+        dapiClientNoWallet(this.state.whichNetwork)
+      );
+
+      const getDocuments = async () => {
+        return client.platform.documents.get("TwoPartyContract.request", {
+          where: [["$id", "==", this.state.requestToEdit.$id]],
+        });
+      };
+
+      getDocuments()
+        .then((d) => {
+          if (d.length === 0) {
+            console.log("There is no Request");
+            this.setState({
+              isLoadingOrders2Party: false,
+            });
+          } else {
+            let returnedDoc = d[0].toJSON();
+
+            //console.log("returnedDoc: ", returnedDoc);
+            timeStamp = returnedDoc.$createdAt - 1729873000000;
+            // console.log("timeStamp: ", timeStamp);
+            this.editRequestAddMessageWithTimeStamp_ORDERS(
+              addedMessage,
+              timeStamp
+            );
+          }
+        })
+        .catch((e) => {
+          console.error("Something went wrong:\n", e);
+        })
+        .finally(() => client.disconnect());
+    } else {
+      timeStamp = this.state.requestToEdit.$createdAt - 1729873000000;
+      // console.log("timeStamp: ", timeStamp);
+      this.editRequestAddMessageWithTimeStamp_ORDERS(addedMessage, timeStamp);
+    }
+  };
+
+  editRequestAddMessageWithTimeStamp_ORDERS = (addedMessage, timeStamp) => {
+    //console.log(addedMessage);
+    // this.setState({
+    //   isLoadingOrders2Party: true,
+    // });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+    let propsToEncrypt;
+
+    const edit2PartyDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      } // Your identity ID
+
+      // *** *** ***
+
+      let theTime = Date.now();
+
+      let theMsgObject = [];
+
+      if (addedMessage !== "") {
+        //SHouldnt get here anyway..
+        theMsgObject = [
+          {
+            msg: addedMessage,
+            time: theTime,
+          },
+        ];
+      } else {
+        theMsgObject = [];
+      }
+
+      propsToEncrypt = {
+        txId: this.state.requestToEdit.txId,
+        sig: this.state.requestToEdit.sigObject,
+        msgs: [...theMsgObject, ...this.state.requestToEdit.msgObject],
+      };
+
+      console.log("propsToEncrypt: ", propsToEncrypt);
+
+      //SEND OBJECT TO ENCRYPT ->
+
+      let encryptedProps = encryptMyReq(
+        timeStamp,
+        propsToEncrypt,
+        // this.state.Your2PartyPubKey
+        this.state.responsePubKeyDoc2Party,
+        this.state.mnemonic,
+        this.state.whichNetwork
+      );
+
+      // *** *** ***
+
+      const [document] = await client.platform.documents.get(
+        "TwoPartyContract.request",
+        {
+          where: [["$id", "==", this.state.requestToEdit.$id]],
+        }
+      );
+
+      //CHANGE THE DOCUMENT.SET ->
+
+      // let theMsgsToAddTo = [...this.state.requestToEdit.msgObject];
+      // theMsgsToAddTo.push(theMsgObject);
+
+      //console.log("theMsgsToAddTo", theMsgsToAddTo);
+
+      if (addedMessage !== "") {
+        document.set("req", Buffer.from(encryptedProps.req).toString("base64"));
+        document.set("fromReq", encryptedProps.fromReq);
+      }
+
+      await platform.documents.broadcast({ replace: [document] }, identity);
+      return document;
+
+      //############################################################
+      //This below disconnects the document editing..***
+
+      //return document;
+
+      //This is to disconnect the Document editing***
+      //############################################################
+    };
+
+    edit2PartyDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
+
+        returnedDoc.forId = Identifier.from(
+          returnedDoc.forId,
+          "base64"
+        ).toJSON();
+
+        //returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        // let propsToEncrypt = {
+        //   txId: this.state.requestToEdit.txId,
+        //   sig: this.state.requestToEdit.sigObject,
+        //   msgs: [theMsgObject, ...this.state.requestToEdit.msgObject],
+        // };
+
+        returnedDoc.txId = propsToEncrypt.txId;
+        returnedDoc.sigObject = propsToEncrypt.sig;
+        returnedDoc.msgObject = propsToEncrypt.msgs;
+
+        console.log("Edited 2Party Req:\n", returnedDoc);
+
+        let editedRequests = this.state.Orders2PartyReqs;
+
+        editedRequests.splice(this.state.requestToEditIndex, 1, returnedDoc);
+
+        this.setState(
+          {
+            Orders2PartyReqs: editedRequests,
+            isLoadingOrders2Party: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong editing 2 Party request:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  showRetrieveFundsModal_ORDERS = (
+    theResponse,
+    theResponsePubKeyDoc,
+    toWhomNameDoc,
+    theRequest,
+    theTx
+  ) => {
+    let requestIndex = this.state.Orders2PartyReqs.findIndex((req) => {
+      return req.$id === theRequest.$id;
+    });
+    this.setState(
+      {
+        responseToUse: theResponse,
+        responsePubKeyDocToUse: theResponsePubKeyDoc,
+        signingToSendToWhomNameDoc: toWhomNameDoc, //This will be the responseName
+        requestToEdit: theRequest,
+        requestToEditIndex: requestIndex, //<- Need this for the editingfunction!!
+        txToUse: theTx,
+      },
+      () => this.showModal("RetrieveFundsModalORDERS")
+    );
+  };
+
+  //THIS IS THE ACTUAL PAYMENT AND TX
+  payRetrieveFunds_ORDERS = (addedMessage) => {
+    // console.log(addedMessage);
+
+    this.setState({
+      isLoadingOrders2Party: true,
+      isLoadingWallet: true,
+      //messageToSend2Party: "MSGFORpaidthr",
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const payToRecipient = async () => {
+      const account = await client.getWalletAccount();
+
+      // createFullTX(
+      //   theRequest,
+      //   theRequestPubKeyDoc,
+      //   theResponse,
+      //   theResponsePubKeyDoc,
+      //   whichNetwork,
+      //   theTx, //txId,script,amt
+      //   theMnemonic,
+      //   theAddress
+      // )
+
+      let transaction = createFullTX(
+        this.state.requestToEdit,
+        this.state.Your2PartyPubKey,
+        this.state.responseToUse,
+        this.state.responsePubKeyDocToUse,
+        this.state.whichNetwork,
+        this.state.txToUse,
+        this.state.mnemonic,
+        this.state.accountAddress
+      );
+
+      //return transaction.id; //Use to disable TX
+      return account.broadcastTransaction(transaction);
+    };
+
+    payToRecipient()
+      .then((d) => {
+        console.log("Payment TX:\n", d);
+
+        this.setState(
+          {
+            sendSuccess2Party: true, //TX go through //DO I NEED THIS? BC THE DOCUMENT WILL JUST CHANGE TO REFLECT
+          },
+          () => this.editRetrieveFundsReqWithTX_ORDERS(d, addedMessage)
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+        this.setState({
+          isLoadingOrders2Party: false,
+          isLoadingWallet: false,
+          sendFailure2Party: true, //TX go through
+        });
+      });
+    //.finally(() => client.disconnect()); // <- Caused Error in the past, added back seems to fix more recent payment error. -> YES error dont use
+  };
+
+  editRetrieveFundsReqWithTX_ORDERS = (theTxId, addedMessage) => {
+    //console.log(addedMessage);
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    // *** *** ***
+
+    let theMsgObject = [];
+
+    if (addedMessage !== "") {
+      let theTime = Date.now();
+
+      theMsgObject = [
+        {
+          msg: addedMessage,
+          time: theTime,
+        },
+      ];
+    }
+
+    let propsToEncrypt = {
+      txId: theTxId,
+      sig: this.state.requestToEdit.sigObject,
+      msgs: [...theMsgObject, ...this.state.requestToEdit.msgObject],
+    };
+
+    //console.log("propsToEncrypt: ", propsToEncrypt);
+
+    let timeStamp = this.state.requestToEdit.$createdAt - 1729873000000;
+
+    //SEND OBJECT TO ENCRYPT ->
+
+    let encryptedProps = encryptMyReq(
+      timeStamp,
+      propsToEncrypt,
+      // this.state.Your2PartyPubKey
+      this.state.responsePubKeyDocToUse,
+      this.state.mnemonic,
+      this.state.whichNetwork
+    );
+
+    // *** *** ***
+
+    const edit2PartyDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      } // Your identity ID
+
+      const [document] = await client.platform.documents.get(
+        "TwoPartyContract.request",
+        {
+          where: [["$id", "==", this.state.requestToEdit.$id]],
+        }
+      );
+
+      //console.log("signatureToAdd", this.state.signatureToAdd);
+      //RELEASE THE FUNDS
+      // document.set("txId", theTxId);
+      // let theMsgsToAddTo = [...this.state.requestToEdit.msgObject];
+      // theMsgsToAddTo.push(theMsgObject);
+      // //console.log("theMsgsToAddTo", theMsgsToAddTo);
+      // if (addedMessage !== "") {
+      //   document.set("msgObject", JSON.stringify(theMsgsToAddTo));
+      // }
+
+      //CHANGE THE DOCUMENT.SET ->
+
+      document.set("req", Buffer.from(encryptedProps.req).toString("base64"));
+      document.set("fromReq", encryptedProps.fromReq);
+
+      await platform.documents.broadcast({ replace: [document] }, identity);
+      return document;
+
+      //############################################################
+      //This below disconnects the document editing..***
+
+      //return document;
+
+      //This is to disconnect the Document editing***
+      //############################################################
+    };
+
+    edit2PartyDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
+
+        returnedDoc.forId = Identifier.from(
+          returnedDoc.forId,
+          "base64"
+        ).toJSON();
+
+        //returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        // let propsToEncrypt = {
+        //   txId: this.state.requestToEdit.txId,
+        //   sig: this.state.requestToEdit.sigObject,
+        //   msgs: [theMsgObject, ...this.state.requestToEdit.msgObject],
+        // };
+
+        returnedDoc.txId = propsToEncrypt.txId;
+        returnedDoc.sigObject = propsToEncrypt.sig;
+        returnedDoc.msgObject = propsToEncrypt.msgs;
+
+        console.log("Edited 2Party Req:\n", returnedDoc);
+
+        let editedRequests = this.state.Orders2PartyReqs;
+
+        editedRequests.splice(this.state.requestToEditIndex, 1, returnedDoc);
+
+        this.setState(
+          {
+            Orders2PartyReqs: editedRequests,
+            isLoadingOrders2Party: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+
+        this.get2PartyWallet();
+      })
+      .catch((e) => {
+        this.setState(
+          {
+            isLoadingOrders2Party: false,
+            // sendPmtMsgFailure2Party: true,
+          },
+          () => this.get2PartyWallet()
+        );
+
+        console.error("Something went wrong editing 2 Party request:\n", e);
+      })
+      .finally(() => client.disconnect());
+  };
+
+  showRefundFundsModal_ORDERS = (
+    signatureToAdd,
+    theRequest,
+    toWhomNameDoc,
+    theResponsePubKeyDoc,
+    theResponse
+  ) => {
+    this.setState({
+      isLoadingOrders2Party: true,
+      //isLoading2Party: true,
+    });
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("TwoPartyContract.response", {
+        where: [["$id", "==", theResponse.$id]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          console.log("There is no Document");
+
+          //PUT THE REFRESH HERE..
+          //this.handleRefresh_2Party();
+          this.handleRefresh_Orders();
+        } else {
+          let returnedDoc = d[0].toJSON();
+
+          //console.log("returnedDoc: ", returnedDoc);
+          if (returnedDoc.resp !== theResponse.resp) {
+            //JUST REFRESH
+            // this.handleRefresh_2Party();
+            this.handleRefresh_Orders();
+          } else {
+            this.showRefundFundsModalPostCheck_ORDERS(
+              signatureToAdd,
+              theRequest,
+              toWhomNameDoc,
+              theResponsePubKeyDoc
+            );
+          }
+        }
+      })
+      .catch((e) => {
+        console.error("Something went wrong:\n", e);
+        return undefined;
+      })
+      .finally(() => client.disconnect());
+  };
+
+  showRefundFundsModalPostCheck_ORDERS = (
+    signatureToAdd,
+    theRequest,
+    toWhomNameDoc,
+    theResponsePubKeyDoc
+  ) => {
+    //console.log("signatureToAdd", signatureToAdd);
+    //find the index
+    let requestIndex = this.state.Orders2PartyReqs.findIndex((req) => {
+      return req.$id === theRequest.$id;
+    });
+    this.setState(
+      {
+        isLoadingOrders2Party: false, //ADDED FOR THE CHECK
+
+        signature2Party: signatureToAdd,
+        responsePubKeyDocToUse: theResponsePubKeyDoc,
+        requestToEdit: theRequest,
+        requestToEditIndex: requestIndex, //<- Need this for the editingfunction!!
+        signingToSendToWhomNameDoc: toWhomNameDoc,
+      },
+      () => this.showModal("Refund2PartyModalORDERS")
+    );
+  };
+
+  editRefundFunds_ORDERS = (addedMessage) => {
+    //  console.log("Called Edit Refund Funds");
+    this.setState({
+      isLoadingOrders2Party: true,
+      //isLoading2Party: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    // *** *** ***
+
+    let theMsgObject = [];
+
+    if (addedMessage !== "") {
+      let theTime = Date.now();
+
+      theMsgObject = [
+        {
+          msg: addedMessage,
+          time: theTime,
+        },
+      ];
+    }
+
+    let propsToEncrypt = {
+      txId: this.state.requestToEdit.txId,
+      sig: this.state.signature2Party.signature.toString(),
+      msgs: [...theMsgObject, ...this.state.requestToEdit.msgObject],
+    };
+
+    console.log("propsToEncrypt: ", propsToEncrypt);
+
+    let timeStamp = this.state.requestToEdit.$createdAt - 1729873000000;
+
+    //SEND OBJECT TO ENCRYPT ->
+
+    let encryptedProps = encryptMyReq(
+      timeStamp,
+      propsToEncrypt,
+      // this.state.Your2PartyPubKey
+      this.state.responsePubKeyDocToUse,
+      this.state.mnemonic,
+      this.state.whichNetwork
+    );
+
+    // *** *** ***
+
+    const submit2PartyDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      }
+
+      const [document] = await client.platform.documents.get(
+        "TwoPartyContract.request",
+        {
+          where: [["$id", "==", this.state.requestToEdit.$id]],
+        }
+      );
+
+      //console.log("signatureToAdd", this.state.signatureToAdd);
+      //RELEASE THE FUNDS
+      // document.set(
+      //   "sigObject",
+      //   this.state.signature2Party.signature.toString()
+      // );
+      // //console.log(typeof this.state.requestToEdit.msgObject);
+      // let theMsgsToAddTo = [...this.state.requestToEdit.msgObject];
+      // theMsgsToAddTo.push(theMsgObject);
+      // //console.log("theMsgsToAddTo", theMsgsToAddTo);
+      // if (addedMessage !== "") {
+      //   document.set("msgObject", JSON.stringify(theMsgsToAddTo));
+      // }
+
+      //CHANGE THE DOCUMENT.SET ->
+
+      document.set("req", Buffer.from(encryptedProps.req).toString("base64"));
+      document.set("fromReq", encryptedProps.fromReq);
+
+      await platform.documents.broadcast({ replace: [document] }, identity);
+      return document;
+
+      //############################################################
+      //This below disconnects the document editing..***
+
+      //return document;
+
+      //This is to disconnect the Document editing***
+      //############################################################
+    };
+
+    submit2PartyDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+
+        returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
+
+        returnedDoc.forId = Identifier.from(
+          returnedDoc.forId,
+          "base64"
+        ).toJSON();
+
+        // returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
+
+        returnedDoc.txId = propsToEncrypt.txId;
+        returnedDoc.sigObject = propsToEncrypt.sig;
+        returnedDoc.msgObject = propsToEncrypt.msgs;
+
+        console.log("Edited 2Party Doc:\n", returnedDoc);
+
+        let editedRequests = this.state.Orders2PartyReqs;
+
+        editedRequests.splice(this.state.requestToEditIndex, 1, returnedDoc);
+
+        this.setState(
+          {
+            Orders2PartyReqs: editedRequests,
+            isLoadingOrders2Party: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong with Request Edit:\n", e);
+        this.setState({
+          isLoadingOrders2Party: false,
+        });
+      })
+      .finally(() => client.disconnect());
+  };
+
+  //END OF MERCHANT QUERIES
+
+  /* MERCHANT FUNCTIONS^^^^
    *                                 ###     ###
    *                                ## ##    ####
    *                               ###  ##  ##  ##
@@ -8024,39 +11163,6 @@ class App extends React.Component {
     }
   };
 
-  queryDGMDocument = (theIdentity) => {
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-    const getDocuments = async () => {
-      console.log("Called Query DGM Documents.");
-
-      return client.platform.documents.get("DGMContract.dgmaddress", {
-        where: [["$ownerId", "==", theIdentity]],
-      });
-    };
-
-    getDocuments()
-      .then((d) => {
-        let docArray = [];
-        for (const n of d) {
-          // console.log("address:\n", n.toJSON());
-          docArray = [...docArray, n.toJSON()];
-        }
-
-        this.setState(
-          {
-            dgmDocuments: docArray,
-            WALLET_Login7: true,
-          },
-          () => this.checkLoginRace_WALLET()
-        );
-      })
-      .catch((e) => {
-        console.error("Something went wrong:\n", e);
-      })
-      .finally(() => client.disconnect());
-  };
-
   handleRefresh_WALLET = () => {
     this.setState({
       isLoadingWallet: true,
@@ -8173,355 +11279,6 @@ class App extends React.Component {
       })
       .catch((e) => {
         console.error("Something went wrong in getRefreshIdentityInfo:\n", e);
-      })
-      .finally(() => client.disconnect());
-  };
-
-  getRefreshByYou = (theIdentity) => {
-    //Add the thread call
-    //console.log("Calling getRefreshByYou");
-
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-    const getDocuments = async () => {
-      return client.platform.documents.get("DGMContract.dgmmsg", {
-        limit: 60,
-        where: [
-          ["$ownerId", "==", theIdentity],
-          ["$createdAt", "<=", Date.now()],
-        ],
-        orderBy: [["$createdAt", "desc"]],
-      });
-    };
-
-    getDocuments()
-      .then((d) => {
-        if (d.length === 0) {
-          //console.log("There are no ForyouByyouMsgs");
-
-          this.setState(
-            {
-              WALLET_Refresh1: true,
-              WALLET_Refresh2: true,
-            },
-            () => this.checkRefreshRace()
-          );
-        } else {
-          let docArray = [];
-          //console.log("Getting ForyouByyouMsgs");
-          for (const n of d) {
-            let returnedDoc = n.toJSON();
-            //console.log("Msg:\n", returnedDoc);
-            returnedDoc.toId = Identifier.from(
-              returnedDoc.toId,
-              "base64"
-            ).toJSON();
-            //console.log("newMsg:\n", returnedDoc);
-            docArray = [...docArray, returnedDoc];
-          }
-          this.getRefreshByYouNames(docArray);
-          this.getRefreshByYouThreads(docArray);
-        }
-      })
-      .catch((e) => console.error("Something went wrong:\n", e))
-      .finally(() => client.disconnect());
-  };
-
-  getRefreshByYouNames = (docArray) => {
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-    //START OF NAME RETRIEVAL - ToId not the ownerId!!!
-
-    let ownerarrayOfToIds = docArray.map((doc) => {
-      return doc.toId;
-    });
-
-    let setOfToIds = [...new Set(ownerarrayOfToIds)];
-
-    let arrayOfToIds = [...setOfToIds];
-
-    //console.log("Calling getRefreshByYouNames");
-
-    const getNameDocuments = async () => {
-      return client.platform.documents.get("DPNSContract.domain", {
-        where: [["records.identity", "in", arrayOfToIds]],
-        orderBy: [["records.identity", "asc"]],
-      });
-    };
-
-    getNameDocuments()
-      .then((d) => {
-        //WHAT IF THERE ARE NO NAMES? -> THEN THIS WON'T BE CALLED
-        if (d.length === 0) {
-          //console.log("No DPNS domain documents retrieved.");
-        }
-
-        let nameDocArray = [];
-
-        for (const n of d) {
-          //console.log("NameDoc:\n", n.toJSON());
-
-          nameDocArray = [n.toJSON(), ...nameDocArray];
-        }
-        //console.log(`DPNS Name Docs: ${nameDocArray}`);
-
-        this.setState(
-          {
-            WALLET_RefreshByYouNames: nameDocArray,
-            WALLET_RefreshByYouMsgs: docArray,
-            WALLET_Refresh1: true,
-          },
-          () => this.checkRefreshRace()
-        );
-      })
-      .catch((e) => {
-        console.error("Something went wrong getting RefreshByYou Names:\n", e);
-      })
-      .finally(() => client.disconnect());
-    //END OF NAME RETRIEVAL
-  };
-
-  getRefreshByYouThreads = (docArray) => {
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-    // This Below is to get unique set of ByYou msg doc ids
-    let arrayOfMsgIds = docArray.map((doc) => {
-      return doc.$id;
-    });
-
-    //console.log("Array of ByYouThreads ids", arrayOfMsgIds);
-
-    let setOfMsgIds = [...new Set(arrayOfMsgIds)];
-
-    arrayOfMsgIds = [...setOfMsgIds];
-
-    //console.log("Array of order ids", arrayOfMsgIds);
-
-    const getDocuments = async () => {
-      //console.log("Called Get RefreshByYou Threads");
-
-      return client.platform.documents.get("DGMContract.dgmthr", {
-        where: [
-          ["msgId", "in", arrayOfMsgIds],
-          ["$createdAt", "<=", Date.now()],
-        ],
-        orderBy: [
-          ["msgId", "asc"],
-          ["$createdAt", "desc"],
-        ],
-      });
-    };
-
-    getDocuments()
-      .then((d) => {
-        let docArray = [];
-
-        for (const n of d) {
-          let returnedDoc = n.toJSON();
-          //console.log("Thr:\n", returnedDoc);
-          returnedDoc.msgId = Identifier.from(
-            returnedDoc.msgId,
-            "base64"
-          ).toJSON();
-          //console.log("newThr:\n", returnedDoc);
-          docArray = [...docArray, returnedDoc];
-        }
-
-        if (docArray.length === 0) {
-          this.setState(
-            {
-              WALLET_Refresh2: true,
-            },
-            () => this.checkRefreshRace()
-          );
-        } else {
-          //this.getRefreshByYouThreadsNames(docArray); //Name Retrieval
-          this.setState(
-            {
-              WALLET_RefreshByYouThreads: docArray,
-              WALLET_Refresh2: true,
-            },
-            () => this.checkRefreshRace()
-          );
-        }
-      })
-      .catch((e) => {
-        console.error("Something went wrong RefreshByYouThreads:\n", e);
-        this.setState({
-          WALLET_RefreshByYouThreadsError: true, //handle error ->
-        });
-      })
-      .finally(() => client.disconnect());
-  };
-
-  getRefreshToYou = (theIdentity) => {
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-    const getDocuments = async () => {
-      // console.log("Called getRefreshToYou");
-
-      return client.platform.documents.get("DGMContract.dgmmsg", {
-        where: [
-          ["toId", "==", theIdentity],
-          ["$createdAt", "<=", Date.now()],
-        ],
-        orderBy: [["$createdAt", "desc"]],
-      });
-    };
-
-    getDocuments()
-      .then((d) => {
-        if (d.length === 0) {
-          //console.log("There are no ForyouByyouMsgs");
-
-          this.setState(
-            {
-              WALLET_Refresh3: true,
-              WALLET_Refresh4: true,
-            },
-            () => this.checkRefreshRace()
-          );
-        } else {
-          let docArray = [];
-          //console.log("Getting getRefreshToYou");
-          for (const n of d) {
-            let returnedDoc = n.toJSON();
-            //console.log("Msg:\n", returnedDoc);
-            returnedDoc.toId = Identifier.from(
-              returnedDoc.toId,
-              "base64"
-            ).toJSON();
-            //console.log("newMsg:\n", returnedDoc);
-            docArray = [...docArray, returnedDoc];
-          }
-          this.getRefreshToYouNames(docArray);
-          this.getRefreshToYouThreads(docArray);
-        }
-      })
-      .catch((e) => console.error("Something went wrong:\n", e))
-      .finally(() => client.disconnect());
-  };
-
-  getRefreshToYouNames = (docArray) => {
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-    //START OF NAME RETRIEVAL
-
-    let ownerarrayOfOwnerIds = docArray.map((doc) => {
-      return doc.$ownerId;
-    });
-
-    let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
-
-    let arrayOfOwnerIds = [...setOfOwnerIds];
-
-    //console.log("Calling getRefreshToYouNames");
-
-    const getNameDocuments = async () => {
-      return client.platform.documents.get("DPNSContract.domain", {
-        where: [["records.identity", "in", arrayOfOwnerIds]],
-        orderBy: [["records.identity", "asc"]],
-      });
-    };
-
-    getNameDocuments()
-      .then((d) => {
-        //WHAT IF THERE ARE NO NAMES? -> THEN THIS WON'T BE CALLED
-        if (d.length === 0) {
-          //console.log("No DPNS domain documents retrieved.");
-        }
-
-        let nameDocArray = [];
-
-        for (const n of d) {
-          //  console.log("INIT TOYOU NameDoc:\n", n.toJSON());
-
-          nameDocArray = [n.toJSON(), ...nameDocArray];
-        }
-        //console.log(`DPNS Name Docs: ${nameDocArray}`);
-
-        this.setState(
-          {
-            WALLET_RefreshToYouNames: nameDocArray,
-            WALLET_RefreshToYouMsgs: docArray,
-            WALLET_Refresh3: true,
-          },
-          () => this.checkRefreshRace()
-        );
-      })
-      .catch((e) => {
-        console.error("Something went wrong getting RefreshByYou Names:\n", e);
-      })
-      .finally(() => client.disconnect());
-    //END OF NAME RETRIEVAL
-  };
-
-  getRefreshToYouThreads = (docArray) => {
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-    // This Below is to get unique set of ByYou msg doc ids
-    let arrayOfMsgIds = docArray.map((doc) => {
-      return doc.$id;
-    });
-
-    //console.log("Array of ByYouThreads ids", arrayOfMsgIds);
-
-    let setOfMsgIds = [...new Set(arrayOfMsgIds)];
-
-    arrayOfMsgIds = [...setOfMsgIds];
-
-    //console.log("Array of order ids", arrayOfMsgIds);
-
-    const getDocuments = async () => {
-      //console.log("Called Get RefreshByYou Threads");
-
-      return client.platform.documents.get("DGMContract.dgmthr", {
-        where: [
-          ["msgId", "in", arrayOfMsgIds],
-          ["$createdAt", "<=", Date.now()],
-        ],
-        orderBy: [
-          ["msgId", "asc"],
-          ["$createdAt", "desc"],
-        ],
-      });
-    };
-
-    getDocuments()
-      .then((d) => {
-        let docArray = [];
-
-        for (const n of d) {
-          let returnedDoc = n.toJSON();
-          //console.log("Thr:\n", returnedDoc);
-          returnedDoc.msgId = Identifier.from(
-            returnedDoc.msgId,
-            "base64"
-          ).toJSON();
-          //console.log("newThr:\n", returnedDoc);
-          docArray = [...docArray, returnedDoc];
-        }
-
-        if (docArray.length === 0) {
-          this.setState(
-            {
-              WALLET_Refresh4: true,
-            },
-            () => this.checkRefreshRace()
-          );
-        } else {
-          this.setState(
-            {
-              WALLET_RefreshToYouThreads: docArray,
-              WALLET_Refresh4: true,
-            },
-            () => this.checkRefreshRace()
-          );
-        }
-      })
-      .catch((e) => {
-        console.error("Something went wrong RefreshToYouThreads:\n", e);
-        this.setState({
-          WALLET_RefreshByYouThreadsError: true, //handle error ->
-        });
       })
       .finally(() => client.disconnect());
   };
@@ -8660,449 +11417,6 @@ class App extends React.Component {
 
   addAddress_WALLET = () => {}; //USE TO UPDATE addresses_WALLET once pmt is made! ->
 
-  checkLoginRace_WALLET = () => {
-    if (
-      this.state.WALLET_Login1 &&
-      this.state.WALLET_Login2 &&
-      this.state.WALLET_Login3 &&
-      this.state.WALLET_Login4 &&
-      // this.state.WALLET_Login5 &&
-      // this.state.WALLET_Login6 &&
-      this.state.WALLET_Login7
-    ) {
-      this.setState({
-        isLoadingMsgs_WALLET: false,
-        isLoadingButtons_WALLET: false,
-        // WALLET_Login1: false,
-        // WALLET_Login2: false,
-        // WALLET_Login3: false,
-        // WALLET_Login4: false,
-        // // WALLET_Login5: false,
-        // // WALLET_Login6: false,
-        // WALLET_Login7: false,
-      });
-    }
-  };
-
-  getByYou_WALLET = (theIdentity) => {
-    //console.log("Calling getByYou");
-
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-    const getDocuments = async () => {
-      return client.platform.documents.get("DGMContract.dgmmsg", {
-        limit: 60,
-        where: [
-          ["$ownerId", "==", theIdentity],
-          ["$createdAt", "<=", Date.now()],
-        ],
-        orderBy: [["$createdAt", "desc"]],
-      });
-    };
-
-    getDocuments()
-      .then((d) => {
-        if (d.length === 0) {
-          //console.log("There are no ForyouByyouMsgs");
-
-          this.setState(
-            {
-              WALLET_Login1: true,
-              WALLET_Login2: true,
-            },
-            () => this.checkLoginRace_WALLET()
-          );
-        } else {
-          let docArray = [];
-          //console.log("Getting ForyouByyouMsgs");
-          for (const n of d) {
-            let returnedDoc = n.toJSON();
-            //console.log("Msg:\n", returnedDoc);
-            returnedDoc.toId = Identifier.from(
-              returnedDoc.toId,
-              "base64"
-            ).toJSON();
-            //console.log("newMsg:\n", returnedDoc);
-            docArray = [...docArray, returnedDoc];
-          }
-          this.getByYouNames_WALLET(docArray);
-          this.getByYouThreads_WALLET(docArray);
-        }
-      })
-      .catch((e) => console.error("Something went wrong:\n", e))
-      .finally(() => client.disconnect());
-  };
-
-  getByYouNames_WALLET = (docArray) => {
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-    //START OF NAME RETRIEVAL - ToId not the ownerId!!!
-
-    let ownerarrayOfToIds = docArray.map((doc) => {
-      return doc.toId;
-    });
-
-    let setOfToIds = [...new Set(ownerarrayOfToIds)];
-
-    let arrayOfToIds = [...setOfToIds];
-
-    //console.log("Calling getByYouNames");
-
-    const getNameDocuments = async () => {
-      return client.platform.documents.get("DPNSContract.domain", {
-        where: [["records.identity", "in", arrayOfToIds]],
-        orderBy: [["records.identity", "asc"]],
-      });
-    };
-
-    getNameDocuments()
-      .then((d) => {
-        //WHAT IF THERE ARE NO NAMES? -> THEN THIS WON'T BE CALLED
-        if (d.length === 0) {
-          // console.log("No DPNS domain documents retrieved.getByYouNames");
-        }
-
-        let nameDocArray = [];
-
-        for (const n of d) {
-          //console.log("NameDoc:\n", n.toJSON());
-
-          nameDocArray = [n.toJSON(), ...nameDocArray];
-        }
-        //console.log(`DPNS Name Docs: ${nameDocArray}`);
-
-        this.setState(
-          {
-            WALLET_ByYouNames: nameDocArray,
-            WALLET_ByYouMsgs: docArray,
-            WALLET_Login1: true,
-          },
-          () => this.checkLoginRace_WALLET()
-        );
-      })
-      .catch((e) => {
-        console.error("Something went wrong getting ByYou Names:\n", e);
-      })
-      .finally(() => client.disconnect());
-    //END OF NAME RETRIEVAL
-  }; //Need to get the ToId not the ownerId ->
-
-  getByYouThreads_WALLET = (docArray) => {
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-    // This Below is to get unique set of ByYou msg doc ids
-    let arrayOfMsgIds = docArray.map((doc) => {
-      return doc.$id;
-    });
-
-    //console.log("Array of ByYouThreads ids", arrayOfMsgIds);
-
-    let setOfMsgIds = [...new Set(arrayOfMsgIds)];
-
-    arrayOfMsgIds = [...setOfMsgIds];
-
-    //console.log("Array of order ids", arrayOfMsgIds);
-
-    const getDocuments = async () => {
-      //console.log("Called Get ByYou Threads");
-
-      return client.platform.documents.get("DGMContract.dgmthr", {
-        where: [
-          ["msgId", "in", arrayOfMsgIds],
-          ["$createdAt", "<=", Date.now()],
-        ],
-        orderBy: [
-          ["msgId", "asc"],
-          ["$createdAt", "desc"],
-        ],
-      });
-    };
-
-    getDocuments()
-      .then((d) => {
-        let docArray = [];
-        //THERE ISN'T NECESSARY MESSAGE TO GRAB SO COULD BE ZERO SO STILL NEED TO END LOADING ->
-
-        for (const n of d) {
-          let returnedDoc = n.toJSON();
-          //console.log("Thr:\n", returnedDoc);
-          returnedDoc.msgId = Identifier.from(
-            returnedDoc.msgId,
-            "base64"
-          ).toJSON();
-          //console.log("newThr:\n", returnedDoc);
-          docArray = [...docArray, returnedDoc];
-        }
-
-        if (docArray.length === 0) {
-          this.setState(
-            {
-              WALLET_Login2: true,
-            },
-            () => this.checkLoginRace_WALLET()
-          );
-        } else {
-          //this.getByYouThreadsNames(docArray); //Name Retrieval
-          this.setState(
-            {
-              WALLET_ByYouThreads: docArray,
-              WALLET_Login2: true,
-            },
-            () => this.checkLoginRace_WALLET()
-          );
-        }
-      })
-      .catch((e) => {
-        console.error("Something went wrong ByYouThreads:\n", e);
-      })
-      .finally(() => client.disconnect());
-  };
-
-  getToYou_WALLET = (theIdentity) => {
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-    const getDocuments = async () => {
-      console.log("Called getToYou");
-
-      return client.platform.documents.get("DGMContract.dgmmsg", {
-        where: [
-          ["toId", "==", theIdentity],
-          ["$createdAt", "<=", Date.now()],
-        ],
-        orderBy: [["$createdAt", "desc"]],
-      });
-    };
-
-    getDocuments()
-      .then((d) => {
-        if (d.length === 0) {
-          //console.log("There are no ForyouByyouMsgs");
-
-          this.setState(
-            {
-              WALLET_Login3: true,
-              WALLET_Login4: true,
-            },
-            () => this.checkLoginRace_WALLET()
-          );
-        } else {
-          let docArray = [];
-          //console.log("Getting getToYou");
-          for (const n of d) {
-            let returnedDoc = n.toJSON();
-            //console.log("ToYou Msg:\n", returnedDoc);
-            returnedDoc.toId = Identifier.from(
-              returnedDoc.toId,
-              "base64"
-            ).toJSON();
-            //console.log("newMsg:\n", returnedDoc);
-            docArray = [...docArray, returnedDoc];
-          }
-          this.getToYouNames_WALLET(docArray);
-          this.getToYouThreads_WALLET(docArray);
-        }
-      })
-      .catch((e) => console.error("Something went wrong:\n", e))
-      .finally(() => client.disconnect());
-  };
-
-  getToYouNames_WALLET = (docArray) => {
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-    //START OF NAME RETRIEVAL
-
-    let ownerarrayOfOwnerIds = docArray.map((doc) => {
-      return doc.$ownerId;
-    });
-
-    let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
-
-    let arrayOfOwnerIds = [...setOfOwnerIds];
-
-    //console.log("Calling getToYouNames");
-
-    const getNameDocuments = async () => {
-      return client.platform.documents.get("DPNSContract.domain", {
-        where: [["records.identity", "in", arrayOfOwnerIds]],
-        orderBy: [["records.identity", "asc"]],
-      });
-    };
-
-    getNameDocuments()
-      .then((d) => {
-        //WHAT IF THERE ARE NO NAMES? -> THEN THIS WON'T BE CALLED
-        if (d.length === 0) {
-          //console.log("No DPNS domain documents retrieved.");
-        }
-
-        let nameDocArray = [];
-
-        for (const n of d) {
-          //console.log("NameDoc:\n", n.toJSON());
-
-          nameDocArray = [n.toJSON(), ...nameDocArray];
-        }
-        //console.log(`DPNS Name Docs: ${nameDocArray}`);
-
-        this.setState(
-          {
-            WALLET_ToYouNames: nameDocArray,
-            WALLET_ToYouMsgs: docArray,
-            WALLET_Login3: true,
-          },
-          () => this.checkLoginRace_WALLET()
-        );
-      })
-      .catch((e) => {
-        console.error("Something went wrong getting ByYou_WALLET Names:\n", e);
-      })
-      .finally(() => client.disconnect());
-    //END OF NAME RETRIEVAL
-  };
-
-  getToYouThreads_WALLET = (docArray) => {
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-    // This Below is to get unique set of ByYou msg doc ids
-    let arrayOfMsgIds = docArray.map((doc) => {
-      return doc.$id;
-    });
-
-    //console.log("Array of ByYouThreads ids", arrayOfMsgIds);
-
-    let setOfMsgIds = [...new Set(arrayOfMsgIds)];
-
-    arrayOfMsgIds = [...setOfMsgIds];
-
-    //console.log("Array of order ids", arrayOfMsgIds);
-
-    const getDocuments = async () => {
-      //console.log("Called Get ByYou Threads");
-
-      return client.platform.documents.get("DGMContract.dgmthr", {
-        where: [
-          ["msgId", "in", arrayOfMsgIds],
-          ["$createdAt", "<=", Date.now()],
-        ],
-        orderBy: [
-          ["msgId", "asc"],
-          ["$createdAt", "desc"],
-        ],
-      });
-    };
-
-    getDocuments()
-      .then((d) => {
-        let docArray = [];
-        //THERE ISN'T NECESSARY MESSAGE TO GRAB SO COULD BE ZERO SO STILL NEED TO END LOADING ->
-
-        for (const n of d) {
-          let returnedDoc = n.toJSON();
-          //console.log("Thr:\n", returnedDoc);
-          returnedDoc.msgId = Identifier.from(
-            returnedDoc.msgId,
-            "base64"
-          ).toJSON();
-          //console.log("newThr:\n", returnedDoc);
-          docArray = [...docArray, returnedDoc];
-        }
-
-        if (docArray.length === 0) {
-          this.setState(
-            {
-              WALLET_Login4: true,
-            },
-            () => this.checkLoginRace_WALLET()
-          );
-        } else {
-          this.setState(
-            {
-              WALLET_ToYouThreads: docArray,
-              WALLET_Login4: true,
-            },
-            () => this.checkLoginRace_WALLET()
-          );
-        }
-      })
-      .catch((e) => {
-        console.error("Something went wrong ToYouThreads_WALLET:\n", e);
-      })
-      .finally(() => client.disconnect());
-  };
-
-  //CREATING DOCUMENTS AND MAKING PAYMENTS
-
-  RegisterDGMAddress_WALLET = () => {
-    console.log("Called Register DGM Address");
-    this.setState({
-      isLoadingButtons_WALLET: true,
-      isLoadingRefresh_WALLET: true,
-      isLoadingForm_WALLET: true,
-    });
-
-    const client = new Dash.Client(
-      dapiClient(
-        this.state.whichNetwork,
-        this.state.mnemonic,
-        this.state.skipSynchronizationBeforeHeight
-      )
-    );
-
-    const submitNoteDocument = async () => {
-      const { platform } = client;
-
-      let identity = "";
-      if (this.state.identityRaw !== "") {
-        identity = this.state.identityRaw;
-      } else {
-        identity = await platform.identities.get(this.state.identity);
-      } // Your identity ID
-
-      const docProperties = {
-        address: this.state.accountAddress,
-      };
-
-      // Create the note document
-      const dgmDocument = await platform.documents.create(
-        "DGMContract.dgmaddress",
-        identity,
-        docProperties
-      );
-
-      const documentBatch = {
-        create: [dgmDocument], // Document(s) to create
-        replace: [], // Document(s) to update
-        delete: [], // Document(s) to delete
-      };
-      // Sign and submit the document(s)
-      await platform.documents.broadcast(documentBatch, identity);
-      return dgmDocument;
-    };
-
-    submitNoteDocument()
-      .then((d) => {
-        let returnedDoc = d.toJSON();
-        console.log("Document:\n", returnedDoc);
-
-        this.setState(
-          {
-            dgmDocuments: [returnedDoc],
-            DGMAddress: [returnedDoc],
-            isLoadingButtons_WALLET: false,
-            isLoadingRefresh_WALLET: false,
-            isLoadingForm_WALLET: false,
-          },
-          () => this.loadIdentityCredits()
-        );
-      })
-      .catch((e) => {
-        console.error("Something went wrong:\n", e);
-        this.setState({
-          isLoadingButtons_WALLET: false,
-          isLoadingRefresh_WALLET: false,
-          isLoadingForm_WALLET: false,
-        });
-      })
-      .finally(() => client.disconnect());
-  };
   //FROM: https://dashpay.github.io/platform/Wallet-library/account/createTransaction/
 
   sendDashtoAddress_WALLET = () => {
@@ -9910,67 +12224,6 @@ class App extends React.Component {
    *                              ###  ## ## ###
    *                               ## ##  ####
    *                                ###   ###
-   *
-   *   ###       ###
-   *    ###     ###
-   *      #######
-   *        ###
-   *        ###
-   *        ###
-   */
-  //YOUR STORE FUNCTIONS
-
-  getWalletForNewOrder = () => {
-    //For Merchant to Load New Orders. But also Buyer for wallet reload after purchase
-
-    this.setState({
-      isLoadingWallet: true,
-    });
-
-    const client = new Dash.Client(
-      dapiClient(
-        this.state.whichNetwork,
-        this.state.mnemonic,
-        this.state.skipSynchronizationBeforeHeight
-      )
-    );
-
-    const retrieveIdentityIds = async () => {
-      const account = await client.getWalletAccount();
-
-      this.setState({
-        accountBalance: account.getTotalBalance(),
-        accountHistory: account.getTransactionHistory(),
-      });
-
-      return true;
-    };
-
-    retrieveIdentityIds()
-      .then((d) => {
-        console.log("Wallet Reloaded:\n", d);
-        this.setState({
-          isLoadingWallet: false,
-        });
-      })
-      .catch((e) => {
-        console.error("Something went wrong reloading Wallet:\n", e);
-        this.setState({
-          isLoadingWallet: false,
-          walletReloadError: true, //Add this to state and handle ->
-        });
-      })
-      .finally(() => client.disconnect());
-  };
-
-  /*
-   *SHOPPING FUNCTIONS^^^^
-   *                             #############
-   *                            ###
-   *                             #############
-   *                                        ###
-   *                             #############
-   *
    *
    *   ################
    *   ###          ####
@@ -10814,373 +13067,13 @@ class App extends React.Component {
   };
 
   /*
-  * REVIEWS FUNCTIONS^^^^
+   * REVIEWS FUNCTIONS^^^^
    *                                         ################
    *                                         ###          ####
    *                                         ################
    *                                         ###          ####
    *                                         ###           ####
    *
-        ################
-   *    ###          ###
-   *    ################
-   *    ###          
-   *    ### 
-   */
-
-  //PROOF OF FUNDS FUNCTIONS
-
-  handleTab_POD = (eventKey) => {
-    if (eventKey === "Search")
-      this.setState({
-        whichTab_POD: "Search",
-      });
-    else {
-      this.setState({
-        whichTab_POD: "Your Proofs",
-      });
-    }
-  };
-
-  handleDeleteYourProof = (index) => {
-    this.setState(
-      {
-        selectedYourProof: this.state.YourProofs[index],
-
-        selectedYourProofIndex: index,
-      },
-      () => this.showModal("DeleteProofModal")
-    );
-  };
-
-  // FORM Functions
-  handleOnChangeValidation_POD = (event) => {
-    this.setState({
-      isError: false,
-    });
-
-    if (event.target.id === "validationCustomName") {
-      this.nameValidate_POD(event.target.value);
-    }
-  };
-
-  nameValidate_POD = (nameInput) => {
-    let regex = /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]$/;
-    let valid = regex.test(nameInput);
-
-    if (valid) {
-      this.setState({
-        nameToSearch_POD: nameInput,
-        nameFormat_POD: true,
-      });
-    } else {
-      this.setState({
-        nameToSearch_POD: nameInput,
-        nameFormat_POD: false,
-      });
-    }
-  };
-
-  searchName_POD = () => {
-    this.setState({
-      isLoadingSearch_POD: true,
-      SearchedNameDoc_POD: "",
-      SearchedProofs: [],
-    });
-
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-    const retrieveName = async () => {
-      // Retrieve by full name (e.g., myname.dash)
-      return client.platform.names.resolve(
-        `${this.state.nameToSearch_POD}.dash`
-      );
-    };
-
-    retrieveName()
-      .then((d) => {
-        if (d === null) {
-          //console.log("No DPNS Document for this Name.");
-          this.setState({
-            SearchedNameDoc_POD: "No NameDoc", //Handle if name fails ->
-            isLoadingSearch_POD: false,
-          });
-        } else {
-          let nameDoc = d.toJSON();
-          // console.log("Name retrieved:\n", nameDoc);
-
-          this.searchForProofs(nameDoc.$ownerId);
-
-          this.setState({
-            SearchedNameDoc_POD: nameDoc,
-          });
-        }
-      })
-      .catch((e) => {
-        console.error("Something went wrong:\n", e);
-        this.setState({
-          isLoadingSearch_POD: false,
-        });
-      })
-      .finally(() => client.disconnect());
-  };
-  // FORM Functions ^^^
-
-  // Trigger -> this.getYourProofs(theIdentity);
-
-  searchForProofs = (theIdentity) => {
-    //console.log("Calling getSearchProofs");
-
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-    const getDocuments = async () => {
-      return client.platform.documents.get("PODContract.podproof", {
-        where: [
-          ["$ownerId", "==", theIdentity],
-          ["$createdAt", "<=", Date.now()],
-        ],
-        orderBy: [["$createdAt", "desc"]],
-      });
-    };
-
-    getDocuments()
-      .then((d) => {
-        if (d.length === 0) {
-          //console.log("There are no SearchProofs");
-
-          this.setState({
-            //SearchedProofs: [],
-            isLoadingSearch_POD: false,
-          });
-        } else {
-          let docArray = [];
-          //console.log("Getting Search Proofs");
-
-          for (const n of d) {
-            let returnedDoc = n.toJSON();
-            //console.log("Review:\n", returnedDoc);
-            // returnedDoc.toId = Identifier.from( //NOT FOR POD PROOFS
-            //   returnedDoc.toId,
-            //   "base64"
-            // ).toJSON();
-            //console.log("newReview:\n", returnedDoc);
-            docArray = [...docArray, returnedDoc];
-          }
-          this.setState({
-            SearchedProofs: docArray,
-            isLoadingSearch_POD: false,
-          });
-        }
-      })
-      .catch((e) => console.error("Something went wrong:\n", e))
-      .finally(() => client.disconnect());
-  };
-
-  pullInitialTriggerPROOFS = () => {
-    this.getYourProofs(this.state.identity);
-    this.setState({
-      InitialPullProofs: false,
-    });
-  };
-
-  getYourProofs = (theIdentity) => {
-    //console.log("Calling getYourProofs");
-
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-    const getDocuments = async () => {
-      return client.platform.documents.get("PODContract.podproof", {
-        where: [
-          ["$ownerId", "==", theIdentity],
-          ["$createdAt", "<=", Date.now()],
-        ],
-        orderBy: [["$createdAt", "desc"]],
-      });
-    };
-
-    getDocuments()
-      .then((d) => {
-        if (d.length === 0) {
-          console.log("There are no Your Proofs");
-
-          this.setState({
-            isLoadingYourProofs: false,
-          });
-        } else {
-          let docArray = [];
-          //console.log("GettingYour Proofs");
-          for (const n of d) {
-            // console.log("Document:\n", n.toJSON());
-            docArray = [...docArray, n.toJSON()];
-          }
-
-          this.setState({
-            YourProofs: docArray,
-            isLoadingYourProofs: false,
-          });
-        }
-      })
-      .catch((e) => console.error("Something went wrong:\n", e))
-      .finally(() => client.disconnect());
-  };
-
-  //$$  $$   $$$  $$  $  $$  $$$  $$$  $$  $$
-
-  createYourProof = (proofObject) => {
-    // console.log("Called Create Proof");
-
-    this.setState({
-      isLoadingYourProofs: true,
-    });
-
-    const client = new Dash.Client(
-      dapiClient(
-        this.state.whichNetwork,
-        this.state.mnemonic,
-        this.state.skipSynchronizationBeforeHeight
-      )
-    );
-
-    const submitProofDoc = async () => {
-      const { platform } = client;
-
-      let identity = "";
-      if (this.state.identityRaw !== "") {
-        identity = this.state.identityRaw;
-      } else {
-        identity = await platform.identities.get(this.state.identity);
-      }
-
-      const proofProperties = {
-        address: proofObject.address,
-        message: proofObject.message,
-        signature: proofObject.signature,
-      };
-      //console.log('Proof to Create: ', proofProperties);
-
-      // Create the note document
-      const podDocument = await platform.documents.create(
-        "PODContract.podproof",
-        identity,
-        proofProperties
-      );
-
-      //############################################################
-      //This below disconnects the document sending..***
-
-      // return podDocument;
-
-      //This is to disconnect the Document Creation***
-      //############################################################
-
-      const documentBatch = {
-        create: [podDocument], // Document(s) to create
-      };
-
-      await platform.documents.broadcast(documentBatch, identity);
-      return podDocument;
-    };
-
-    submitProofDoc()
-      .then((d) => {
-        let returnedDoc = d.toJSON();
-        //console.log("Document:\n", returnedDoc);
-
-        let proof = {
-          $ownerId: returnedDoc.$ownerId,
-          $id: returnedDoc.$id,
-          $updatedAt: returnedDoc.$updatedAt,
-          $createdAt: returnedDoc.$createdAt,
-
-          address: proofObject.address,
-          message: proofObject.message,
-          signature: proofObject.signature,
-        };
-
-        this.setState(
-          {
-            YourProofs: [proof, ...this.state.YourProofs],
-            isLoadingYourProofs: false,
-          },
-          () => this.loadIdentityCredits()
-        );
-      })
-      .catch((e) => {
-        console.error("Something went wrong with proof creation:\n", e);
-        this.setState({
-          isLoadingYourProofs: false,
-        });
-      })
-      .finally(() => client.disconnect());
-  };
-
-  deleteYourProof = () => {
-    //console.log("Called Delete Proof");
-
-    this.setState({
-      isLoadingYourProofs: true,
-    });
-
-    const client = new Dash.Client(
-      dapiClient(
-        this.state.whichNetwork,
-        this.state.mnemonic,
-        this.state.skipSynchronizationBeforeHeight
-      )
-    );
-
-    const deleteNoteDocument = async () => {
-      const { platform } = client;
-
-      let identity = "";
-      if (this.state.identityRaw !== "") {
-        identity = this.state.identityRaw;
-      } else {
-        identity = await platform.identities.get(this.state.identity);
-      }
-
-      const documentId = this.state.selectedYourProof.$id;
-
-      // Retrieve the existing document
-
-      //JUST PUT IN THE DOCUMENT THAT i ALREADY HAVE... => Done
-      // Wrong ^^^ Can not use because changed to JSON
-
-      const [document] = await client.platform.documents.get(
-        "PODContract.podproof",
-        { where: [["$id", "==", documentId]] }
-      );
-      //const document = this.state.selectedYourProof;
-
-      // Sign and submit the document delete transition
-      await platform.documents.broadcast({ delete: [document] }, identity);
-      return document;
-    };
-
-    deleteNoteDocument()
-      .then((d) => {
-        // console.log("Document deleted:\n", d.toJSON());
-
-        let editedProofs = this.state.YourProofs;
-
-        editedProofs.splice(this.state.selectedYourProofIndex, 1);
-
-        this.setState({
-          YourProofs: editedProofs,
-          isLoadingYourProofs: false,
-        });
-      })
-      .catch((e) => console.error("Something went wrong:\n", e))
-      .finally(() => client.disconnect());
-  };
-
-  /**
-PROOF OF FUNDS FUNCTIONS^^^^
-                                             ################
-   *                                         ###          ###
-   *                                         ################
-   *                                         ###          
-   *                                         ###           
    *
    *    ################
    *          ###
@@ -11688,7 +13581,69 @@ PROOF OF FUNDS FUNCTIONS^^^^
                 <></>
               )}
 
-              {/* BELOW - CUSTOMER Rental Requests */}
+              {/* BELOW - CUSTOMER Orders and Requests */}
+
+              {this.state.selectedDapp === "Your Orders" ? (
+                <>
+                  <YourOrdersPage
+                    isLoginComplete={isLoginComplete}
+                    whichNetwork={this.state.whichNetwork}
+                    accountBalance={this.state.accountBalance}
+                    isLoadingWallet={this.state.isLoadingWallet}
+                    Your2PartyPubKey={this.state.Your2PartyPubKey}
+                    pullInitialTriggerYOURORDERS={
+                      this.pullInitialTriggerYOURORDERS
+                    }
+                    InitialPullYourOrders={this.state.InitialPullYourOrders}
+                    isLoadingYourOrders={this.state.isLoadingYourOrders}
+                    isLoadingYourOrders2Party={
+                      this.state.isLoadingYourOrders2Party
+                    }
+                    isYourOrdersRefreshReady={
+                      this.state.isYourOrdersRefreshReady
+                    }
+                    handleRefresh_YourOrders={this.handleRefresh_YourOrders}
+                    YourOrdersInventories={this.state.YourOrdersInventories}
+                    //
+                    UnconfirmedOrders={this.state.YourOrdersOrders}
+                    ConfirmedOrders={this.state.YourOrdersConfirms}
+                    //
+                    //handleSelectedItem={this.handleSelectedItem}
+
+                    YourOrdersNames={this.state.YourOrdersNames}
+                    //
+                    handleDeleteOrderModal={this.handleDeleteOrderModal}
+                    //
+                    identity={this.state.identity}
+                    identityInfo={this.state.identityInfo}
+                    uniqueName={this.state.uniqueName}
+                    //
+                    mode={this.state.mode}
+                    showModal={this.showModal}
+                    //2PartyComponent - BELOW
+                    mnemonic={this.state.mnemonic}
+                    accountHistory={this.state.accountHistory}
+                    ReqsToYou={this.state.YourOrders2PartyReqs}
+                    ReqsToYouPubKeys={this.state.YourOrdersPubkeys}
+                    //ReqsToYouNames={this.state.ReqsToYouNames}
+                    ReqsToYouResponses={this.state.YourOrders2PartyResps}
+                    show2PartyPayRequestModal={
+                      this.show2PartyPayRequestModal_YOURORDERS
+                    }
+                    showReleaseFundsModal={
+                      this.showReleaseFundsModal_YOURORDERS
+                    }
+                    showAddMessageToResponseModal={
+                      this.showAddMessageToResponseModal_YOURORDERS
+                    }
+                    showWithdrawRefundModal={
+                      this.showWithdrawRefundModal_YOURORDERS
+                    }
+                  />
+                </>
+              ) : (
+                <></>
+              )}
 
               {this.state.selectedDapp === "Reservations" ? (
                 <>
@@ -11756,6 +13711,63 @@ PROOF OF FUNDS FUNCTIONS^^^^
 
               {/* BELOW - MERCHANT Rental Requests */}
 
+              {this.state.selectedDapp === "Orders Received" ? (
+                <>
+                  <OrdersPage
+                    whichNetwork={this.state.whichNetwork}
+                    accountBalance={this.state.accountBalance}
+                    isLoadingWallet={this.state.isLoadingWallet}
+                    Your2PartyPubKey={this.state.Your2PartyPubKey}
+                    // isLoginComplete={isLoginComplete}
+
+                    isLoadingOrders2Party={this.state.isLoadingOrders2Party}
+                    isLoadingOrdersMerchant={this.state.isLoadingOrdersMerchant}
+                    isOrdersRefreshReady={this.state.isOrdersRefreshReady}
+                    handleRefresh_Orders={this.handleRefresh_Orders}
+                    Inventory={this.state.Inventory}
+                    UnconfirmedOrders={this.state.OrdersOrders}
+                    ConfirmedOrders={this.state.OrdersConfirms}
+                    OrdersNames={this.state.OrdersNames}
+                    //
+                    OrdersControllers={this.state.OrdersControllers}
+                    OrdersProxies={this.state.OrdersProxies}
+                    handleSelectedItem={this.handleSelectedItem}
+                    handleConfirmOrderModal={this.handleConfirmOrderModal}
+                    handleMerchantOrdersFilter={this.handleMerchantOrdersFilter}
+                    //
+                    pullInitialTriggerORDERS={this.pullInitialTriggerORDERS}
+                    InitialPullOrders={this.state.InitialPullOrders}
+                    //
+                    identity={this.state.identity}
+                    identityInfo={this.state.identityInfo}
+                    uniqueName={this.state.uniqueName}
+                    MerchantNameDoc={this.state.MerchantNameDoc}
+                    DisplayOrders={this.state.DisplayOrders}
+                    //
+                    mode={this.state.mode}
+                    showModal={this.showModal}
+                    //
+                    //2PartyComponent - BELOW
+                    //
+                    mnemonic={this.state.mnemonic}
+                    //
+                    isLoading2Party={this.state.isLoadingOrders2Party}
+                    ReqsFromYou={this.state.Orders2PartyReqs}
+                    ReqsFromYouPubKeys={this.state.OrdersPubkeys}
+                    ReqsFromYouResponses={this.state.Orders2PartyResps}
+                    //PASS CREATE NEW RENTAL 2-PARTY REQUEST
+                    showOrders2PartyReqModal={this.showOrders2PartyReqModal}
+                    showRetrieveFundsModal={this.showRetrieveFundsModal_ORDERS}
+                    showAddMsgToRequestModal={
+                      this.showAddMsgToRequestModal_ORDERS
+                    }
+                    showRefundFundsModal={this.showRefundFundsModal_ORDERS}
+                  />
+                </>
+              ) : (
+                <></>
+              )}
+
               {this.state.selectedDapp === "Rentals" ? (
                 <>
                   <RequestsPage
@@ -11821,9 +13833,7 @@ PROOF OF FUNDS FUNCTIONS^^^^
                     //ReqsFromYouNames={this.state.ReqsFromYouNames}
                     ReqsFromYouResponses={this.state.Rentals2PartyResps}
                     //PASS CREATE NEW RENTAL 2-PARTY REQUEST
-                    showRentals2PartyReqModal={
-                      this.showRentals2PartyReqModal_RENTALS
-                    }
+                    showRentals2PartyReqModal={this.showRentals2PartyReqModal}
                     showRetrieveFundsModal={this.showRetrieveFundsModal_RENTALS}
                     showAddMsgToRequestModal={
                       this.showAddMsgToRequestModal_RENTALS
@@ -11835,7 +13845,7 @@ PROOF OF FUNDS FUNCTIONS^^^^
                 <></>
               )}
 
-              {this.state.selectedDapp === "Wallet" ? (
+              {/* {this.state.selectedDapp === "Wallet" ? (
                 <>
                   <WalletPage
                     WALLET_Login7={this.state.WALLET_Login7} //This is for the enable pay to name control
@@ -11917,7 +13927,7 @@ PROOF OF FUNDS FUNCTIONS^^^^
                 </>
               ) : (
                 <></>
-              )}
+              )} */}
 
               {/* Add  Dapp here */}
               {/* <h1 style={{ paddingTop: "1rem", textAlign: "center" }}>
@@ -11954,37 +13964,6 @@ PROOF OF FUNDS FUNCTIONS^^^^
                     YourReplies={this.state.YourReplies}
                     handleYourReply={this.handleYourReply}
                     isLoadingYourReviews={this.state.isLoadingYourReviews}
-                  />
-                </>
-              ) : (
-                <></>
-              )}
-
-              {this.state.selectedDapp === "Proof of Funds" ? (
-                <>
-                  <ProofsPage
-                    isLoginComplete={isLoginComplete}
-                    InitialPullProofs={this.state.InitialPullProofs}
-                    pullInitialTriggerPROOFS={this.pullInitialTriggerPROOFS}
-                    identityInfo={this.state.identityInfo}
-                    uniqueName={this.state.uniqueName}
-                    showModal={this.showModal}
-                    mode={this.state.mode}
-                    identity={this.state.identity}
-                    isLoadingSearch_POD={this.state.isLoadingSearch_POD}
-                    isLoadingYourProofs={this.state.isLoadingYourProofs}
-                    whichTab_POD={this.state.whichTab_POD}
-                    handleTab_POD={this.handleTab_POD}
-                    nameToSearch_POD={this.state.nameToSearch_POD}
-                    nameFormat_POD={this.state.nameFormat_POD}
-                    SearchedNameDoc_POD={this.state.SearchedNameDoc_POD}
-                    searchName_POD={this.searchName_POD}
-                    handleOnChangeValidation_POD={
-                      this.handleOnChangeValidation_POD
-                    }
-                    SearchedProofs={this.state.SearchedProofs}
-                    YourProofs={this.state.YourProofs}
-                    handleDeleteYourProof={this.handleDeleteYourProof}
                   />
                 </>
               ) : (
@@ -12413,6 +14392,96 @@ PROOF OF FUNDS FUNCTIONS^^^^
           <></>
         )}
 
+        {/* RSRVS ^^^ || YOUR ORDERS (BELOW) */}
+
+        {this.state.isModalShowing &&
+        this.state.presentModal === "DeleteOrderModal" ? (
+          <DeleteOrderModal
+            whichNetwork={this.state.whichNetwork}
+            MerchantNameDoc={this.state.MerchantNameDoc}
+            Inventory={this.state.Inventory}
+            order={this.state.SelectedOrder}
+            deleteOrder={this.deleteOrder}
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+          />
+        ) : (
+          <></>
+        )}
+
+        {this.state.isModalShowing &&
+        this.state.presentModal === "AddMessageToResponseModalYOURORDERS" ? (
+          <AddMessageToResponseModalYOURORDERS
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+            SelectedReplyNameDoc={this.state.signingToSendToWhomNameDoc}
+            editResponseAddMessage_YOURORDERS={
+              this.editResponseAddMessage_YOURORDERS
+            }
+            closeTopNav={this.closeTopNav}
+          />
+        ) : (
+          <></>
+        )}
+        {this.state.isModalShowing &&
+        this.state.presentModal === "Pay2PartyRequestModalYOURORDERS" ? (
+          <Pay2PartyRequestModalYOURORDERS
+            /*
+           requestPmtReqDoc2Party: "",
+      sendToNameDoc2Party: "",
+      requestPubKeyDoc2Party: "",
+      amountToSend2Party: 0,
+      messageToSend2Party: "",
+           */
+            sendToName={this.state.sendToNameDoc2Party.label}
+            requestPmtNameDoc={this.state.sendToNameDoc2Party}
+            amountToSend={this.state.amountToSend2Party}
+            whichNetwork={this.state.whichNetwork}
+            payDash2PartyRequest_YOURORDERS={
+              this.payDash2PartyRequest_YOURORDERS
+            }
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+          />
+        ) : (
+          <></>
+        )}
+
+        {this.state.isModalShowing &&
+        this.state.presentModal === "Release2PartyModalYOURORDERS" ? (
+          <Release2PartyModalYOURORDERS
+            sendToName={this.state.signingToSendToWhomNameDoc.label}
+            requestPmtNameDoc={this.state.signingToSendToWhomNameDoc}
+            amountToSend={this.state.responseToEdit.amtMatch}
+            whichNetwork={this.state.whichNetwork}
+            editReleaseFunds_YOURORDERS={this.editReleaseFunds_YOURORDERS}
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+          />
+        ) : (
+          <></>
+        )}
+
+        {this.state.isModalShowing &&
+        this.state.presentModal === "WithdrawRefundModalYOURORDERS" ? (
+          <WithdrawRefundModalYOURORDERS
+            sendToName={this.state.signingToSendToWhomNameDoc.label}
+            requestPmtNameDoc={this.state.signingToSendToWhomNameDoc}
+            amountToSend={this.state.requestToUse.amt}
+            whichNetwork={this.state.whichNetwork}
+            payWithdrawRefund_YOURORDERS={this.payWithdrawRefund_YOURORDERS}
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+          />
+        ) : (
+          <></>
+        )}
+
         {/* RENTALS
          *
          *     ###     ###
@@ -12512,6 +14581,85 @@ PROOF OF FUNDS FUNCTIONS^^^^
             //MerchantNameDoc={this.state.MerchantNameDoc}
             //uniqueName={uniqueName}
             deleteBlockConfirm={this.deleteBlockConfirm}
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+          />
+        ) : (
+          <></>
+        )}
+
+        {this.state.isModalShowing &&
+        this.state.presentModal === "ConfirmOrderModal" ? (
+          <ConfirmOrderModal
+            whichNetwork={this.state.whichNetwork}
+            Inventory={this.state.Inventory}
+            order={this.state.SelectedOrder}
+            SelectedOrderNameDoc={this.state.SelectedOrderNameDoc}
+            createConfirmOrder={this.createConfirmOrder}
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+          />
+        ) : (
+          <></>
+        )}
+
+        {this.state.isModalShowing &&
+        this.state.presentModal === "ConfirmOrders2PartyReqModal" ? (
+          <ConfirmOrders2PartyReqModal
+            whichNetwork={this.state.whichNetwork}
+            requestPmtNameDoc={this.state.sendToNameDoc2Party}
+            amountToSend={this.state.amountToSend2Party}
+            //messageToSend={this.state.messageToSend2Party}
+            requestOrders2PartyPayment={this.requestOrders2PartyPayment}
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+            closeTopNav={this.closeTopNav}
+          />
+        ) : (
+          <></>
+        )}
+
+        {this.state.isModalShowing &&
+        this.state.presentModal === "AddMsgToRequestModalORDERS" ? (
+          <AddMsgToRequestModalORDERS
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+            SelectedReplyNameDoc={this.state.signingToSendToWhomNameDoc}
+            editRequestAddMessage_ORDERS={this.editRequestAddMessage_ORDERS}
+            closeTopNav={this.closeTopNav}
+          />
+        ) : (
+          <></>
+        )}
+
+        {this.state.isModalShowing &&
+        this.state.presentModal === "Refund2PartyModalORDERS" ? (
+          <Refund2PartyModalORDERS
+            sendToName={this.state.signingToSendToWhomNameDoc.label}
+            requestPmtNameDoc={this.state.signingToSendToWhomNameDoc}
+            amountToSend={this.state.requestToEdit.amt}
+            whichNetwork={this.state.whichNetwork}
+            editRefundFunds_ORDERS={this.editRefundFunds_ORDERS}
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+          />
+        ) : (
+          <></>
+        )}
+
+        {this.state.isModalShowing &&
+        this.state.presentModal === "RetrieveFundsModalORDERS" ? (
+          <RetrieveFundsModalORDERS
+            sendToName={this.state.signingToSendToWhomNameDoc.label}
+            requestPmtNameDoc={this.state.signingToSendToWhomNameDoc}
+            amountToSend={this.state.requestToEdit.amt}
+            whichNetwork={this.state.whichNetwork}
+            payRetrieveFunds_ORDERS={this.payRetrieveFunds_ORDERS}
             isModalShowing={this.state.isModalShowing}
             hideModal={this.hideModal}
             mode={this.state.mode}
@@ -12696,39 +14844,6 @@ PROOF OF FUNDS FUNCTIONS^^^^
             replyToEdit={this.state.replyToEdit}
             replyingToName={this.state.replyingToName}
             editReply={this.editReply}
-            isModalShowing={this.state.isModalShowing}
-            hideModal={this.hideModal}
-            mode={this.state.mode}
-            closeTopNav={this.closeTopNav}
-          />
-        ) : (
-          <></>
-        )}
-        {/*  ################
-         *   ###          ###
-         *   ################
-         *   ###
-         *   ###
-         */}
-        {this.state.isModalShowing &&
-        this.state.presentModal === "CreateProofModal" ? (
-          <CreateProofModal
-            isModalShowing={this.state.isModalShowing}
-            createYourProof={this.createYourProof}
-            whichNetwork={this.state.whichNetwork}
-            hideModal={this.hideModal}
-            mode={this.state.mode}
-            closeTopNav={this.closeTopNav}
-          />
-        ) : (
-          <></>
-        )}
-        {this.state.isModalShowing &&
-        this.state.presentModal === "DeleteProofModal" ? (
-          <DeleteProofModal
-            selectedYourProof={this.state.selectedYourProof}
-            uniqueName={this.state.uniqueName}
-            deleteYourProof={this.deleteYourProof}
             isModalShowing={this.state.isModalShowing}
             hideModal={this.hideModal}
             mode={this.state.mode}

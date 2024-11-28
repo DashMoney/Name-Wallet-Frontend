@@ -163,7 +163,7 @@ class YourRsrv extends React.Component {
 
               <span className="textsmaller">
                 {formatDate(
-                  this.props.request.$updatedAt,
+                  this.props.request.$createdAt,
                   this.props.today,
                   this.props.yesterday
                 )}

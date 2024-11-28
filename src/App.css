@@ -219,6 +219,13 @@ div {
   align-items: center;
 }
 
+.cartTotal {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-right: 1rem;
+}
+
 .cardTitle {
   display: flex;
   justify-content: space-between;

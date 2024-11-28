@@ -253,6 +253,20 @@ class TopNav extends React.Component {
                   </h4>
                   {isLoginComplete ? (
                     <NavSelects
+                      selection="Your Orders"
+                      selectedDapp={this.props.selectedDapp}
+                      handleSelectedDapp={this.props.handleSelectedDapp}
+                    />
+                  ) : (
+                    <Nav.Link className="canvasLinkDisabled" disabled>
+                      <h5>
+                        <b>Your Orders</b>
+                      </h5>
+                    </Nav.Link>
+                  )}
+
+                  {isLoginComplete ? (
+                    <NavSelects
                       selection="Reservations"
                       selectedDapp={this.props.selectedDapp}
                       handleSelectedDapp={this.props.handleSelectedDapp}
@@ -265,24 +279,24 @@ class TopNav extends React.Component {
                     </Nav.Link>
                   )}
 
-                  {/* {isLoginComplete ? (
-                    <NavSelects
-                      selection="Your Orders"
-                      selectedDapp={this.props.selectedDapp}
-                      handleSelectedDapp={this.props.handleSelectedDapp}
-                    />
-                  ) : ( */}
-                  <Nav.Link className="canvasLinkDisabled" disabled>
-                    <h5>
-                      <b>Placed Orders</b>
-                    </h5>
-                  </Nav.Link>
-                  {/* )} */}
-
                   <p></p>
                   <h4 style={{ color: "#008de4" }}>
                     <b>Merchant</b>
                   </h4>
+
+                  {isLoginComplete ? (
+                    <NavSelects
+                      selection="Orders Received"
+                      selectedDapp={this.props.selectedDapp}
+                      handleSelectedDapp={this.props.handleSelectedDapp}
+                    />
+                  ) : (
+                    <Nav.Link className="canvasLinkDisabled" disabled>
+                      <h5>
+                        <b>Orders Received</b>
+                      </h5>
+                    </Nav.Link>
+                  )}
 
                   {isLoginComplete ? (
                     <NavSelects
@@ -298,19 +312,6 @@ class TopNav extends React.Component {
                     </Nav.Link>
                   )}
 
-                  {/* {isLoginComplete ? (
-                    <NavSelects
-                      selection="Orders Received"
-                      selectedDapp={this.props.selectedDapp}
-                      handleSelectedDapp={this.props.handleSelectedDapp}
-                    />
-                  ) : ( */}
-                  <Nav.Link className="canvasLinkDisabled" disabled>
-                    <h5>
-                      <b>Orders Received</b>
-                    </h5>
-                  </Nav.Link>
-                  {/* )} */}
                   <p></p>
 
                   {/* {isLoginComplete ? (

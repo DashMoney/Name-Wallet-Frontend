@@ -375,30 +375,6 @@ class Request extends React.Component {
             ) : (
               <></>
             )}
-            {/* {confirm === undefined ? (
-              <>
-                <div className="TwoButtons">
-                  <Button
-                    variant="primary"
-                    // onClick={() =>
-                    //   this.props.handleDeleteRequest(this.props.index)
-                    // }
-                  >
-                    <b>Delete Request</b>
-                  </Button>
-                  <Button
-                    variant="primary"
-                    // onClick={() =>
-                    //   this.props.handleEditRequest(this.props.index)
-                    // }
-                  >
-                    <b>Edit Request</b>
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <></>
-            )} */}
 
             {confirm !== undefined ? (
               <>
@@ -421,52 +397,12 @@ class Request extends React.Component {
               <></>
             )}
 
-            {/* {confirm !== undefined ? (
-              <> */}
-
             <p></p>
             {requestName.label !== "No Name Avail" && confirm !== undefined ? (
               <>{the2Party}</>
             ) : (
               <></>
             )}
-
-            {/* </>
-            ) : (
-              <></>
-            )} */}
-
-            {/* {confirm !== undefined && rentalReplies.length === 0 ? (
-              <>
-                <p style={{ textAlign: "center", paddingTop: ".5rem" }}>
-                  (Currently, there are no messages to this reservation.)
-                </p>
-              </>
-            ) : (
-              <></>
-            )} */}
-
-            {/* {rentalReplyMessages}
-            <p></p>
-            {confirm !== undefined ? (
-              <>
-                <div className="ButtonRightNoUnderline">
-                  <Button
-                    variant="primary"
-                    onClick={() =>
-                      this.props.handleMerchantReplyModalShow(
-                        confirm,
-                        requestName
-                      )
-                    }
-                  >
-                    <b>Add Message</b>
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <></>
-            )} */}
           </Card.Body>
         </Card>
       </>

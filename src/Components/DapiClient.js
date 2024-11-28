@@ -57,32 +57,16 @@ export default function dapiClient(
         // TwoPartyContract:{
 
         // },
-        // DSOContract: {
-        //   contractId: "D5NcY4hzfqqL4SzYufh4o6AgJFhCt3d6tZNNmRY5cKgF",
-        // },
-        // DGTContract: {
-        //   contractId: "HQMcSEbwWe1PVyT5Ku8RZxkeFzWtvkMuNeVJUci2NY64",
-        // }, /// Timed Out during Register - seems okay!
-        // DGMContract: {
-        //   contractId: "54M9G1V36whjqtGgmvZkSx9rXu5iAthznn4iUyq8G1GN",
-        // },
-        // DGPContract: {
-        //   contractId: "2xQEL2A6EigkUw8oSumpJxqbTTPuF5KiGjzZoWLpb6Tc",
-        // },
+
         // DMIOContract: {
         //   contractId: "HSFUxLZqSgNLwYHDrMemhjgcZuP2yjqJWvzRoqGz6Z4w",
         // },
-        // P2PContract: {
-        //   contractId: "2NZwXdb3wGQzbWQeQZHFAaL4GuQzuzF2v8iQfcKuUC5q",
-        // },
+
         // DGRContract: {
         //   contractId: "BWLc5EGfSEAwEcUqSddYa6BDeZ9TgyZEupSqmouWLB5i",
         // },
         // PODContract: {
         //   contractId: "37wtDWoftBmXbSeNkmi9EA5CkYWPRRUprCs1KmiJ7tK6",
-        // },
-        // RADContract: {
-        //   contractId: "E13iAgrPF8pGdaHPDj3k8rMkACyawtawbjMqkcus15vB",
         // },
       },
     };
@@ -118,32 +102,19 @@ export default function dapiClient(
         RENTALSContract: {
           contractId: "HjHocG4oyLHgpnRMJEGagaTyrx6HaboCiGdcBzY3RKPU",
         },
-        // DSOContract: {
-        //   contractId: "4kVVrhTJusgrTw4WadjcgQyj9pEiWr3Ee1iad6KG5e9i",
-        // },
-        // DGTContract: {
-        //   contractId: "41AYM5iPkok24Vm6eKTEJR7HvcSyhrmYnfBFPvpvr7WV",
-        // },
-        // DGMContract: {
-        //   contractId: "CJKuFw9JTBG3WPXdWpWpVF77PVphEkwvqi1zAesCDmzi",
-        // },
-        // DGPContract: {
-        //   contractId: "2BbBXHgwNRxFm9u7TqbfYV4ct1cAERGkqd4x7qHHzcP7",
-        // },
+        ONLINESTOREContract: {
+          contractId: "C7w3BAZHvoijzDrRv9MvsvAGgqdSBS2Nbc341kkrpovV",
+        },
+
         // DMIOContract: {
         //   contractId: "DftSJ4QDatQo4YNgWdRmYvg4fg2sMsyHSxmanvAKSjRr",
         // },
-        // P2PContract: {
-        //   contractId: "4fykPmcie9iMZpy7VJC2oU6Rjvt7gqr3ttobJUtd8BVL",
-        // },
+
         // DGRContract: {
         //   contractId: "HLu6Q3RDpGF5dJSmJjuszRfx9nkdwV2DYoURx3jyXWv6",
         // },
         // PODContract: {
         //   contractId: "3tyrgqV4SQ91Nd8wt9RvwWLfHraSFLgaYXmB54zX2kdw",
-        // },
-        // RADContract: {
-        //   contractId: "3pRLCdjZx67Y48tFr7W7daLG5p5299XVfHzSbhPQyUjL",
         // },
       },
     };

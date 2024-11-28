@@ -6,11 +6,11 @@ import CreditsOnPage from "../CreditsOnPage";
 
 import handleDenomDisplay from "../UnitDisplay";
 
-import Requests from "./Requests";
+import Orders from "./Orders";
 
-class RequestsPage extends React.Component {
+class OrdersPage extends React.Component {
   componentDidMount() {
-    this.props.pullInitialTriggerRENTALS();
+    this.props.pullInitialTriggerORDERS();
   }
 
   render() {
@@ -41,13 +41,13 @@ class RequestsPage extends React.Component {
                     </h4>
                   </div>
 
-                  {this.props.isRentalsRefreshReady &&
-                  !this.props.isLoadingRentalsMerchant &&
-                  !this.props.isLoadingRentals2Party ? (
+                  {this.props.isOrdersRefreshReady &&
+                  !this.props.isLoadingOrdersMerchant &&
+                  !this.props.isLoadingOrders2Party ? (
                     <Button
                       variant="primary"
                       onClick={() => {
-                        this.props.handleRefresh_Rentals();
+                        this.props.handleRefresh_Orders();
                       }}
                       style={{
                         fontSize: "larger",
@@ -84,13 +84,13 @@ class RequestsPage extends React.Component {
           </div>
 
           <h5 style={{ marginTop: ".2rem" }}>
-            <b>Rentals</b>{" "}
+            <b>Orders Received</b>{" "}
           </h5>
           <p></p>
 
           {this.props.Your2PartyPubKey === "Querying" &&
-          (this.props.isLoadingRentalsMerchant ||
-            this.props.isLoadingRentals2Party) ? (
+          (this.props.isLoadingOrdersMerchant ||
+            this.props.isLoadingOrders2Party) ? (
             <>
               <div className="d-grid gap-2" style={{ margin: "1rem" }}>
                 <Button variant="success" size="lg" disabled>
@@ -118,11 +118,9 @@ class RequestsPage extends React.Component {
             <></>
           )}
 
-          {/* isLoadingRentalsMerchant={this.props.isLoadingRentalsMerchant}
-             isLoadingRentals2Party={this.props.isLoadingRentals2Party} */}
           {this.props.Your2PartyPubKey === "Querying" ||
-          this.props.isLoadingRentalsMerchant ||
-          this.props.isLoadingRentals2Party ? (
+          this.props.isLoadingOrdersMerchant ||
+          this.props.isLoadingOrders2Party ? (
             <>
               <div id="spinner">
                 <Spinner animation="border" role="status">
@@ -137,73 +135,59 @@ class RequestsPage extends React.Component {
 
           {this.props.Your2PartyPubKey === "Querying" ||
           this.props.Your2PartyPubKey === "No Pub Key" ||
-          this.props.isLoadingRentalsMerchant ||
-          this.props.isLoadingRentals2Party ? (
+          this.props.isLoadingOrdersMerchant ||
+          this.props.isLoadingOrders2Party ? (
             <></>
           ) : (
             <>
-              {this.props.RentalRequests.length === 0 ? (
+              {this.props.UnconfirmedOrders.length === 0 ? (
                 <div className="bodytext" style={{ textAlign: "center" }}>
                   <p>Sorry, no requests have been made.</p>
                 </div>
               ) : (
                 <>
-                  <Requests
+                  <Orders
                     whichNetwork={this.props.whichNetwork}
-                    Rentals={this.props.Rentals}
-                    RentalRequests={this.props.RentalRequests}
-                    RentalConfirms={this.props.RentalConfirms}
+                    isLoadingWallet={this.props.isLoadingWallet}
+                    isLoadingOrders2Party={this.props.isLoadingOrders2Party}
+                    isLoadingOrdersMerchant={this.props.isLoadingOrdersMerchant}
+                    isOrdersRefreshReady={this.props.isOrdersRefreshReady}
+                    handleRefresh_Orders={this.handleRefresh_Orders}
+                    Inventory={this.props.Inventory}
+                    UnconfirmedOrders={this.props.UnconfirmedOrders}
+                    ConfirmedOrders={this.props.ConfirmedOrders}
+                    OrdersNames={this.props.OrdersNames}
+                    OrdersControllers={this.props.OrdersControllers}
+                    OrdersProxies={this.props.OrdersProxies}
                     //
-                    RentalRequestsProxies={this.props.RentalRequestsProxies}
-                    RentalRequestsControllers={
-                      this.props.RentalRequestsControllers
-                    }
-                    //
-                    RentalRequestsNames={this.props.RentalRequestsNames}
-                    //
-                    handleSelectedRental={this.props.handleSelectedRental}
-                    handleConfirmRequestModal={
-                      this.props.handleConfirmRequestModal
-                    }
-                    handleMerchantReplyModalShow={
-                      this.props.handleMerchantReplyModalShow
-                    }
-                    handleMerchantRequestFilter={
-                      this.props.handleMerchantRequestFilter
-                    }
-                    handleDeleteBlockConfirmModal={
-                      this.props.handleDeleteBlockConfirmModal
+                    handleConfirmOrderModal={this.props.handleConfirmOrderModal}
+                    handleMerchantOrdersFilter={
+                      this.props.handleMerchantOrdersFilter
                     }
                     //
                     identity={this.props.identity}
+                    identityInfo={this.props.identityInfo}
                     uniqueName={this.props.uniqueName}
-                    isLoadingWallet={this.props.isLoadingWallet}
+                    MerchantNameDoc={this.props.MerchantNameDoc}
                     accountHistory={this.props.accountHistory}
-                    mode={this.props.mode}
-                    DisplayRequests={this.props.DisplayRequests}
                     //
-                    //isLoadingRequests={this.props.isLoadingRequests}
-                    isLoadingRentalsMerchant={
-                      this.props.isLoadingRentalsMerchant
-                    }
-                    isLoadingRentals2Party={this.props.isLoadingRentals2Party}
-                    isRequestsRefreshReady={this.props.isRequestsRefreshReady}
-                    refreshRequests={this.props.refreshRequests}
+                    mode={this.props.mode}
+                    showModal={this.props.showModal}
                     //
                     //2PartyComponent - BELOW
                     //
                     mnemonic={this.props.mnemonic}
                     accountBalance={this.props.accountBalance}
                     //
-                    DisplayReqsOrPmts={this.props.DisplayReqsOrPmts}
+                    DisplayOrders={this.props.DisplayOrders}
                     isLoading2Party={this.props.isLoading2Party}
                     Your2PartyPubKey={this.props.Your2PartyPubKey}
                     ReqsFromYou={this.props.ReqsFromYou}
                     ReqsFromYouPubKeys={this.props.ReqsFromYouPubKeys}
                     // ReqsFromYouNames={this.props.ReqsFromYouNames}
                     ReqsFromYouResponses={this.props.ReqsFromYouResponses}
-                    showRentals2PartyReqModal={
-                      this.props.showRentals2PartyReqModal
+                    showOrders2PartyReqModal={
+                      this.props.showOrders2PartyReqModal
                     }
                     showRetrieveFundsModal={this.props.showRetrieveFundsModal}
                     showAddMsgToRequestModal={
@@ -221,4 +205,4 @@ class RequestsPage extends React.Component {
   }
 }
 
-export default RequestsPage;
+export default OrdersPage;

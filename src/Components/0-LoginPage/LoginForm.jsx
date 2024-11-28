@@ -85,8 +85,12 @@ class LoginForm extends React.Component {
             <b>
               This Name-Wallet implementation is a prototype currently, used to
               control Proxy Accounts and facilate payments for other Dash
-              Frontends. (Moving this to React Native is the end goal, so an
-              Android or iOS app.)
+              Frontends. (
+              <span style={{ textDecoration: "line-through" }}>
+                Moving this to React Native is the end goal, so an Android or
+                iOS app.
+              </span>{" "}
+              Changed to desktop with ElectronJS.)
             </b>
           </p>
         </div>

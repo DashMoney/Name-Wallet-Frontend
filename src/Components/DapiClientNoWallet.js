@@ -96,6 +96,9 @@ export default function dapiClientNoWallet(theNetwork) {
         RENTALSContract: {
           contractId: "HjHocG4oyLHgpnRMJEGagaTyrx6HaboCiGdcBzY3RKPU",
         },
+        ONLINESTOREContract: {
+          contractId: "C7w3BAZHvoijzDrRv9MvsvAGgqdSBS2Nbc341kkrpovV",
+        },
 
         // DGMContract: {
         //   contractId: "CJKuFw9JTBG3WPXdWpWpVF77PVphEkwvqi1zAesCDmzi",
