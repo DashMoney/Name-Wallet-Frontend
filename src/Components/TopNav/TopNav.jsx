@@ -313,6 +313,23 @@ class TopNav extends React.Component {
                   )}
 
                   <p></p>
+                  {/* 
+                  <h4>
+                    <b>Utils</b>
+                  </h4> */}
+                  {/* {isLoginComplete ? (
+                    <NavSelects
+                      selection="Wallet"
+                      selectedDapp={this.props.selectedDapp}
+                      handleSelectedDapp={this.props.handleSelectedDapp}
+                    />
+                  ) : (*/}
+                  {/* <Nav.Link className="canvasLinkDisabled" disabled>
+                    <h5>
+                      <b>Reviews</b>
+                    </h5>
+                  </Nav.Link> */}
+                  {/*  )} */}
 
                   {/* {isLoginComplete ? (
                     <NavSelects
@@ -320,13 +337,13 @@ class TopNav extends React.Component {
                       selectedDapp={this.props.selectedDapp}
                       handleSelectedDapp={this.props.handleSelectedDapp}
                     />
-                  ) : (
-                    <Nav.Link className="canvasLinkDisabled" disabled>
-                      <h5>
-                        <b>Wallet</b>
-                      </h5>
-                    </Nav.Link>
-                  )} */}
+                  ) : (*/}
+                  {/* <Nav.Link className="canvasLinkDisabled" disabled>
+                    <h5>
+                      <b>Simple Wallet</b>
+                    </h5>
+                  </Nav.Link> */}
+                  {/*  )} */}
 
                   {/* <NavSelects
                     selection="Reviews"

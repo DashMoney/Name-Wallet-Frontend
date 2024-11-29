@@ -308,7 +308,7 @@ class Order extends React.Component {
             Your2PartyPubKey={this.props.Your2PartyPubKey}
             ReqsFromYou={this.props.ReqsFromYou}
             ReqsFromYouPubKeys={this.props.ReqsFromYouPubKeys}
-            ReqsFromYouNames={[requestName]}
+            ReqsFromYouNames={[orderName]}
             ReqsFromYouResponses={this.props.ReqsFromYouResponses}
             showRetrieveFundsModal={this.props.showRetrieveFundsModal}
             showAddMsgToRequestModal={this.props.showAddMsgToRequestModal}
@@ -529,7 +529,7 @@ class Order extends React.Component {
 
             {/* Need to Show the order message that can be sent with the order -> */}
 
-            <>
+            {/* <>
               <div
                 className="BottomBorder"
                 style={{ paddingTop: ".7rem", marginBottom: ".7rem" }}
@@ -541,7 +541,7 @@ class Order extends React.Component {
                 <h5>Status</h5>
                 {this.verifyOrderStatus(this.props.order, confirm)}
               </div>
-            </>
+            </> */}
 
             {confirm !== undefined ? (
               <>

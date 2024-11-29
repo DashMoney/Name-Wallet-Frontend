@@ -197,7 +197,7 @@ class YourOrder extends React.Component {
             Your2PartyPubKey={this.props.Your2PartyPubKey}
             ReqsToYou={this.props.ReqsToYou}
             ReqsToYouPubKeys={this.props.ReqsToYouPubKeys}
-            ReqsToYouNames={MerchantNameDoc}
+            ReqsToYouNames={[MerchantNameDoc]}
             ReqsToYouResponses={this.props.ReqsToYouResponses}
             show2PartyPayRequestModal={this.props.show2PartyPayRequestModal}
             showReleaseFundsModal={this.props.showReleaseFundsModal}
