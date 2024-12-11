@@ -1,7 +1,7 @@
 //const Dash = require("dash");
 import Dash from "dash";
 import { Buffer } from "buffer";
-import { AES, enc, SHA256 } from "crypto-js";
+import { AES, SHA256 } from "crypto-js";
 
 globalThis.Buffer = Buffer; // polyfill manually
 
@@ -23,15 +23,18 @@ export default function encryptMyReq(
 ) {
   // let RequestPublicKey = new HDPublicKey(theRequestPubKeyDoc.xpubkey)
   //   .deriveChild(`m/${timeStamp}`)
+  // this is milliseconds *** -> truncate to fix
   //   //`m/2147483647` <- LIMIT, will hit in 68 years
   //   .toObject().publicKey;
+
+  let truncatedTimeStamp = new String(timeStamp).slice(0, -3);
 
   let wallet = new Mnemonic(theMnemonic);
 
   let hdPrivateKey = wallet.toHDPrivateKey(undefined, whichNetwork);
 
   let hdPrivateKeyChild = hdPrivateKey
-    .deriveChild(`m/2024'/5'/2'/${timeStamp}`)
+    .deriveChild(`m/2024'/5'/2'/${truncatedTimeStamp}`)
     .privateKey.toString();
 
   let hashPWD = SHA256(hdPrivateKeyChild).toString();
@@ -48,8 +51,10 @@ export default function encryptMyReq(
 
   // console.log(originalText); // 'my message'
 
+  console.log(truncatedTimeStamp);
+
   let ResponsePublicKey = new HDPublicKey(theResponsePubKeyDoc.xpubkey)
-    .deriveChild(`m/${timeStamp}`)
+    .deriveChild(`m/${truncatedTimeStamp}`)
     .toObject().publicKey;
 
   //let hdPrivKeyChild = hdPrivateKeyChild.deriveChild(`m/${req.$createdAt}`);
@@ -62,7 +67,7 @@ export default function encryptMyReq(
 
   // console.log(Buffer.from(decrypted).toString());
 
-  let encyptedProps = { req: encryptReq, fromReq: ciphertext };
+  let encryptedProps = { req: encryptReq, fromReq: ciphertext };
 
-  return encyptedProps;
+  return encryptedProps;
 }

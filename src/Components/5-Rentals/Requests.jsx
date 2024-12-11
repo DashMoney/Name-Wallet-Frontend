@@ -59,7 +59,7 @@ class Requests extends React.Component {
       requests = unconfirmedReqs.map((request, index) => {
         //console.log(post);
         return (
-          <div key={index} style={{ marginBottom: "0.1rem" }}>
+          <div key={index} style={{ marginBottom: ".5rem" }}>
             <Request
               whichNetwork={this.props.whichNetwork}
               //key={index}
@@ -95,7 +95,7 @@ class Requests extends React.Component {
       requests = confirmedReqs.map((request, index) => {
         //console.log(post);
         return (
-          <div key={index} style={{ marginBottom: "0.1rem" }}>
+          <div key={index} style={{ marginBottom: ".5rem" }}>
             <Request
               whichNetwork={this.props.whichNetwork}
               //key={index}
@@ -152,7 +152,7 @@ class Requests extends React.Component {
       blocks = blockedConfirms.map((confirmBlock, index) => {
         //console.log(post);
         return (
-          <div key={index} style={{ marginBottom: "0.1rem" }}>
+          <div key={index} style={{ marginBottom: ".5rem" }}>
             <BlockedOff
               //key={index}
               mode={this.props.mode}

@@ -83,7 +83,7 @@ class Orders extends React.Component {
       orders = confirmedOrders.map((order, index) => {
         //console.log(post);
         return (
-          <div key={index} style={{ marginBottom: "0.1rem" }}>
+          <div key={index} style={{ marginBottom: "0.5rem" }}>
             <Order
               whichNetwork={this.props.whichNetwork}
               //key={index}

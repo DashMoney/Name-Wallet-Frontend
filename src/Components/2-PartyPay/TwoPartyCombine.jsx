@@ -43,7 +43,7 @@ class TwoPartyCombine extends React.Component {
       payments = this.props.ReqsToYou.map((req, index) => {
         //console.log(req);
         return (
-          <div key={index} style={{ marginBottom: "0.1rem" }}>
+          <div key={index} style={{ marginBottom: "0.5rem" }}>
             <PayRequestsComponent
               mnemonic={this.props.mnemonic}
               whichNetwork={this.props.whichNetwork}
@@ -84,7 +84,7 @@ class TwoPartyCombine extends React.Component {
       requests = this.props.ReqsFromYou.map((req, index) => {
         //console.log(post);
         return (
-          <div key={index} style={{ marginBottom: "0.1rem" }}>
+          <div key={index} style={{ marginBottom: "0.5rem" }}>
             <SentRequestsComponent
               mnemonic={this.props.mnemonic}
               whichNetwork={this.props.whichNetwork}

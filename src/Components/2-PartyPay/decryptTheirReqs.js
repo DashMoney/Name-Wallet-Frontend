@@ -27,41 +27,45 @@ export default function decryptTheirReqs(theReqs, theMnemonic, whichNetwork) {
       reqToReturn.txId = "";
       reqToReturn.sigObject = "";
       reqToReturn.msgObject = [];
+      reqToReturn.error = "";
 
       return reqToReturn;
     } else {
       let reqToReturn = req;
       let timeStamp = req.$createdAt - 1729873000000;
 
-      let hdPrivateKeyChild = hdPrivateKey.deriveChild(`m/${timeStamp}`);
+      let truncatedTimeStamp = new String(timeStamp).slice(0, -3);
 
-      let decrypted = decrypt(
-        hdPrivateKeyChild.toObject().privateKey,
-        Buffer.from(req.req, "base64"),
-        {
-          symmetricAlgorithm: "xchacha20", // Use XChaCha20-Poly1305
-        }
+      let hdPrivateKeyChild = hdPrivateKey.deriveChild(
+        `m/${truncatedTimeStamp}`
       );
-      //Or does the try catch need to be here ^^^
 
+      let decrypted;
       let decryptedObject = {};
-      //this ^^^ will return an stringified object
       try {
+        decrypted = decrypt(
+          hdPrivateKeyChild.toObject().privateKey,
+          Buffer.from(req.req, "base64"),
+          {
+            symmetricAlgorithm: "xchacha20", // Use XChaCha20-Poly1305
+          }
+        );
         decryptedObject = JSON.parse(Buffer.from(decrypted).toString());
       } catch (e) {
-        console.warn(e);
-        decryptedObject.txId = "";
-        decryptedObject.sigObject = "";
-        decryptedObject.msgObject = [];
-      }
+        //console.warn(e);
+        decryptedObject = {
+          txId: "",
+          sig: "",
+          msgs: [],
+          error: "Failure to Display",
+        };
+        reqToReturn.txId = decryptedObject.txId;
+        reqToReturn.sigObject = decryptedObject.sig;
+        reqToReturn.msgObject = decryptedObject.msgs;
+        reqToReturn.error = decryptedObject.error;
 
-      //THIS WILL CATCH ERROR AND RETURN WITH OUT BREAKING ALL.**
-      // try {
-      //   return JSON.parse(plainText)
-      // } catch (e) {
-      //   console.warn(e)
-      //   return plainText
-      // }
+        return reqToReturn;
+      }
 
       // console.log(decryptedObject);
 
@@ -71,6 +75,7 @@ export default function decryptTheirReqs(theReqs, theMnemonic, whichNetwork) {
       reqToReturn.txId = decryptedObject.txId;
       reqToReturn.sigObject = decryptedObject.sig;
       reqToReturn.msgObject = decryptedObject.msgs;
+      reqToReturn.error = "";
 
       return reqToReturn;
     }

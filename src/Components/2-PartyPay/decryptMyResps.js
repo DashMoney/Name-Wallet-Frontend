@@ -25,56 +25,54 @@ export default function decryptMyResps(theResps, theMnemonic, whichNetwork) {
 
   decryptedResps = theResps.map((resp) => {
     let decryptedResp = resp;
+
+    let truncatedTimeStamp = new String(resp.reqTime).slice(0, -3);
     //
     let hdPrivateKeyChild = hdPrivateKey
-      .deriveChild(`m/${resp.reqTime}`)
+      .deriveChild(`m/${truncatedTimeStamp}`)
       .privateKey.toString();
     //
 
     let hashPWD = SHA256(hdPrivateKeyChild).toString();
     //console.log(hashPWD);
 
-    // let ciphertext = AES.encrypt(
-    //   JSON.stringify(theRespInput),
-    //   hashPWD
-    // ).toString();
-    //console.log(ciphertext);
-
     let ciphertext = resp.fromResp;
+    let propObject;
+    let bytes; // = AES.decrypt(ciphertext, hashPWD);
+    // console.log(bytes);
 
-    let bytes = AES.decrypt(ciphertext, hashPWD);
-    //console.log(bytes);
-    let originalText = bytes.toString(enc.Utf8);
+    try {
+      bytes = AES.decrypt(ciphertext, hashPWD);
+      // console.log(bytes);
+      let originalText = bytes.toString(enc.Utf8);
+      // console.log(originalText); // 'my message'
+      propObject = JSON.parse(originalText);
+    } catch (e) {
+      //console.warn(e);
+      propObject = {
+        txId: "",
+        refund: "",
+        sig: "",
+        msgs: [],
+        error: "Failure to Display",
+      };
 
-    //console.log(originalText); // 'my message'
+      decryptedResp.txId = propObject.txId;
+      decryptedResp.refundTxId = propObject.refund;
+      decryptedResp.sigObject = propObject.sig;
+      decryptedResp.msgObject = propObject.msgs;
+      decryptedResp.error = propObject.error;
 
-    let propObject = JSON.parse(originalText);
-
-    //console.log(propObject);
-
-    // let propsToEncrypt = {
-    //   txId: theTxId,
-    //   refund: "",
-    //   sig: "",
-    //   msgs: theMsgObject,
-    // };
+      return decryptedResp;
+    }
 
     decryptedResp.txId = propObject.txId;
     decryptedResp.refundTxId = propObject.refund;
     decryptedResp.sigObject = propObject.sig;
     decryptedResp.msgObject = propObject.msgs;
+    decryptedResp.error = "";
 
     return decryptedResp;
-    //
-    // let decrypted = decrypt(
-    //   hdPrivateKeyChild.toObject().privateKey,
-    //   Buffer.from(resp.fromResp, "base64"),
-    //   {
-    //     symmetricAlgorithm: "xchacha20", // Use XChaCha20-Poly1305
-    //   }
-    // );
-    //console.log(Buffer.from(decrypted).toString());
-    //return Buffer.from(decrypted).toString();
   });
 
   return decryptedResps;

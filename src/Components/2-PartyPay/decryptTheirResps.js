@@ -23,19 +23,38 @@ export default function decryptTheirResps(theResps, theMnemonic, whichNetwork) {
     let respToReturn = resp;
     // let timeStamp = resp.$createdAt - 1729873000000;
 
-    let hdPrivateKeyChild = hdPrivateKey.deriveChild(`m/${resp.reqTime}`);
+    let truncatedTimeStamp = new String(resp.reqTime).slice(0, -3);
 
-    let decrypted = decrypt(
-      hdPrivateKeyChild.toObject().privateKey,
-      Buffer.from(resp.resp, "base64"),
-      {
-        symmetricAlgorithm: "xchacha20", // Use XChaCha20-Poly1305
-      }
-    );
+    let hdPrivateKeyChild = hdPrivateKey.deriveChild(`m/${truncatedTimeStamp}`);
 
-    let decryptedObject = JSON.parse(Buffer.from(decrypted).toString());
-    //this ^^^ will return an stringified object
+    let decrypted;
+    let decryptedObject = {};
+    try {
+      decrypted = decrypt(
+        hdPrivateKeyChild.toObject().privateKey,
+        Buffer.from(resp.resp, "base64"),
+        {
+          symmetricAlgorithm: "xchacha20", // Use XChaCha20-Poly1305
+        }
+      );
+      decryptedObject = JSON.parse(Buffer.from(decrypted).toString());
+    } catch (e) {
+      //console.warn(e);
+      decryptedObject = {
+        txId: "",
+        refund: "",
+        sig: "",
+        msgs: [],
+        error: "Failure to Display",
+      };
+      respToReturn.txId = decryptedObject.txId;
+      respToReturn.refundTxId = decryptedObject.refund;
+      respToReturn.sigObject = decryptedObject.sig;
+      respToReturn.msgObject = decryptedObject.msgs;
+      respToReturn.error = decryptedObject.error;
 
+      return respToReturn;
+    }
     //console.log(decryptedObject);
 
     //console.log(Buffer.from(decrypted).toString());
@@ -45,6 +64,7 @@ export default function decryptTheirResps(theResps, theMnemonic, whichNetwork) {
     respToReturn.refundTxId = decryptedObject.refund;
     respToReturn.sigObject = decryptedObject.sig;
     respToReturn.msgObject = decryptedObject.msgs;
+    respToReturn.error = "";
 
     return respToReturn;
   });

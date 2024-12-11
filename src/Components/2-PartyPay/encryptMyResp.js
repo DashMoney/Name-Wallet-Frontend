@@ -25,12 +25,14 @@ export default function encryptMyResp(
   //   .deriveChild(`m/${timeStamp}`)
   //   .toObject().publicKey;
 
+  let truncatedTimeStamp = new String(timeStamp).slice(0, -3);
+
   let wallet = new Mnemonic(theMnemonic);
 
   let hdPrivateKey = wallet.toHDPrivateKey(undefined, whichNetwork);
 
   let hdPrivateKeyChild = hdPrivateKey
-    .deriveChild(`m/2024'/5'/2'/${timeStamp}`)
+    .deriveChild(`m/2024'/5'/2'/${truncatedTimeStamp}`)
     .privateKey.toString();
 
   //console.log("hdPrivateKeyChild: ", hdPrivateKeyChild);
@@ -70,7 +72,7 @@ export default function encryptMyResp(
   // });
 
   let RequestPublicKey = new HDPublicKey(theRequestPubKeyDoc.xpubkey)
-    .deriveChild(`m/${timeStamp}`)
+    .deriveChild(`m/${truncatedTimeStamp}`)
     //`m/2147483647` <- LIMIT, will hit in 68 years
     .toObject().publicKey;
 

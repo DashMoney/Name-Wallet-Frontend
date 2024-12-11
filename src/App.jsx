@@ -2340,7 +2340,7 @@ class App extends React.Component {
         }
 
         //*  ***   ***
-        // decryptMyResps(theResps, theMnemonic, whichNetwork)
+        // decryptTheirResps(theResps, theMnemonic, whichNetwork)
 
         let decryptedRespArray = decryptTheirResps(
           responseDocArray,
@@ -2830,6 +2830,7 @@ class App extends React.Component {
         returnedDoc.txId = propsToEncrypt.txId;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("Edited 2Party Req:\n", returnedDoc);
 
@@ -2987,6 +2988,7 @@ class App extends React.Component {
         returnedDoc.refundTxId = propsToEncrypt.refund;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("Edited 2Party Doc:\n", returnedDoc);
 
@@ -3328,6 +3330,7 @@ class App extends React.Component {
         returnedDoc.txId = "";
         returnedDoc.sigObject = "";
         returnedDoc.msgObject = [];
+        returnedDoc.error = "";
 
         //returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
 
@@ -3419,11 +3422,13 @@ class App extends React.Component {
 
       //console.log("timeStamp", timeStamp);
 
+      let truncatedTimeStamp = new String(timeStamp).slice(0, -3);
+
       //console.log("requestPmtReqDoc2Party", this.state.requestPmtReqDoc2Party);
       //console.log("Your2PartyPubKey", this.state.Your2PartyPubKey.xpubkey);
 
       let YourPublicKey = new HDPublicKey(this.state.Your2PartyPubKey.xpubkey)
-        .deriveChild(`m/${timeStamp}`)
+        .deriveChild(`m/${truncatedTimeStamp}`)
         //`m/2147483647` <- LIMIT, will hit in 68 years
         .toObject().publicKey;
 
@@ -3432,7 +3437,7 @@ class App extends React.Component {
       let TheirPublicKey = new HDPublicKey(
         this.state.requestPubKeyDoc2Party.xpubkey
       )
-        .deriveChild(`m/${timeStamp}`)
+        .deriveChild(`m/${truncatedTimeStamp}`)
         .toObject().publicKey;
 
       // console.log("TheirPublicKey", TheirPublicKey);
@@ -3630,6 +3635,7 @@ class App extends React.Component {
         returnedDoc.refundTxId = propsToEncrypt.refund;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("response Doc:\n", returnedDoc);
 
@@ -3859,6 +3865,7 @@ class App extends React.Component {
         returnedDoc.refundTxId = propsToEncrypt.refund;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("Edited 2Party Doc:\n", returnedDoc);
 
@@ -4090,6 +4097,7 @@ class App extends React.Component {
         returnedDoc.txId = propsToEncrypt.txId;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("Edited 2Party Req:\n", returnedDoc);
 
@@ -4312,6 +4320,7 @@ class App extends React.Component {
         returnedDoc.txId = propsToEncrypt.txId;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("Edited 2Party Doc:\n", returnedDoc);
 
@@ -4538,6 +4547,7 @@ class App extends React.Component {
         returnedDoc.refundTxId = propsToEncrypt.refund;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("Edited 2Party Resp:\n", returnedDoc);
 
@@ -5296,6 +5306,7 @@ class App extends React.Component {
         returnedDoc.refundTxId = propsToEncrypt.refund;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("Edited 2Party Doc:\n", returnedDoc);
 
@@ -5382,11 +5393,13 @@ class App extends React.Component {
 
       //console.log("timeStamp", timeStamp);
 
+      let truncatedTimeStamp = new String(timeStamp).slice(0, -3);
+
       //console.log("requestPmtReqDoc2Party", this.state.requestPmtReqDoc2Party);
       //console.log("Your2PartyPubKey", this.state.Your2PartyPubKey.xpubkey);
 
       let YourPublicKey = new HDPublicKey(this.state.Your2PartyPubKey.xpubkey)
-        .deriveChild(`m/${timeStamp}`)
+        .deriveChild(`m/${truncatedTimeStamp}`)
         //`m/2147483647` <- LIMIT, will hit in 68 years
         .toObject().publicKey;
 
@@ -5395,7 +5408,7 @@ class App extends React.Component {
       let TheirPublicKey = new HDPublicKey(
         this.state.requestPubKeyDoc2Party.xpubkey
       )
-        .deriveChild(`m/${timeStamp}`)
+        .deriveChild(`m/${truncatedTimeStamp}`)
         .toObject().publicKey;
 
       // console.log("TheirPublicKey", TheirPublicKey);
@@ -5442,7 +5455,7 @@ class App extends React.Component {
           {
             sendSuccess2Party: true, //TX go through //DO I NEED THIS? BC THE DOCUMENT WILL JUST CHANGE TO REFLECT
           },
-          () => this.create2PartyResponseWithTX(d, addedMessage)
+          () => this.create2PartyResponseWithTX_RSRVS(d, addedMessage)
         );
       })
       .catch((e) => {
@@ -5593,6 +5606,7 @@ class App extends React.Component {
         returnedDoc.refundTxId = propsToEncrypt.refund;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("response Doc:\n", returnedDoc);
 
@@ -5825,6 +5839,7 @@ class App extends React.Component {
         returnedDoc.refundTxId = propsToEncrypt.refund;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("Edited 2Party Doc:\n", returnedDoc);
 
@@ -6052,6 +6067,7 @@ class App extends React.Component {
         returnedDoc.refundTxId = propsToEncrypt.refund;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("Edited 2Party Resp:\n", returnedDoc);
 
@@ -6772,6 +6788,7 @@ class App extends React.Component {
         returnedDoc.refundTxId = propsToEncrypt.refund;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("Edited 2Party Doc:\n", returnedDoc);
 
@@ -6858,11 +6875,13 @@ class App extends React.Component {
 
       //console.log("timeStamp", timeStamp);
 
+      let truncatedTimeStamp = new String(timeStamp).slice(0, -3);
+
       //console.log("requestPmtReqDoc2Party", this.state.requestPmtReqDoc2Party);
       //console.log("Your2PartyPubKey", this.state.Your2PartyPubKey.xpubkey);
 
       let YourPublicKey = new HDPublicKey(this.state.Your2PartyPubKey.xpubkey)
-        .deriveChild(`m/${timeStamp}`)
+        .deriveChild(`m/${truncatedTimeStamp}`)
         //`m/2147483647` <- LIMIT, will hit in 68 years
         .toObject().publicKey;
 
@@ -6871,7 +6890,7 @@ class App extends React.Component {
       let TheirPublicKey = new HDPublicKey(
         this.state.requestPubKeyDoc2Party.xpubkey
       )
-        .deriveChild(`m/${timeStamp}`)
+        .deriveChild(`m/${truncatedTimeStamp}`)
         .toObject().publicKey;
 
       // console.log("TheirPublicKey", TheirPublicKey);
@@ -6918,7 +6937,7 @@ class App extends React.Component {
           {
             sendSuccess2Party: true, //TX go through //DO I NEED THIS? BC THE DOCUMENT WILL JUST CHANGE TO REFLECT
           },
-          () => this.create2PartyResponseWithTX(d, addedMessage)
+          () => this.create2PartyResponseWithTX_YOURORDERS(d, addedMessage)
         );
       })
       .catch((e) => {
@@ -7069,6 +7088,7 @@ class App extends React.Component {
         returnedDoc.refundTxId = propsToEncrypt.refund;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("response Doc:\n", returnedDoc);
 
@@ -7300,6 +7320,7 @@ class App extends React.Component {
         returnedDoc.refundTxId = propsToEncrypt.refund;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("Edited 2Party Doc:\n", returnedDoc);
 
@@ -7526,6 +7547,7 @@ class App extends React.Component {
         returnedDoc.refundTxId = propsToEncrypt.refund;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("Edited 2Party Resp:\n", returnedDoc);
 
@@ -7974,7 +7996,7 @@ class App extends React.Component {
 
           pubKeyDocArray = [n.toJSON(), ...pubKeyDocArray];
         }
-        //console.log(`Public Key Docs: ${pubKeyDocArray}`);
+        // console.log(`Public Key Docs: ${pubKeyDocArray}`);
 
         this.setState({
           RentalsRentals: theRentalsDocs,
@@ -8040,6 +8062,10 @@ class App extends React.Component {
               returnedDoc.reqId,
               "base64"
             ).toJSON();
+            // returnedDoc.toId = Identifier.from(
+            //   returnedDoc.toId,
+            //   "base64"
+            // ).toJSON();
             returnedDoc.rentalId = Identifier.from(
               returnedDoc.rentalId,
               "base64"
@@ -8100,7 +8126,7 @@ class App extends React.Component {
           //console.log("Getting Rentals2PartyReqs");
           for (const n of d) {
             let returnedDoc = n.toJSON();
-            //console.log("Req:\n", returnedDoc);
+            // console.log("Req:\n", returnedDoc);
 
             returnedDoc.toId = Identifier.from(
               returnedDoc.toId,
@@ -8115,8 +8141,10 @@ class App extends React.Component {
             // console.log("newReq:\n", returnedDoc);
             docArray = [...docArray, returnedDoc];
           }
-          //decryptTheirReqs(theReqs, theMnemonic, whichNetwork)
-          let decryptedDocs = decryptTheirReqs(
+          //WHY ISNT THIS MYREQS??
+          //
+          //decryptMyReqs(theReqs, theMnemonic, whichNetwork)
+          let decryptedDocs = decryptMyReqs(
             docArray,
             this.state.mnemonic,
             this.state.whichNetwork
@@ -8180,10 +8208,11 @@ class App extends React.Component {
           //console.log("newResponse:\n", returnedDoc);
           responseDocArray = [...responseDocArray, returnedDoc];
         }
+        //WHY ISNT THIS THEIRRESPS????
+        //
+        // decryptTheirResps(theResps, theMnemonic, whichNetwork)
 
-        // decryptMyResps(theResps, theMnemonic, whichNetwork)
-
-        let decryptedRespArray = decryptMyResps(
+        let decryptedRespArray = decryptTheirResps(
           responseDocArray,
           this.state.mnemonic,
           this.state.whichNetwork
@@ -8509,6 +8538,7 @@ class App extends React.Component {
         returnedDoc.txId = "";
         returnedDoc.sigObject = "";
         returnedDoc.msgObject = [];
+        returnedDoc.error = "";
 
         //returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
 
@@ -8551,6 +8581,7 @@ class App extends React.Component {
       presentModal: "AddMsgToRequestModalRENTALS",
       isModalShowing: true,
     });
+    console.log(pubKeyDoc);
   };
 
   editRequestAddMessage_RENTALS = (addedMessage) => {
@@ -8717,6 +8748,7 @@ class App extends React.Component {
         returnedDoc.txId = propsToEncrypt.txId;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("Edited 2Party Req:\n", returnedDoc);
 
@@ -8945,6 +8977,7 @@ class App extends React.Component {
         returnedDoc.txId = propsToEncrypt.txId;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("Edited 2Party Req:\n", returnedDoc);
 
@@ -9170,6 +9203,7 @@ class App extends React.Component {
         returnedDoc.txId = propsToEncrypt.txId;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("Edited 2Party Doc:\n", returnedDoc);
 
@@ -9375,6 +9409,10 @@ class App extends React.Component {
               returnedDoc.orderId,
               "base64"
             ).toJSON();
+            // returnedDoc.toId = Identifier.from(
+            //   returnedDoc.toId,
+            //   "base64"
+            // ).toJSON();
 
             returnedDoc.cart = JSON.parse(returnedDoc.cart);
 
@@ -9915,8 +9953,10 @@ class App extends React.Component {
             // console.log("newReq:\n", returnedDoc);
             docArray = [...docArray, returnedDoc];
           }
-          //decryptTheirReqs(theReqs, theMnemonic, whichNetwork)
-          let decryptedDocs = decryptTheirReqs(
+          //WHY ISNT THIS MYREQS??
+          //
+          //decryptMyReqs(theReqs, theMnemonic, whichNetwork)
+          let decryptedDocs = decryptMyReqs(
             docArray,
             this.state.mnemonic,
             this.state.whichNetwork
@@ -9981,9 +10021,11 @@ class App extends React.Component {
           responseDocArray = [...responseDocArray, returnedDoc];
         }
 
-        // decryptMyResps(theResps, theMnemonic, whichNetwork)
+        //WHY ISNT THIS THEIRRESPS??
+        //
+        // decryptTheirResps(theResps, theMnemonic, whichNetwork)
 
-        let decryptedRespArray = decryptMyResps(
+        let decryptedRespArray = decryptTheirResps(
           responseDocArray,
           this.state.mnemonic,
           this.state.whichNetwork
@@ -10043,7 +10085,7 @@ class App extends React.Component {
 
       const confirmProperties = {
         orderId: this.state.SelectedOrder.$id,
-        //toId
+        toId: this.state.SelectedOrder.$ownerId,
         amt: this.state.SelectedOrder.amt,
         cart: JSON.stringify(this.state.SelectedOrder.cart),
       };
@@ -10216,6 +10258,7 @@ class App extends React.Component {
         returnedDoc.txId = "";
         returnedDoc.sigObject = "";
         returnedDoc.msgObject = [];
+        returnedDoc.error = "";
 
         //returnedDoc.msgObject = JSON.parse(returnedDoc.msgObject);
 
@@ -10424,6 +10467,7 @@ class App extends React.Component {
         returnedDoc.txId = propsToEncrypt.txId;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("Edited 2Party Req:\n", returnedDoc);
 
@@ -10652,6 +10696,7 @@ class App extends React.Component {
         returnedDoc.txId = propsToEncrypt.txId;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("Edited 2Party Req:\n", returnedDoc);
 
@@ -10877,6 +10922,7 @@ class App extends React.Component {
         returnedDoc.txId = propsToEncrypt.txId;
         returnedDoc.sigObject = propsToEncrypt.sig;
         returnedDoc.msgObject = propsToEncrypt.msgs;
+        returnedDoc.error = "";
 
         console.log("Edited 2Party Doc:\n", returnedDoc);
 

@@ -23,40 +23,55 @@ export default function decryptMyReqs(theReqs, theMnemonic, whichNetwork) {
       reqToReturn.txId = "";
       reqToReturn.sigObject = "";
       reqToReturn.msgObject = [];
+      reqToReturn.error = "";
 
       return reqToReturn;
     } else {
       let reqToReturn = req;
       let timeStamp = req.$createdAt - 1729873000000;
+      let truncatedTimeStamp = new String(timeStamp).slice(0, -3);
       //
       let hdPrivateKeyChild = hdPrivateKey
-        .deriveChild(`m/${timeStamp}`)
+        .deriveChild(`m/${truncatedTimeStamp}`)
         .privateKey.toString();
 
       let hashPWD = SHA256(hdPrivateKeyChild).toString();
       //console.log(hashPWD);
 
-      // let ciphertext = AES.encrypt(
-      //   JSON.stringify(theRespInput),
-      //   hashPWD
-      // ).toString();
-      //console.log(ciphertext);
-
       let ciphertext = req.fromReq;
-
-      let bytes = AES.decrypt(ciphertext, hashPWD);
+      let propObject;
+      let bytes; // = AES.decrypt(ciphertext, hashPWD);
       // console.log(bytes);
-      let originalText = bytes.toString(enc.Utf8);
 
-      // console.log(originalText); // 'my message'
+      try {
+        bytes = AES.decrypt(ciphertext, hashPWD);
+        // console.log(bytes);
+        let originalText = bytes.toString(enc.Utf8);
+        // console.log(originalText); // 'my message'
+        propObject = JSON.parse(originalText);
+      } catch (e) {
+        //console.warn(e);
+        propObject = {
+          txId: "",
+          sig: "",
+          msgs: [],
+          error: "Failure to Display",
+        };
 
-      let propObject = JSON.parse(originalText);
+        reqToReturn.txId = propObject.txId;
+        reqToReturn.sigObject = propObject.sig;
+        reqToReturn.msgObject = propObject.msgs;
+        reqToReturn.error = propObject.error;
+
+        return reqToReturn;
+      }
 
       // console.log(propObject);
 
       reqToReturn.txId = propObject.txId;
       reqToReturn.sigObject = propObject.sig;
       reqToReturn.msgObject = propObject.msgs;
+      reqToReturn.error = "";
 
       return reqToReturn;
     }
