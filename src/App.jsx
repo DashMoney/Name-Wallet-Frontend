@@ -13463,7 +13463,9 @@ class App extends React.Component {
           FrontendFee={this.state.FrontendFee}
           validFrontendFee={this.state.validFrontendFee}
         />
+
         <Image fluid="true" id="dash-bkgd" src={DashBkgd} alt="Dash Logo" />
+
         <Container className="g-0">
           <Row className="justify-content-md-center">
             <Col md={9} lg={8} xl={7} xxl={6}>
@@ -13539,359 +13541,345 @@ class App extends React.Component {
               ) : (
                 <></>
               )}
-              {this.state.selectedDapp === "Proxy Accounts" ? (
-                <>
-                  <ProxyPage
-                    isLoginComplete={isLoginComplete}
-                    isLoadingProxy={this.state.isLoadingProxy}
-                    identity={this.state.identity}
-                    identityInfo={this.state.identityInfo}
-                    uniqueName={this.state.uniqueName}
-                    mode={this.state.mode}
-                    showModal={this.showModal}
-                    //InitialPullPROXY={this.state.InitialPullPROXY}
-                    pullInitialTriggerPROXY={this.pullInitialTriggerPROXY}
-                    ProxyController={this.state.ProxyController}
-                    ProxyDocs={this.state.ProxyDocs}
-                    ProxyIdentities={this.state.ProxyIdentities}
-                    handleEditProxy={this.handleEditProxy}
-                    handleDeleteProxy={this.handleDeleteProxy}
-                  />
-                </>
-              ) : (
-                <></>
-              )}
+            </Col>
+          </Row>
+        </Container>
+        <Container className="g-0">
+          {this.state.selectedDapp === "Proxy Accounts" ? (
+            <>
+              <ProxyPage
+                isLoginComplete={isLoginComplete}
+                isLoadingProxy={this.state.isLoadingProxy}
+                identity={this.state.identity}
+                identityInfo={this.state.identityInfo}
+                uniqueName={this.state.uniqueName}
+                mode={this.state.mode}
+                showModal={this.showModal}
+                //InitialPullPROXY={this.state.InitialPullPROXY}
+                pullInitialTriggerPROXY={this.pullInitialTriggerPROXY}
+                ProxyController={this.state.ProxyController}
+                ProxyDocs={this.state.ProxyDocs}
+                ProxyIdentities={this.state.ProxyIdentities}
+                handleEditProxy={this.handleEditProxy}
+                handleDeleteProxy={this.handleDeleteProxy}
+              />
+            </>
+          ) : (
+            <></>
+          )}
 
-              {this.state.selectedDapp === "2-Party Pay" ? (
-                <>
-                  <TwoPartyPage
-                    mnemonic={this.state.mnemonic}
-                    whichNetwork={this.state.whichNetwork}
-                    isLoginComplete={isLoginComplete}
-                    isLoading2Party={this.state.isLoading2Party}
-                    identity={this.state.identity}
-                    identityInfo={this.state.identityInfo}
-                    uniqueName={this.state.uniqueName}
-                    mode={this.state.mode}
-                    showModal={this.showModal}
-                    pullInitialTrigger2Party={this.pullInitialTrigger2Party}
-                    is2PartyRefreshReady={this.state.is2PartyRefreshReady}
-                    handleRefresh_2Party={this.handleRefresh_2Party}
-                    accountBalance={this.state.accountBalance}
-                    accountHistory={this.state.accountHistory}
-                    DisplayReqsOrPmts={this.state.DisplayReqsOrPmts}
-                    handleReqsOrPmtsFilter={this.handleReqsOrPmtsFilter}
-                    handleSelectedDapp={this.handleSelectedDapp}
-                    Your2PartyPubKey={this.state.Your2PartyPubKey}
-                    ReqsFromYou={this.state.ReqsFromYou}
-                    ReqsFromYouPubKeys={this.state.ReqsFromYouPubKeys}
-                    ReqsFromYouNames={this.state.ReqsFromYouNames}
-                    ReqsFromYouResponses={this.state.ReqsFromYouResponses}
-                    ReqsToYou={this.state.ReqsToYou}
-                    ReqsToYouPubKeys={this.state.ReqsToYouPubKeys}
-                    ReqsToYouNames={this.state.ReqsToYouNames}
-                    ReqsToYouResponses={this.state.ReqsToYouResponses}
-                    show2PartyPayRequestModal={this.show2PartyPayRequestModal}
-                    showReleaseFundsModal={this.showReleaseFundsModal}
-                    showRetrieveFundsModal={this.showRetrieveFundsModal}
-                    showAddMsgToRequestModal={this.showAddMsgToRequestModal}
-                    showAddMessageToResponseModal={
-                      this.showAddMessageToResponseModal
-                    }
-                    showRefundFundsModal={this.showRefundFundsModal}
-                    showWithdrawRefundModal={this.showWithdrawRefundModal}
-                  />
-                </>
-              ) : (
-                <></>
-              )}
+          {this.state.selectedDapp === "2-Party Pay" ? (
+            <>
+              <TwoPartyPage
+                mnemonic={this.state.mnemonic}
+                whichNetwork={this.state.whichNetwork}
+                isLoginComplete={isLoginComplete}
+                isLoading2Party={this.state.isLoading2Party}
+                identity={this.state.identity}
+                identityInfo={this.state.identityInfo}
+                uniqueName={this.state.uniqueName}
+                mode={this.state.mode}
+                showModal={this.showModal}
+                pullInitialTrigger2Party={this.pullInitialTrigger2Party}
+                is2PartyRefreshReady={this.state.is2PartyRefreshReady}
+                handleRefresh_2Party={this.handleRefresh_2Party}
+                accountBalance={this.state.accountBalance}
+                accountHistory={this.state.accountHistory}
+                DisplayReqsOrPmts={this.state.DisplayReqsOrPmts}
+                handleReqsOrPmtsFilter={this.handleReqsOrPmtsFilter}
+                handleSelectedDapp={this.handleSelectedDapp}
+                Your2PartyPubKey={this.state.Your2PartyPubKey}
+                ReqsFromYou={this.state.ReqsFromYou}
+                ReqsFromYouPubKeys={this.state.ReqsFromYouPubKeys}
+                ReqsFromYouNames={this.state.ReqsFromYouNames}
+                ReqsFromYouResponses={this.state.ReqsFromYouResponses}
+                ReqsToYou={this.state.ReqsToYou}
+                ReqsToYouPubKeys={this.state.ReqsToYouPubKeys}
+                ReqsToYouNames={this.state.ReqsToYouNames}
+                ReqsToYouResponses={this.state.ReqsToYouResponses}
+                show2PartyPayRequestModal={this.show2PartyPayRequestModal}
+                showReleaseFundsModal={this.showReleaseFundsModal}
+                showRetrieveFundsModal={this.showRetrieveFundsModal}
+                showAddMsgToRequestModal={this.showAddMsgToRequestModal}
+                showAddMessageToResponseModal={
+                  this.showAddMessageToResponseModal
+                }
+                showRefundFundsModal={this.showRefundFundsModal}
+                showWithdrawRefundModal={this.showWithdrawRefundModal}
+              />
+            </>
+          ) : (
+            <></>
+          )}
 
-              {this.state.selectedDapp === "2-PartyRequest" ? (
-                <>
-                  <RequestPage
-                    isLoginComplete={isLoginComplete}
-                    isLoading2Party={this.state.isLoading2Party}
-                    identity={this.state.identity}
-                    identityInfo={this.state.identityInfo}
-                    uniqueName={this.state.uniqueName}
-                    mode={this.state.mode}
-                    //showModal={this.showModal}
+          {this.state.selectedDapp === "2-PartyRequest" ? (
+            <>
+              <RequestPage
+                isLoginComplete={isLoginComplete}
+                isLoading2Party={this.state.isLoading2Party}
+                identity={this.state.identity}
+                identityInfo={this.state.identityInfo}
+                uniqueName={this.state.uniqueName}
+                mode={this.state.mode}
+                //showModal={this.showModal}
 
-                    show2PartyRequestModal={this.show2PartyRequestModal}
-                    accountBalance={this.state.accountBalance}
-                    accountHistory={this.state.accountHistory}
-                    handleSelectedDapp={this.handleSelectedDapp}
-                  />
-                </>
-              ) : (
-                <></>
-              )}
+                show2PartyRequestModal={this.show2PartyRequestModal}
+                accountBalance={this.state.accountBalance}
+                accountHistory={this.state.accountHistory}
+                handleSelectedDapp={this.handleSelectedDapp}
+              />
+            </>
+          ) : (
+            <></>
+          )}
 
-              {/* BELOW - CUSTOMER Orders and Requests */}
+          {/* BELOW - CUSTOMER Orders and Requests */}
 
-              {this.state.selectedDapp === "Your Orders" ? (
-                <>
-                  <YourOrdersPage
-                    isLoginComplete={isLoginComplete}
-                    whichNetwork={this.state.whichNetwork}
-                    accountBalance={this.state.accountBalance}
-                    isLoadingWallet={this.state.isLoadingWallet}
-                    Your2PartyPubKey={this.state.Your2PartyPubKey}
-                    pullInitialTriggerYOURORDERS={
-                      this.pullInitialTriggerYOURORDERS
-                    }
-                    InitialPullYourOrders={this.state.InitialPullYourOrders}
-                    isLoadingYourOrders={this.state.isLoadingYourOrders}
-                    isLoadingYourOrders2Party={
-                      this.state.isLoadingYourOrders2Party
-                    }
-                    isYourOrdersRefreshReady={
-                      this.state.isYourOrdersRefreshReady
-                    }
-                    handleRefresh_YourOrders={this.handleRefresh_YourOrders}
-                    YourOrdersInventories={this.state.YourOrdersInventories}
-                    //
-                    UnconfirmedOrders={this.state.YourOrdersOrders}
-                    ConfirmedOrders={this.state.YourOrdersConfirms}
-                    //
-                    //handleSelectedItem={this.handleSelectedItem}
+          {this.state.selectedDapp === "Your Orders" ? (
+            <>
+              <YourOrdersPage
+                isLoginComplete={isLoginComplete}
+                whichNetwork={this.state.whichNetwork}
+                accountBalance={this.state.accountBalance}
+                isLoadingWallet={this.state.isLoadingWallet}
+                Your2PartyPubKey={this.state.Your2PartyPubKey}
+                pullInitialTriggerYOURORDERS={this.pullInitialTriggerYOURORDERS}
+                InitialPullYourOrders={this.state.InitialPullYourOrders}
+                isLoadingYourOrders={this.state.isLoadingYourOrders}
+                isLoadingYourOrders2Party={this.state.isLoadingYourOrders2Party}
+                isYourOrdersRefreshReady={this.state.isYourOrdersRefreshReady}
+                handleRefresh_YourOrders={this.handleRefresh_YourOrders}
+                YourOrdersInventories={this.state.YourOrdersInventories}
+                //
+                UnconfirmedOrders={this.state.YourOrdersOrders}
+                ConfirmedOrders={this.state.YourOrdersConfirms}
+                //
+                //handleSelectedItem={this.handleSelectedItem}
 
-                    YourOrdersNames={this.state.YourOrdersNames}
-                    //
-                    handleDeleteOrderModal={this.handleDeleteOrderModal}
-                    //
-                    identity={this.state.identity}
-                    identityInfo={this.state.identityInfo}
-                    uniqueName={this.state.uniqueName}
-                    //
-                    mode={this.state.mode}
-                    showModal={this.showModal}
-                    //2PartyComponent - BELOW
-                    mnemonic={this.state.mnemonic}
-                    accountHistory={this.state.accountHistory}
-                    ReqsToYou={this.state.YourOrders2PartyReqs}
-                    ReqsToYouPubKeys={this.state.YourOrdersPubkeys}
-                    //ReqsToYouNames={this.state.ReqsToYouNames}
-                    ReqsToYouResponses={this.state.YourOrders2PartyResps}
-                    show2PartyPayRequestModal={
-                      this.show2PartyPayRequestModal_YOURORDERS
-                    }
-                    showReleaseFundsModal={
-                      this.showReleaseFundsModal_YOURORDERS
-                    }
-                    showAddMessageToResponseModal={
-                      this.showAddMessageToResponseModal_YOURORDERS
-                    }
-                    showWithdrawRefundModal={
-                      this.showWithdrawRefundModal_YOURORDERS
-                    }
-                  />
-                </>
-              ) : (
-                <></>
-              )}
+                YourOrdersNames={this.state.YourOrdersNames}
+                //
+                handleDeleteOrderModal={this.handleDeleteOrderModal}
+                //
+                identity={this.state.identity}
+                identityInfo={this.state.identityInfo}
+                uniqueName={this.state.uniqueName}
+                //
+                mode={this.state.mode}
+                showModal={this.showModal}
+                //2PartyComponent - BELOW
+                mnemonic={this.state.mnemonic}
+                accountHistory={this.state.accountHistory}
+                ReqsToYou={this.state.YourOrders2PartyReqs}
+                ReqsToYouPubKeys={this.state.YourOrdersPubkeys}
+                //ReqsToYouNames={this.state.ReqsToYouNames}
+                ReqsToYouResponses={this.state.YourOrders2PartyResps}
+                show2PartyPayRequestModal={
+                  this.show2PartyPayRequestModal_YOURORDERS
+                }
+                showReleaseFundsModal={this.showReleaseFundsModal_YOURORDERS}
+                showAddMessageToResponseModal={
+                  this.showAddMessageToResponseModal_YOURORDERS
+                }
+                showWithdrawRefundModal={
+                  this.showWithdrawRefundModal_YOURORDERS
+                }
+              />
+            </>
+          ) : (
+            <></>
+          )}
 
-              {this.state.selectedDapp === "Reservations" ? (
-                <>
-                  <YourRsrvsPage
-                    whichNetwork={this.state.whichNetwork}
-                    accountBalance={this.state.accountBalance}
-                    isLoadingWallet={this.state.isLoadingWallet}
-                    Your2PartyPubKey={this.state.Your2PartyPubKey}
-                    isLoginComplete={isLoginComplete}
-                    pullInitialTriggerRSRVS={this.pullInitialTriggerRSRVS}
-                    //InitialPullPROXY={this.state.InitialPullPROXY}
-                    // InitialPullReservations={this.state.InitialPullReservations}
+          {this.state.selectedDapp === "Reservations" ? (
+            <>
+              <YourRsrvsPage
+                whichNetwork={this.state.whichNetwork}
+                accountBalance={this.state.accountBalance}
+                isLoadingWallet={this.state.isLoadingWallet}
+                Your2PartyPubKey={this.state.Your2PartyPubKey}
+                isLoginComplete={isLoginComplete}
+                pullInitialTriggerRSRVS={this.pullInitialTriggerRSRVS}
+                //InitialPullPROXY={this.state.InitialPullPROXY}
+                // InitialPullReservations={this.state.InitialPullReservations}
 
-                    isRsrvsRefreshReady={this.state.isRsrvsRefreshReady}
-                    handleRefresh_Rsrvs={this.handleRefresh_Rsrvs}
-                    // RsrvsRequests: [],
-                    // RsrvsRentals: [],
-                    // RsrvsRentalsNames: [],
-                    RsrvsRentalsNames={this.state.RsrvsRentalsNames}
-                    isLoadingRsrvsRentals={this.state.isLoadingRsrvsRentals}
-                    isLoadingRsrvs2Party={this.state.isLoadingRsrvs2Party}
-                    // RsrvsConfirms: [],
+                isRsrvsRefreshReady={this.state.isRsrvsRefreshReady}
+                handleRefresh_Rsrvs={this.handleRefresh_Rsrvs}
+                // RsrvsRequests: [],
+                // RsrvsRentals: [],
+                // RsrvsRentalsNames: [],
+                RsrvsRentalsNames={this.state.RsrvsRentalsNames}
+                isLoadingRsrvsRentals={this.state.isLoadingRsrvsRentals}
+                isLoadingRsrvs2Party={this.state.isLoadingRsrvs2Party}
+                // RsrvsConfirms: [],
 
-                    Rentals={this.state.RsrvsRentals}
-                    RentalRequests={this.state.RsrvsRequests}
-                    RentalConfirms={this.state.RsrvsConfirms}
-                    handleSelectedRental={this.handleSelectedRental}
-                    //
-                    handleDeleteRequestModal={this.handleDeleteRequestModal}
-                    //
-                    identity={this.state.identity}
-                    identityInfo={this.state.identityInfo}
-                    uniqueName={this.state.uniqueName}
-                    //
-                    mode={this.state.mode}
-                    showModal={this.showModal}
-                    //2PartyComponent - BELOW
-                    //req={req}
-                    mnemonic={this.state.mnemonic}
-                    accountHistory={this.state.accountHistory}
-                    //
-                    DisplayReqsOrPmts={this.state.DisplayReqsOrPmts}
-                    isLoading2Party={this.state.isLoadingRsrvs2Party}
-                    // Rsrvs2PartyReqs: [],
-                    // Rsrvs2PartyResps: [],
-                    // RsrvsRentalsPubkeys: [],
+                Rentals={this.state.RsrvsRentals}
+                RentalRequests={this.state.RsrvsRequests}
+                RentalConfirms={this.state.RsrvsConfirms}
+                handleSelectedRental={this.handleSelectedRental}
+                //
+                handleDeleteRequestModal={this.handleDeleteRequestModal}
+                //
+                identity={this.state.identity}
+                identityInfo={this.state.identityInfo}
+                uniqueName={this.state.uniqueName}
+                //
+                mode={this.state.mode}
+                showModal={this.showModal}
+                //2PartyComponent - BELOW
+                //req={req}
+                mnemonic={this.state.mnemonic}
+                accountHistory={this.state.accountHistory}
+                //
+                DisplayReqsOrPmts={this.state.DisplayReqsOrPmts}
+                isLoading2Party={this.state.isLoadingRsrvs2Party}
+                // Rsrvs2PartyReqs: [],
+                // Rsrvs2PartyResps: [],
+                // RsrvsRentalsPubkeys: [],
 
-                    ReqsToYou={this.state.Rsrvs2PartyReqs}
-                    ReqsToYouPubKeys={this.state.RsrvsRentalsPubkeys}
-                    //ReqsToYouNames={this.state.ReqsToYouNames}
-                    ReqsToYouResponses={this.state.Rsrvs2PartyResps}
-                    show2PartyPayRequestModal={
-                      this.show2PartyPayRequestModal_RSRVS
-                    }
-                    showReleaseFundsModal={this.showReleaseFundsModal_RSRVS}
-                    showAddMessageToResponseModal={
-                      this.showAddMessageToResponseModal_RSRVS
-                    }
-                    showWithdrawRefundModal={this.showWithdrawRefundModal_RSRVS}
-                  />
-                </>
-              ) : (
-                <></>
-              )}
+                ReqsToYou={this.state.Rsrvs2PartyReqs}
+                ReqsToYouPubKeys={this.state.RsrvsRentalsPubkeys}
+                //ReqsToYouNames={this.state.ReqsToYouNames}
+                ReqsToYouResponses={this.state.Rsrvs2PartyResps}
+                show2PartyPayRequestModal={this.show2PartyPayRequestModal_RSRVS}
+                showReleaseFundsModal={this.showReleaseFundsModal_RSRVS}
+                showAddMessageToResponseModal={
+                  this.showAddMessageToResponseModal_RSRVS
+                }
+                showWithdrawRefundModal={this.showWithdrawRefundModal_RSRVS}
+              />
+            </>
+          ) : (
+            <></>
+          )}
 
-              {/* BELOW - MERCHANT Rental Requests */}
+          {/* BELOW - MERCHANT Rental Requests */}
 
-              {this.state.selectedDapp === "Orders Received" ? (
-                <>
-                  <OrdersPage
-                    whichNetwork={this.state.whichNetwork}
-                    accountBalance={this.state.accountBalance}
-                    isLoadingWallet={this.state.isLoadingWallet}
-                    Your2PartyPubKey={this.state.Your2PartyPubKey}
-                    // isLoginComplete={isLoginComplete}
+          {this.state.selectedDapp === "Orders Received" ? (
+            <>
+              <OrdersPage
+                whichNetwork={this.state.whichNetwork}
+                accountBalance={this.state.accountBalance}
+                isLoadingWallet={this.state.isLoadingWallet}
+                Your2PartyPubKey={this.state.Your2PartyPubKey}
+                // isLoginComplete={isLoginComplete}
 
-                    isLoadingOrders2Party={this.state.isLoadingOrders2Party}
-                    isLoadingOrdersMerchant={this.state.isLoadingOrdersMerchant}
-                    isOrdersRefreshReady={this.state.isOrdersRefreshReady}
-                    handleRefresh_Orders={this.handleRefresh_Orders}
-                    Inventory={this.state.Inventory}
-                    UnconfirmedOrders={this.state.OrdersOrders}
-                    ConfirmedOrders={this.state.OrdersConfirms}
-                    OrdersNames={this.state.OrdersNames}
-                    //
-                    OrdersControllers={this.state.OrdersControllers}
-                    OrdersProxies={this.state.OrdersProxies}
-                    handleSelectedItem={this.handleSelectedItem}
-                    handleConfirmOrderModal={this.handleConfirmOrderModal}
-                    handleMerchantOrdersFilter={this.handleMerchantOrdersFilter}
-                    //
-                    pullInitialTriggerORDERS={this.pullInitialTriggerORDERS}
-                    InitialPullOrders={this.state.InitialPullOrders}
-                    //
-                    identity={this.state.identity}
-                    identityInfo={this.state.identityInfo}
-                    uniqueName={this.state.uniqueName}
-                    MerchantNameDoc={this.state.MerchantNameDoc}
-                    DisplayOrders={this.state.DisplayOrders}
-                    //
-                    mode={this.state.mode}
-                    showModal={this.showModal}
-                    //
-                    //2PartyComponent - BELOW
-                    //
-                    mnemonic={this.state.mnemonic}
-                    //
-                    isLoading2Party={this.state.isLoadingOrders2Party}
-                    ReqsFromYou={this.state.Orders2PartyReqs}
-                    ReqsFromYouPubKeys={this.state.OrdersPubkeys}
-                    ReqsFromYouResponses={this.state.Orders2PartyResps}
-                    //PASS CREATE NEW RENTAL 2-PARTY REQUEST
-                    showOrders2PartyReqModal={this.showOrders2PartyReqModal}
-                    showRetrieveFundsModal={this.showRetrieveFundsModal_ORDERS}
-                    showAddMsgToRequestModal={
-                      this.showAddMsgToRequestModal_ORDERS
-                    }
-                    showRefundFundsModal={this.showRefundFundsModal_ORDERS}
-                  />
-                </>
-              ) : (
-                <></>
-              )}
+                isLoadingOrders2Party={this.state.isLoadingOrders2Party}
+                isLoadingOrdersMerchant={this.state.isLoadingOrdersMerchant}
+                isOrdersRefreshReady={this.state.isOrdersRefreshReady}
+                handleRefresh_Orders={this.handleRefresh_Orders}
+                Inventory={this.state.Inventory}
+                UnconfirmedOrders={this.state.OrdersOrders}
+                ConfirmedOrders={this.state.OrdersConfirms}
+                OrdersNames={this.state.OrdersNames}
+                //
+                OrdersControllers={this.state.OrdersControllers}
+                OrdersProxies={this.state.OrdersProxies}
+                handleSelectedItem={this.handleSelectedItem}
+                handleConfirmOrderModal={this.handleConfirmOrderModal}
+                handleMerchantOrdersFilter={this.handleMerchantOrdersFilter}
+                //
+                pullInitialTriggerORDERS={this.pullInitialTriggerORDERS}
+                InitialPullOrders={this.state.InitialPullOrders}
+                //
+                identity={this.state.identity}
+                identityInfo={this.state.identityInfo}
+                uniqueName={this.state.uniqueName}
+                MerchantNameDoc={this.state.MerchantNameDoc}
+                DisplayOrders={this.state.DisplayOrders}
+                //
+                mode={this.state.mode}
+                showModal={this.showModal}
+                //
+                //2PartyComponent - BELOW
+                //
+                mnemonic={this.state.mnemonic}
+                //
+                isLoading2Party={this.state.isLoadingOrders2Party}
+                ReqsFromYou={this.state.Orders2PartyReqs}
+                ReqsFromYouPubKeys={this.state.OrdersPubkeys}
+                ReqsFromYouResponses={this.state.Orders2PartyResps}
+                //PASS CREATE NEW RENTAL 2-PARTY REQUEST
+                showOrders2PartyReqModal={this.showOrders2PartyReqModal}
+                showRetrieveFundsModal={this.showRetrieveFundsModal_ORDERS}
+                showAddMsgToRequestModal={this.showAddMsgToRequestModal_ORDERS}
+                showRefundFundsModal={this.showRefundFundsModal_ORDERS}
+              />
+            </>
+          ) : (
+            <></>
+          )}
 
-              {this.state.selectedDapp === "Rentals" ? (
-                <>
-                  <RequestsPage
-                    whichNetwork={this.state.whichNetwork}
-                    accountBalance={this.state.accountBalance}
-                    isLoadingWallet={this.state.isLoadingWallet}
-                    Your2PartyPubKey={this.state.Your2PartyPubKey}
-                    //isLoading2Party={this.state.isLoading2Party}
-                    isLoginComplete={isLoginComplete}
-                    isLoadingRentalsMerchant={
-                      this.state.isLoadingRentalsMerchant
-                    }
-                    isLoadingRentals2Party={this.state.isLoadingRentals2Party}
-                    pullInitialTriggerRENTALS={this.pullInitialTriggerRENTALS}
-                    isRentalsRefreshReady={this.state.isRentalsRefreshReady}
-                    handleRefresh_Rentals={this.handleRefresh_Rentals}
-                    //InitialPullRentals: true,
+          {this.state.selectedDapp === "Rentals" ? (
+            <>
+              <RequestsPage
+                whichNetwork={this.state.whichNetwork}
+                accountBalance={this.state.accountBalance}
+                isLoadingWallet={this.state.isLoadingWallet}
+                Your2PartyPubKey={this.state.Your2PartyPubKey}
+                //isLoading2Party={this.state.isLoading2Party}
+                isLoginComplete={isLoginComplete}
+                isLoadingRentalsMerchant={this.state.isLoadingRentalsMerchant}
+                isLoadingRentals2Party={this.state.isLoadingRentals2Party}
+                pullInitialTriggerRENTALS={this.pullInitialTriggerRENTALS}
+                isRentalsRefreshReady={this.state.isRentalsRefreshReady}
+                handleRefresh_Rentals={this.handleRefresh_Rentals}
+                //InitialPullRentals: true,
 
-                    // RentalsRentals: [],
-                    //       RentalsRequests: [],
+                // RentalsRentals: [],
+                //       RentalsRequests: [],
 
-                    //       RentalsProxies: [],
-                    //       RentalsNames: [],
-                    //       RentalsControllers: [],
+                //       RentalsProxies: [],
+                //       RentalsNames: [],
+                //       RentalsControllers: [],
 
-                    Rentals={this.state.RentalsRentals}
-                    RentalRequests={this.state.RentalsRequests}
-                    RentalConfirms={this.state.RentalsConfirms}
-                    RentalRequestsNames={this.state.RentalsNames}
-                    RentalRequestsProxies={this.state.RentalsProxies}
-                    RentalRequestsControllers={this.state.RentalsControllers}
-                    //handleSelectedRental={this.handleSelectedRental}
-                    handleConfirmRequestModal={this.handleConfirmRequestModal}
-                    handleMerchantRequestFilter={
-                      this.handleMerchantRequestFilter
-                    }
-                    handleDeleteBlockConfirmModal={
-                      this.handleDeleteBlockConfirmModal
-                    }
-                    //
+                Rentals={this.state.RentalsRentals}
+                RentalRequests={this.state.RentalsRequests}
+                RentalConfirms={this.state.RentalsConfirms}
+                RentalRequestsNames={this.state.RentalsNames}
+                RentalRequestsProxies={this.state.RentalsProxies}
+                RentalRequestsControllers={this.state.RentalsControllers}
+                //handleSelectedRental={this.handleSelectedRental}
+                handleConfirmRequestModal={this.handleConfirmRequestModal}
+                handleMerchantRequestFilter={this.handleMerchantRequestFilter}
+                handleDeleteBlockConfirmModal={
+                  this.handleDeleteBlockConfirmModal
+                }
+                //
 
-                    identity={this.state.identity}
-                    identityInfo={this.state.identityInfo}
-                    uniqueName={this.state.uniqueName}
-                    DisplayRequests={this.state.DisplayRequests}
-                    //
-                    mode={this.state.mode}
-                    showModal={this.showModal}
-                    //
+                identity={this.state.identity}
+                identityInfo={this.state.identityInfo}
+                uniqueName={this.state.uniqueName}
+                DisplayRequests={this.state.DisplayRequests}
+                //
+                mode={this.state.mode}
+                showModal={this.showModal}
+                //
 
-                    //2PartyComponent - BELOW
-                    //
-                    mnemonic={this.state.mnemonic}
-                    //
-                    //       RentalsPubkeys: [],
-                    //       RentalsConfirms: [],
-                    //       Rentals2PartyReqs: [],
-                    //       Rentals2PartyResps: [],
-                    DisplayReqsOrPmts={this.state.DisplayReqsOrPmts}
-                    isLoading2Party={this.state.isLoadingRentals2Party}
-                    ReqsFromYou={this.state.Rentals2PartyReqs}
-                    ReqsFromYouPubKeys={this.state.RentalsPubkeys}
-                    //ReqsFromYouNames={this.state.ReqsFromYouNames}
-                    ReqsFromYouResponses={this.state.Rentals2PartyResps}
-                    //PASS CREATE NEW RENTAL 2-PARTY REQUEST
-                    showRentals2PartyReqModal={this.showRentals2PartyReqModal}
-                    showRetrieveFundsModal={this.showRetrieveFundsModal_RENTALS}
-                    showAddMsgToRequestModal={
-                      this.showAddMsgToRequestModal_RENTALS
-                    }
-                    showRefundFundsModal={this.showRefundFundsModal_RENTALS}
-                  />
-                </>
-              ) : (
-                <></>
-              )}
+                //2PartyComponent - BELOW
+                //
+                mnemonic={this.state.mnemonic}
+                //
+                //       RentalsPubkeys: [],
+                //       RentalsConfirms: [],
+                //       Rentals2PartyReqs: [],
+                //       Rentals2PartyResps: [],
+                DisplayReqsOrPmts={this.state.DisplayReqsOrPmts}
+                isLoading2Party={this.state.isLoadingRentals2Party}
+                ReqsFromYou={this.state.Rentals2PartyReqs}
+                ReqsFromYouPubKeys={this.state.RentalsPubkeys}
+                //ReqsFromYouNames={this.state.ReqsFromYouNames}
+                ReqsFromYouResponses={this.state.Rentals2PartyResps}
+                //PASS CREATE NEW RENTAL 2-PARTY REQUEST
+                showRentals2PartyReqModal={this.showRentals2PartyReqModal}
+                showRetrieveFundsModal={this.showRetrieveFundsModal_RENTALS}
+                showAddMsgToRequestModal={this.showAddMsgToRequestModal_RENTALS}
+                showRefundFundsModal={this.showRefundFundsModal_RENTALS}
+              />
+            </>
+          ) : (
+            <></>
+          )}
 
-              {/* {this.state.selectedDapp === "Wallet" ? (
+          {/* {this.state.selectedDapp === "Wallet" ? (
                 <>
                   <WalletPage
                     WALLET_Login7={this.state.WALLET_Login7} //This is for the enable pay to name control
@@ -13975,12 +13963,12 @@ class App extends React.Component {
                 <></>
               )} */}
 
-              {/* Add  Dapp here */}
-              {/* <h1 style={{ paddingTop: "1rem", textAlign: "center" }}>
+          {/* Add  Dapp here */}
+          {/* <h1 style={{ paddingTop: "1rem", textAlign: "center" }}>
                     Still Constructing
                   </h1> */}
 
-              {this.state.selectedDapp === "Reviews" ? (
+          {/* {this.state.selectedDapp === "Reviews" ? (
                 <>
                   <ReviewsPage
                     isLoginComplete={isLoginComplete}
@@ -14014,9 +14002,7 @@ class App extends React.Component {
                 </>
               ) : (
                 <></>
-              )}
-            </Col>
-          </Row>
+              )} */}
         </Container>
         {/* #####    BELOW ARE THE MODALS    #####    */}
         {this.state.isModalShowing &&

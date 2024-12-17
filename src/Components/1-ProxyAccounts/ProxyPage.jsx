@@ -13,7 +13,10 @@
 // Maybe add the credits in an identity as well!!
 
 import React from "react";
-import Badge from "react-bootstrap/Badge";
+
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+
 import Card from "react-bootstrap/Card";
 import Spinner from "react-bootstrap/Spinner";
 import Button from "react-bootstrap/Button";
@@ -84,52 +87,53 @@ class ProxyPage extends React.Component {
         // }
         //and dont have credits yet so just place Holder
         return (
-          <Card
-            id="card"
-            key={index}
-            bg={cardBkg}
-            text={cardText}
-            style={{
-              marginBottom: ".5rem",
-            }}
-          >
-            <Card.Body>
-              <Card.Title className="cardTitle">
-                <div>
-                  {proxyVerified !== undefined ? (
-                    <>
-                      <h5>
-                        <b style={{ color: "#008de4" }}>
-                          {this.props.uniqueName}*
-                        </b>
-                      </h5>
-                    </>
-                  ) : (
-                    <>
-                      <h5>
-                        <b style={{ color: "red" }}>No Connected Proxy</b>
-                      </h5>
-                    </>
-                  )}
+          <Col key={index} lg={4}>
+            <Card
+              id="card"
+              //key={index}
+              bg={cardBkg}
+              text={cardText}
+              style={{
+                marginBottom: ".5rem",
+              }}
+            >
+              <Card.Body>
+                <Card.Title className="cardTitle">
+                  <div>
+                    {proxyVerified !== undefined ? (
+                      <>
+                        <h5>
+                          <b style={{ color: "#008de4" }}>
+                            {this.props.uniqueName}*
+                          </b>
+                        </h5>
+                      </>
+                    ) : (
+                      <>
+                        <h5>
+                          <b style={{ color: "red" }}>No Connected Proxy</b>
+                        </h5>
+                      </>
+                    )}
 
-                  {proxy[1] !== undefined && proxy[1] !== "" ? (
-                    <>
-                      <p>{proxy[1]}</p>
-                    </>
-                  ) : (
-                    <>
-                      <p style={{ color: "red" }}>No Label</p>
-                    </>
-                  )}
-                </div>
-                {/* 
+                    {proxy[1] !== undefined && proxy[1] !== "" ? (
+                      <>
+                        <p>{proxy[1]}</p>
+                      </>
+                    ) : (
+                      <>
+                        <p style={{ color: "red" }}>No Label</p>
+                      </>
+                    )}
+                  </div>
+                  {/* 
           <Button variant="outline-primary" 
           onClick={()=> this.handleNameClick()          
           }
           >Copy</Button>
           {this.state.copiedName?<span>☑️🔵☑️</span>:<></>} */}
 
-                {/* <span className="textsmaller">
+                  {/* <span className="textsmaller">
                 
                 {this.formatDate(
                   this.props.tuple[1].$createdAt,
@@ -137,122 +141,128 @@ class ProxyPage extends React.Component {
                   this.props.yesterday
                 )}
               </span> */}
-              </Card.Title>
+                </Card.Title>
 
-              <div
-                style={{
-                  textAlign: "center",
-                  marginTop: "1.5rem",
-                  marginBottom: "1.5rem",
-                }}
-              >
-                <p>
-                  {/* <Badge className="paddingBadge" bg="primary" pill> */}
-                  {/* {this.handleCreditsToTopup()}  */}
-                  This is where the proxy's <b>Platform Credits</b> will display
-                  when the getIdentitiesBalances is added to the JS SDK.
-                  {/* </Badge> */}
-                </p>
-                {proxyVerified !== undefined ? (
-                  <>
-                    <p style={{ fontSize: "small", opacity: "0.8" }}>
-                      Created:
-                      {this.handleTimeToDate(proxyVerified.$createdAt)}
-                    </p>
-                  </>
-                ) : (
-                  <></>
-                )}
+                <div
+                  style={{
+                    textAlign: "center",
+                    marginTop: "1.5rem",
+                    marginBottom: "1.5rem",
+                  }}
+                >
+                  <p>
+                    {/* <Badge className="paddingBadge" bg="primary" pill> */}
+                    {/* {this.handleCreditsToTopup()}  */}
+                    This is where the proxy's <b>Platform Credits</b> will
+                    display when the getIdentitiesBalances is added to the JS
+                    SDK.
+                    {/* </Badge> */}
+                  </p>
+                  {proxyVerified !== undefined ? (
+                    <>
+                      <p style={{ fontSize: "small", opacity: "0.8" }}>
+                        Created:
+                        {this.handleTimeToDate(proxyVerified.$createdAt)}
+                      </p>
+                    </>
+                  ) : (
+                    <></>
+                  )}
 
-                {/* <h5>
+                  {/* <h5>
                 <b>the credits in Topups</b>
               </h5> */}
-              </div>
+                </div>
 
-              {/* <Card.Text
+                {/* <Card.Text
               onClick={() => this.handleReplyClick()}
               style={{ whiteSpace: "pre-wrap" }}
             >
             
               Hello!
             </Card.Text> */}
-              <div className="TwoButtons">
-                {/* <div className="ButtonRightNoUnderline"> */}
-                <Button
-                  variant="primary"
-                  style={{}}
-                  onClick={() => this.props.handleDeleteProxy(proxy, index)}
-                >
-                  <b>Delete Proxy</b>
-                  {/* <Badge className="createwalletbtn" bg="light" text="dark" pill>
+                <div className="TwoButtons">
+                  {/* <div className="ButtonRightNoUnderline"> */}
+                  <Button
+                    variant="primary"
+                    style={{}}
+                    onClick={() => this.props.handleDeleteProxy(proxy, index)}
+                  >
+                    <b>Delete Proxy</b>
+                    {/* <Badge className="createwalletbtn" bg="light" text="dark" pill>
             {this.handleTimeToDate(acceptedGroup.$createdAt)}
           </Badge> */}
-                </Button>
-                <Button
-                  variant="primary"
-                  style={{}}
-                  onClick={() => this.props.handleEditProxy(proxy, index)}
-                >
-                  <b>Edit Proxy</b>
-                  {/* <Badge className="createwalletbtn" bg="light" text="dark" pill>
+                  </Button>
+                  <Button
+                    variant="primary"
+                    style={{}}
+                    onClick={() => this.props.handleEditProxy(proxy, index)}
+                  >
+                    <b>Edit Proxy</b>
+                    {/* <Badge className="createwalletbtn" bg="light" text="dark" pill>
             {this.handleTimeToDate(acceptedGroup.$createdAt)}
           </Badge> */}
-                </Button>
-              </div>
-            </Card.Body>
-          </Card>
+                  </Button>
+                </div>
+              </Card.Body>
+            </Card>
+          </Col>
         );
       });
     }
     return (
       <>
         <div className="bodytext">
-          <CreditsOnPage
-            identityInfo={this.props.identityInfo}
-            uniqueName={this.props.uniqueName}
-            showModal={this.props.showModal}
-          />
+          <Row className="justify-content-md-center">
+            <Col md={9} lg={8} xl={7} xxl={6}>
+              <CreditsOnPage
+                identityInfo={this.props.identityInfo}
+                uniqueName={this.props.uniqueName}
+                showModal={this.props.showModal}
+              />
 
-          <div className="cardTitle">
-            <h3>
-              <b>Proxy Accounts</b>
-            </h3>
-          </div>
+              <div className="cardTitle">
+                <h3>
+                  <b>Proxy Accounts</b>
+                </h3>
+              </div>
 
-          <div className="d-grid gap-2">
-            <Button
-              // style={{ marginRight: "1rem", marginBottom: ".5rem" }}
-              size="lg"
-              variant="primary"
-              onClick={() => this.props.showModal("AddProxyModal")}
-            >
-              <b>Add Proxy</b>
-            </Button>
-          </div>
-          <p></p>
-          <div className="d-grid gap-2">
-            <Button
-              // style={{ marginRight: "1rem", marginBottom: ".5rem" }}
-              //size="lg"
-              variant="success"
-              onClick={() => this.props.showModal("HowProxyModal")}
-            >
-              <b>How to Add Proxy?</b>
-            </Button>
-          </div>
-          <p></p>
-          {this.props.isLoadingProxy ? (
-            <>
-              <div id="spinner">
-                <Spinner animation="border" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </Spinner>
+              <div className="d-grid gap-2">
+                <Button
+                  // style={{ marginRight: "1rem", marginBottom: ".5rem" }}
+                  size="lg"
+                  variant="primary"
+                  onClick={() => this.props.showModal("AddProxyModal")}
+                >
+                  <b>Add Proxy</b>
+                </Button>
               </div>
               <p></p>
-            </>
-          ) : (
-            <></>
-          )}
+              <div className="d-grid gap-2">
+                <Button
+                  // style={{ marginRight: "1rem", marginBottom: ".5rem" }}
+                  //size="lg"
+                  variant="success"
+                  onClick={() => this.props.showModal("HowProxyModal")}
+                >
+                  <b>How to Add Proxy?</b>
+                </Button>
+              </div>
+              <p></p>
+              {this.props.isLoadingProxy ? (
+                <>
+                  <div id="spinner">
+                    <Spinner animation="border" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </Spinner>
+                  </div>
+                  <p></p>
+                </>
+              ) : (
+                <></>
+              )}
+            </Col>
+          </Row>
 
           {!this.props.isLoadingProxy &&
           this.props.ProxyController.proxyList.length === 0 ? (
@@ -260,7 +270,9 @@ class ProxyPage extends React.Component {
               Proxies, you have created will appear here!
             </p>
           ) : (
-            <>{proxyCards}</>
+            <>
+              <Row className="justify-content-md-center">{proxyCards}</Row>
+            </>
           )}
         </div>
       </>

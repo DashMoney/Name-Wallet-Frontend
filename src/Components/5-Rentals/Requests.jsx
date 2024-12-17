@@ -1,4 +1,7 @@
 import React from "react";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+
 import Form from "react-bootstrap/Form";
 
 import Request from "./Request";
@@ -59,34 +62,36 @@ class Requests extends React.Component {
       requests = unconfirmedReqs.map((request, index) => {
         //console.log(post);
         return (
-          <div key={index} style={{ marginBottom: ".5rem" }}>
-            <Request
-              whichNetwork={this.props.whichNetwork}
-              //key={index}
+          <Col key={index} lg={4}>
+            <div style={{ marginBottom: ".5rem" }}>
+              <Request
+                whichNetwork={this.props.whichNetwork}
+                //key={index}
 
-              mode={this.props.mode}
-              index={index}
-              request={request}
-              today={today}
-              yesterday={yesterday}
-              identity={this.props.identity} //For if my review so can edit
-              uniqueName={this.props.uniqueName}
-              handleConfirmRequestModal={this.props.handleConfirmRequestModal}
-              //
-              DisplayRequests={this.props.DisplayRequests}
-              handleSelectedYourRsrv={this.props.handleSelectedYourRsrv}
-              handleSelectedDapp={this.props.handleSelectedDapp}
-              handleSelectedRental={this.props.handleSelectedRental}
-              isLoadingRentals2Party={this.props.isLoadingRentals2Party}
-              isLoadingRequests={this.props.isLoadingRentalsMerchant}
-              Rentals={this.props.Rentals}
-              // RentalRequests={this.props.RentalRequests}
-              RentalConfirms={rsrvConfirms}
-              RentalRequestsProxies={this.props.RentalRequestsProxies}
-              RentalRequestsControllers={this.props.RentalRequestsControllers}
-              RentalRequestsNames={this.props.RentalRequestsNames}
-            />
-          </div>
+                mode={this.props.mode}
+                index={index}
+                request={request}
+                today={today}
+                yesterday={yesterday}
+                identity={this.props.identity} //For if my review so can edit
+                uniqueName={this.props.uniqueName}
+                handleConfirmRequestModal={this.props.handleConfirmRequestModal}
+                //
+                DisplayRequests={this.props.DisplayRequests}
+                handleSelectedYourRsrv={this.props.handleSelectedYourRsrv}
+                handleSelectedDapp={this.props.handleSelectedDapp}
+                handleSelectedRental={this.props.handleSelectedRental}
+                isLoadingRentals2Party={this.props.isLoadingRentals2Party}
+                isLoadingRequests={this.props.isLoadingRentalsMerchant}
+                Rentals={this.props.Rentals}
+                // RentalRequests={this.props.RentalRequests}
+                RentalConfirms={rsrvConfirms}
+                RentalRequestsProxies={this.props.RentalRequestsProxies}
+                RentalRequestsControllers={this.props.RentalRequestsControllers}
+                RentalRequestsNames={this.props.RentalRequestsNames}
+              />
+            </div>
+          </Col>
         );
       });
     }
@@ -95,53 +100,55 @@ class Requests extends React.Component {
       requests = confirmedReqs.map((request, index) => {
         //console.log(post);
         return (
-          <div key={index} style={{ marginBottom: ".5rem" }}>
-            <Request
-              whichNetwork={this.props.whichNetwork}
-              //key={index}
-              mode={this.props.mode}
-              index={index}
-              request={request}
-              today={today}
-              yesterday={yesterday}
-              identity={this.props.identity} //For if my review so can edit
-              uniqueName={this.props.uniqueName}
-              handleMerchantReplyModalShow={
-                this.props.handleMerchantReplyModalShow
-              }
-              //
-              DisplayRequests={this.props.DisplayRequests}
-              handleSelectedYourRsrv={this.props.handleSelectedYourRsrv}
-              handleSelectedDapp={this.props.handleSelectedDapp}
-              handleSelectedRental={this.props.handleSelectedRental}
-              isLoadingRentals2Party={this.props.isLoadingRentals2Party}
-              isLoadingRequests={this.props.isLoadingRentalsMerchant}
-              Rentals={this.props.Rentals}
-              //RentalRequests={this.props.RentalRequests}
-              RentalConfirms={rsrvConfirms}
-              RentalRequestsProxies={this.props.RentalRequestsProxies}
-              RentalRequestsControllers={this.props.RentalRequestsControllers}
-              RentalRequestsNames={this.props.RentalRequestsNames}
-              //
-              //2PartyComponent - BELOW
-              //
-              mnemonic={this.props.mnemonic}
-              accountHistory={this.props.accountHistory}
-              accountBalance={this.props.accountBalance}
-              //
-              DisplayReqsOrPmts={this.props.DisplayReqsOrPmts}
-              isLoading2Party={this.props.isLoading2Party}
-              Your2PartyPubKey={this.props.Your2PartyPubKey}
-              ReqsFromYou={this.props.ReqsFromYou}
-              ReqsFromYouPubKeys={this.props.ReqsFromYouPubKeys}
-              // ReqsFromYouNames={this.props.ReqsFromYouNames}
-              ReqsFromYouResponses={this.props.ReqsFromYouResponses}
-              showRentals2PartyReqModal={this.props.showRentals2PartyReqModal}
-              showRetrieveFundsModal={this.props.showRetrieveFundsModal}
-              showAddMsgToRequestModal={this.props.showAddMsgToRequestModal}
-              showRefundFundsModal={this.props.showRefundFundsModal}
-            />
-          </div>
+          <Col key={index} lg={4}>
+            <div style={{ marginBottom: ".5rem" }}>
+              <Request
+                whichNetwork={this.props.whichNetwork}
+                //key={index}
+                mode={this.props.mode}
+                index={index}
+                request={request}
+                today={today}
+                yesterday={yesterday}
+                identity={this.props.identity} //For if my review so can edit
+                uniqueName={this.props.uniqueName}
+                handleMerchantReplyModalShow={
+                  this.props.handleMerchantReplyModalShow
+                }
+                //
+                DisplayRequests={this.props.DisplayRequests}
+                handleSelectedYourRsrv={this.props.handleSelectedYourRsrv}
+                handleSelectedDapp={this.props.handleSelectedDapp}
+                handleSelectedRental={this.props.handleSelectedRental}
+                isLoadingRentals2Party={this.props.isLoadingRentals2Party}
+                isLoadingRequests={this.props.isLoadingRentalsMerchant}
+                Rentals={this.props.Rentals}
+                //RentalRequests={this.props.RentalRequests}
+                RentalConfirms={rsrvConfirms}
+                RentalRequestsProxies={this.props.RentalRequestsProxies}
+                RentalRequestsControllers={this.props.RentalRequestsControllers}
+                RentalRequestsNames={this.props.RentalRequestsNames}
+                //
+                //2PartyComponent - BELOW
+                //
+                mnemonic={this.props.mnemonic}
+                accountHistory={this.props.accountHistory}
+                accountBalance={this.props.accountBalance}
+                //
+                DisplayReqsOrPmts={this.props.DisplayReqsOrPmts}
+                isLoading2Party={this.props.isLoading2Party}
+                Your2PartyPubKey={this.props.Your2PartyPubKey}
+                ReqsFromYou={this.props.ReqsFromYou}
+                ReqsFromYouPubKeys={this.props.ReqsFromYouPubKeys}
+                // ReqsFromYouNames={this.props.ReqsFromYouNames}
+                ReqsFromYouResponses={this.props.ReqsFromYouResponses}
+                showRentals2PartyReqModal={this.props.showRentals2PartyReqModal}
+                showRetrieveFundsModal={this.props.showRetrieveFundsModal}
+                showAddMsgToRequestModal={this.props.showAddMsgToRequestModal}
+                showRefundFundsModal={this.props.showRefundFundsModal}
+              />
+            </div>
+          </Col>
         );
       });
     }
@@ -152,31 +159,33 @@ class Requests extends React.Component {
       blocks = blockedConfirms.map((confirmBlock, index) => {
         //console.log(post);
         return (
-          <div key={index} style={{ marginBottom: ".5rem" }}>
-            <BlockedOff
-              //key={index}
-              mode={this.props.mode}
-              index={index}
-              confirmBlock={confirmBlock}
-              today={today}
-              yesterday={yesterday}
-              identity={this.props.identity} //For if my review so can edit
-              //uniqueName={this.props.uniqueName}
+          <Col key={index} lg={4}>
+            <div style={{ marginBottom: ".5rem" }}>
+              <BlockedOff
+                //key={index}
+                mode={this.props.mode}
+                index={index}
+                confirmBlock={confirmBlock}
+                today={today}
+                yesterday={yesterday}
+                identity={this.props.identity} //For if my review so can edit
+                //uniqueName={this.props.uniqueName}
 
-              DisplayRequests={this.props.DisplayRequests}
-              handleSelectedYourRsrv={this.props.handleSelectedYourRsrv}
-              handleSelectedDapp={this.props.handleSelectedDapp}
-              handleSelectedRental={this.props.handleSelectedRental}
-              handleDeleteBlockConfirmModal={
-                this.props.handleDeleteBlockConfirmModal
-              }
-              //
-              // isLoadingRentals={this.props.isLoadingRentals}
-              isLoadingRequests={this.props.isLoadingRequests}
-              Rentals={this.props.Rentals}
-              //RentalConfirms={this.props.RentalConfirms}
-            />
-          </div>
+                DisplayRequests={this.props.DisplayRequests}
+                handleSelectedYourRsrv={this.props.handleSelectedYourRsrv}
+                handleSelectedDapp={this.props.handleSelectedDapp}
+                handleSelectedRental={this.props.handleSelectedRental}
+                handleDeleteBlockConfirmModal={
+                  this.props.handleDeleteBlockConfirmModal
+                }
+                //
+                // isLoadingRentals={this.props.isLoadingRentals}
+                isLoadingRequests={this.props.isLoadingRequests}
+                Rentals={this.props.Rentals}
+                //RentalConfirms={this.props.RentalConfirms}
+              />
+            </div>
+          </Col>
         );
       });
     }
@@ -194,42 +203,52 @@ class Requests extends React.Component {
 
     return (
       <>
-        <Form
-          noValidate
-          // onSubmit={this.handleSubmitClick}
-          onChange={this.onChange}
-        >
-          {/* REQUEST FILTER FORM BELOW */}
+        <Row className="justify-content-md-center">
+          <Col md={9} lg={8} xl={7} xxl={6}>
+            <Form
+              noValidate
+              // onSubmit={this.handleSubmitClick}
+              onChange={this.onChange}
+            >
+              {/* REQUEST FILTER FORM BELOW */}
 
-          <Form.Group className="mb-3" controlId="formRequestFilter">
-            {/* <Form.Label>
+              <Form.Group className="mb-3" controlId="formRequestFilter">
+                {/* <Form.Label>
             <h5 style={{ marginTop: ".5rem", marginBottom: ".2rem" }}>
               Payment Schedule
             </h5>
           </Form.Label> */}
 
-            <Form.Select
-              style={{ fontWeight: "bold" }}
-              // bg={formBkg}
-              //text={formText}
-              data-bs-theme={formBkg}
-              defaultValue={this.props.DisplayRequests}
-            >
-              <option value="Requests" style={{ fontWeight: "bold" }}>
-                Requests
-              </option>
-              <option value="Confirmed" style={{ fontWeight: "bold" }}>
-                Confirmed
-              </option>
-              <option value="Blocked Off" style={{ fontWeight: "bold" }}>
-                Blocked Off
-              </option>
-            </Form.Select>
-          </Form.Group>
-        </Form>
+                <Form.Select
+                  style={{ fontWeight: "bold" }}
+                  // bg={formBkg}
+                  //text={formText}
+                  data-bs-theme={formBkg}
+                  defaultValue={this.props.DisplayRequests}
+                >
+                  <option value="Requests" style={{ fontWeight: "bold" }}>
+                    Requests
+                  </option>
+                  <option value="Confirmed" style={{ fontWeight: "bold" }}>
+                    Confirmed
+                  </option>
+                  <option value="Blocked Off" style={{ fontWeight: "bold" }}>
+                    Blocked Off
+                  </option>
+                </Form.Select>
+              </Form.Group>
+            </Form>
 
-        <p></p>
-        {this.props.DisplayRequests === "Requests" ? <>{requests}</> : <></>}
+            <p></p>
+          </Col>
+        </Row>
+        {this.props.DisplayRequests === "Requests" ? (
+          <>
+            <Row className="justify-content-md-center">{requests}</Row>
+          </>
+        ) : (
+          <></>
+        )}
         {this.props.DisplayRequests === "Requests" &&
         unconfirmedReqs.length === 0 ? (
           <>
@@ -240,7 +259,13 @@ class Requests extends React.Component {
         ) : (
           <></>
         )}
-        {this.props.DisplayRequests === "Confirmed" ? <>{requests}</> : <></>}
+        {this.props.DisplayRequests === "Confirmed" ? (
+          <>
+            <Row className="justify-content-md-center">{requests}</Row>
+          </>
+        ) : (
+          <></>
+        )}
         {this.props.DisplayRequests === "Confirmed" &&
         confirmedReqs.length === 0 ? (
           <>
@@ -251,12 +276,18 @@ class Requests extends React.Component {
         ) : (
           <></>
         )}
-        {this.props.DisplayRequests === "Blocked Off" ? <>{blocks}</> : <></>}
+        {this.props.DisplayRequests === "Blocked Off" ? (
+          <>
+            <Row className="justify-content-md-center">{blocks}</Row>
+          </>
+        ) : (
+          <></>
+        )}
         {this.props.DisplayRequests === "Blocked Off" &&
         blockedConfirms.length === 0 ? (
           <>
             <p style={{ textAlign: "center" }}>
-              There are blocked off dates presently.
+              There are no blocked off dates presently.
             </p>
           </>
         ) : (

@@ -1,4 +1,7 @@
 import React from "react";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+
 import Form from "react-bootstrap/Form";
 
 import Order from "./Order";
@@ -49,32 +52,34 @@ class Orders extends React.Component {
       orders = unconfirmedOrders.map((order, index) => {
         //console.log(post);
         return (
-          <div key={index} style={{ marginBottom: "0.5rem" }}>
-            <Order
-              whichNetwork={this.props.whichNetwork}
-              //key={index}
+          <Col key={index} lg={4}>
+            <div style={{ marginBottom: "0.5rem" }}>
+              <Order
+                whichNetwork={this.props.whichNetwork}
+                //key={index}
 
-              mode={this.props.mode}
-              index={index}
-              order={order}
-              today={today}
-              yesterday={yesterday}
-              identity={this.props.identity} //For if my review so can edit
-              uniqueName={this.props.uniqueName}
-              handleConfirmOrderModal={this.props.handleConfirmOrderModal}
-              //
-              DisplayOrders={this.props.DisplayOrders}
-              handleSelectedYourOrder={this.props.handleSelectedYourOrder}
-              handleSelectedPage={this.props.handleSelectedPage}
-              handleSelectedItem={this.props.handleSelectedItem}
-              Inventory={this.props.Inventory}
-              // UnconfirmedOrders={this.props.UnconfirmedOrders}
-              ConfirmedOrders={this.props.ConfirmedOrders}
-              OrdersControllers={this.props.OrdersControllers}
-              OrdersProxies={this.props.OrdersProxies}
-              OrdersNames={this.props.OrdersNames}
-            />
-          </div>
+                mode={this.props.mode}
+                index={index}
+                order={order}
+                today={today}
+                yesterday={yesterday}
+                identity={this.props.identity} //For if my review so can edit
+                uniqueName={this.props.uniqueName}
+                handleConfirmOrderModal={this.props.handleConfirmOrderModal}
+                //
+                DisplayOrders={this.props.DisplayOrders}
+                handleSelectedYourOrder={this.props.handleSelectedYourOrder}
+                handleSelectedPage={this.props.handleSelectedPage}
+                handleSelectedItem={this.props.handleSelectedItem}
+                Inventory={this.props.Inventory}
+                // UnconfirmedOrders={this.props.UnconfirmedOrders}
+                ConfirmedOrders={this.props.ConfirmedOrders}
+                OrdersControllers={this.props.OrdersControllers}
+                OrdersProxies={this.props.OrdersProxies}
+                OrdersNames={this.props.OrdersNames}
+              />
+            </div>
+          </Col>
         );
       });
     }
@@ -83,52 +88,54 @@ class Orders extends React.Component {
       orders = confirmedOrders.map((order, index) => {
         //console.log(post);
         return (
-          <div key={index} style={{ marginBottom: "0.5rem" }}>
-            <Order
-              whichNetwork={this.props.whichNetwork}
-              //key={index}
-              mode={this.props.mode}
-              index={index}
-              order={order}
-              today={today}
-              yesterday={yesterday}
-              identity={this.props.identity} //For if my review so can edit
-              uniqueName={this.props.uniqueName}
-              handleConfirmOrderModal={this.props.handleConfirmOrderModal}
-              handleMerchantReplyModalShow={
-                this.props.handleMerchantReplyModalShow
-              }
-              //
-              DisplayOrders={this.props.DisplayOrders}
-              handleSelectedYourOrder={this.props.handleSelectedYourOrder}
-              handleSelectedPage={this.props.handleSelectedPage}
-              handleSelectedItem={this.props.handleSelectedItem}
-              Inventory={this.props.Inventory}
-              // UnconfirmedOrders={this.props.UnconfirmedOrders}
-              ConfirmedOrders={this.props.ConfirmedOrders}
-              OrdersControllers={this.props.OrdersControllers}
-              OrdersProxies={this.props.OrdersProxies}
-              OrdersNames={this.props.OrdersNames}
-              //
-              //2PartyComponent - BELOW
-              //
-              mnemonic={this.props.mnemonic}
-              accountHistory={this.props.accountHistory}
-              accountBalance={this.props.accountBalance}
-              //
-              isLoading2Party={this.props.isLoading2Party}
-              Your2PartyPubKey={this.props.Your2PartyPubKey}
-              ReqsFromYou={this.props.ReqsFromYou}
-              ReqsFromYouPubKeys={this.props.ReqsFromYouPubKeys}
-              // ReqsFromYouNames={this.props.ReqsFromYouNames}
-              ReqsFromYouResponses={this.props.ReqsFromYouResponses}
-              //
-              showOrders2PartyReqModal={this.props.showOrders2PartyReqModal}
-              showRetrieveFundsModal={this.props.showRetrieveFundsModal}
-              showAddMsgToRequestModal={this.props.showAddMsgToRequestModal}
-              showRefundFundsModal={this.props.showRefundFundsModal}
-            />
-          </div>
+          <Col key={index} lg={4}>
+            <div style={{ marginBottom: "0.5rem" }}>
+              <Order
+                whichNetwork={this.props.whichNetwork}
+                //key={index}
+                mode={this.props.mode}
+                index={index}
+                order={order}
+                today={today}
+                yesterday={yesterday}
+                identity={this.props.identity} //For if my review so can edit
+                uniqueName={this.props.uniqueName}
+                handleConfirmOrderModal={this.props.handleConfirmOrderModal}
+                handleMerchantReplyModalShow={
+                  this.props.handleMerchantReplyModalShow
+                }
+                //
+                DisplayOrders={this.props.DisplayOrders}
+                handleSelectedYourOrder={this.props.handleSelectedYourOrder}
+                handleSelectedPage={this.props.handleSelectedPage}
+                handleSelectedItem={this.props.handleSelectedItem}
+                Inventory={this.props.Inventory}
+                // UnconfirmedOrders={this.props.UnconfirmedOrders}
+                ConfirmedOrders={this.props.ConfirmedOrders}
+                OrdersControllers={this.props.OrdersControllers}
+                OrdersProxies={this.props.OrdersProxies}
+                OrdersNames={this.props.OrdersNames}
+                //
+                //2PartyComponent - BELOW
+                //
+                mnemonic={this.props.mnemonic}
+                accountHistory={this.props.accountHistory}
+                accountBalance={this.props.accountBalance}
+                //
+                isLoading2Party={this.props.isLoading2Party}
+                Your2PartyPubKey={this.props.Your2PartyPubKey}
+                ReqsFromYou={this.props.ReqsFromYou}
+                ReqsFromYouPubKeys={this.props.ReqsFromYouPubKeys}
+                // ReqsFromYouNames={this.props.ReqsFromYouNames}
+                ReqsFromYouResponses={this.props.ReqsFromYouResponses}
+                //
+                showOrders2PartyReqModal={this.props.showOrders2PartyReqModal}
+                showRetrieveFundsModal={this.props.showRetrieveFundsModal}
+                showAddMsgToRequestModal={this.props.showAddMsgToRequestModal}
+                showRefundFundsModal={this.props.showRefundFundsModal}
+              />
+            </div>
+          </Col>
         );
       });
     }
@@ -146,39 +153,49 @@ class Orders extends React.Component {
 
     return (
       <>
-        <Form
-          noValidate
-          // onSubmit={this.handleSubmitClick}
-          onChange={this.onChange}
-        >
-          {/* ORDER FILTER FORM BELOW */}
+        <Row className="justify-content-md-center">
+          <Col md={9} lg={8} xl={7} xxl={6}>
+            <Form
+              noValidate
+              // onSubmit={this.handleSubmitClick}
+              onChange={this.onChange}
+            >
+              {/* ORDER FILTER FORM BELOW */}
 
-          <Form.Group className="mb-3" controlId="formOrderFilter">
-            {/* <Form.Label>
+              <Form.Group className="mb-3" controlId="formOrderFilter">
+                {/* <Form.Label>
             <h5 style={{ marginTop: ".5rem", marginBottom: ".2rem" }}>
               Payment Schedule
             </h5>
           </Form.Label> */}
 
-            <Form.Select
-              style={{ fontWeight: "bold" }}
-              // bg={formBkg}
-              //text={formText}
-              data-bs-theme={formBkg}
-              defaultValue={this.props.DisplayOrders}
-            >
-              <option value="Orders" style={{ fontWeight: "bold" }}>
-                Orders (Unconfirmed)
-              </option>
-              <option value="Confirmed" style={{ fontWeight: "bold" }}>
-                Confirmed
-              </option>
-            </Form.Select>
-          </Form.Group>
-        </Form>
+                <Form.Select
+                  style={{ fontWeight: "bold" }}
+                  // bg={formBkg}
+                  //text={formText}
+                  data-bs-theme={formBkg}
+                  defaultValue={this.props.DisplayOrders}
+                >
+                  <option value="Orders" style={{ fontWeight: "bold" }}>
+                    Orders (Unconfirmed)
+                  </option>
+                  <option value="Confirmed" style={{ fontWeight: "bold" }}>
+                    Confirmed
+                  </option>
+                </Form.Select>
+              </Form.Group>
+            </Form>
 
-        <p></p>
-        {this.props.DisplayOrders === "Orders" ? <>{orders}</> : <></>}
+            <p></p>
+          </Col>
+        </Row>
+        {this.props.DisplayOrders === "Orders" ? (
+          <>
+            <Row className="justify-content-md-center">{orders}</Row>
+          </>
+        ) : (
+          <></>
+        )}
         {this.props.DisplayOrders === "Orders" &&
         unconfirmedOrders.length === 0 ? (
           <>
@@ -189,7 +206,13 @@ class Orders extends React.Component {
         ) : (
           <></>
         )}
-        {this.props.DisplayOrders === "Confirmed" ? <>{orders}</> : <> </>}
+        {this.props.DisplayOrders === "Confirmed" ? (
+          <>
+            <Row className="justify-content-md-center">{orders}</Row>
+          </>
+        ) : (
+          <> </>
+        )}
         {this.props.DisplayOrders === "Confirmed" &&
         confirmedOrders.length === 0 ? (
           <>

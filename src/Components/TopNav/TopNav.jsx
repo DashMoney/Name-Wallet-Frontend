@@ -7,10 +7,10 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import Dropdown from "react-bootstrap/Dropdown";
-import NavLink from "react-bootstrap/NavLink";
+// import Dropdown from "react-bootstrap/Dropdown";
+// import NavLink from "react-bootstrap/NavLink";
 
-import Badge from "react-bootstrap/Badge";
+// import Badge from "react-bootstrap/Badge";
 
 import Offcanvas from "react-bootstrap/Offcanvas";
 
@@ -59,7 +59,8 @@ class TopNav extends React.Component {
           expanded={this.props.expandedTopNav}
           className="Top"
           bg={this.props.mode}
-          variant={this.props.mode}
+          data-bs-theme={this.props.mode}
+          //variant={this.props.mode}
           expand={false}
         >
           <Container>

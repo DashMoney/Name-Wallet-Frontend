@@ -1,5 +1,7 @@
 import React from "react";
 import Form from "react-bootstrap/Form";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 
 import SentRequestsComponent from "./SentRequestsComponent";
 import PayRequestsComponent from "./PayRequestsComponent";
@@ -43,37 +45,39 @@ class TwoPartyCombine extends React.Component {
       payments = this.props.ReqsToYou.map((req, index) => {
         //console.log(req);
         return (
-          <div key={index} style={{ marginBottom: "0.5rem" }}>
-            <PayRequestsComponent
-              mnemonic={this.props.mnemonic}
-              whichNetwork={this.props.whichNetwork}
-              //key={index}
+          <Col key={index} lg={4}>
+            <div style={{ marginBottom: "0.5rem" }}>
+              <PayRequestsComponent
+                mnemonic={this.props.mnemonic}
+                whichNetwork={this.props.whichNetwork}
+                //key={index}
 
-              mode={this.props.mode}
-              index={index}
-              req={req}
-              today={today}
-              yesterday={yesterday}
-              identity={this.props.identity} //For if my review so can edit
-              uniqueName={this.props.uniqueName}
-              accountHistory={this.props.accountHistory}
-              accountBalance={this.props.accountBalance}
-              //
-              DisplayReqsOrPmts={this.props.DisplayReqsOrPmts}
-              isLoading2Party={this.props.isLoading2Party}
-              Your2PartyPubKey={this.props.Your2PartyPubKey}
-              ReqsToYou={this.props.ReqsToYou}
-              ReqsToYouPubKeys={this.props.ReqsToYouPubKeys}
-              ReqsToYouNames={this.props.ReqsToYouNames}
-              ReqsToYouResponses={this.props.ReqsToYouResponses}
-              show2PartyPayRequestModal={this.props.show2PartyPayRequestModal}
-              showReleaseFundsModal={this.props.showReleaseFundsModal}
-              showAddMessageToResponseModal={
-                this.props.showAddMessageToResponseModal
-              }
-              showWithdrawRefundModal={this.props.showWithdrawRefundModal}
-            />
-          </div>
+                mode={this.props.mode}
+                index={index}
+                req={req}
+                today={today}
+                yesterday={yesterday}
+                identity={this.props.identity} //For if my review so can edit
+                uniqueName={this.props.uniqueName}
+                accountHistory={this.props.accountHistory}
+                accountBalance={this.props.accountBalance}
+                //
+                DisplayReqsOrPmts={this.props.DisplayReqsOrPmts}
+                isLoading2Party={this.props.isLoading2Party}
+                Your2PartyPubKey={this.props.Your2PartyPubKey}
+                ReqsToYou={this.props.ReqsToYou}
+                ReqsToYouPubKeys={this.props.ReqsToYouPubKeys}
+                ReqsToYouNames={this.props.ReqsToYouNames}
+                ReqsToYouResponses={this.props.ReqsToYouResponses}
+                show2PartyPayRequestModal={this.props.show2PartyPayRequestModal}
+                showReleaseFundsModal={this.props.showReleaseFundsModal}
+                showAddMessageToResponseModal={
+                  this.props.showAddMessageToResponseModal
+                }
+                showWithdrawRefundModal={this.props.showWithdrawRefundModal}
+              />
+            </div>
+          </Col>
         );
       });
     }
@@ -84,33 +88,35 @@ class TwoPartyCombine extends React.Component {
       requests = this.props.ReqsFromYou.map((req, index) => {
         //console.log(post);
         return (
-          <div key={index} style={{ marginBottom: "0.5rem" }}>
-            <SentRequestsComponent
-              mnemonic={this.props.mnemonic}
-              whichNetwork={this.props.whichNetwork}
-              //key={index}
-              mode={this.props.mode}
-              index={index}
-              req={req}
-              today={today}
-              yesterday={yesterday}
-              identity={this.props.identity} //For if my review so can edit
-              uniqueName={this.props.uniqueName}
-              accountHistory={this.props.accountHistory}
-              accountBalance={this.props.accountBalance}
-              //
-              DisplayReqsOrPmts={this.props.DisplayReqsOrPmts}
-              isLoading2Party={this.props.isLoading2Party}
-              Your2PartyPubKey={this.props.Your2PartyPubKey}
-              ReqsFromYou={this.props.ReqsFromYou}
-              ReqsFromYouPubKeys={this.props.ReqsFromYouPubKeys}
-              ReqsFromYouNames={this.props.ReqsFromYouNames}
-              ReqsFromYouResponses={this.props.ReqsFromYouResponses}
-              showRetrieveFundsModal={this.props.showRetrieveFundsModal}
-              showAddMsgToRequestModal={this.props.showAddMsgToRequestModal}
-              showRefundFundsModal={this.props.showRefundFundsModal}
-            />
-          </div>
+          <Col key={index} lg={4}>
+            <div style={{ marginBottom: "0.5rem" }}>
+              <SentRequestsComponent
+                mnemonic={this.props.mnemonic}
+                whichNetwork={this.props.whichNetwork}
+                //key={index}
+                mode={this.props.mode}
+                index={index}
+                req={req}
+                today={today}
+                yesterday={yesterday}
+                identity={this.props.identity} //For if my review so can edit
+                uniqueName={this.props.uniqueName}
+                accountHistory={this.props.accountHistory}
+                accountBalance={this.props.accountBalance}
+                //
+                DisplayReqsOrPmts={this.props.DisplayReqsOrPmts}
+                isLoading2Party={this.props.isLoading2Party}
+                Your2PartyPubKey={this.props.Your2PartyPubKey}
+                ReqsFromYou={this.props.ReqsFromYou}
+                ReqsFromYouPubKeys={this.props.ReqsFromYouPubKeys}
+                ReqsFromYouNames={this.props.ReqsFromYouNames}
+                ReqsFromYouResponses={this.props.ReqsFromYouResponses}
+                showRetrieveFundsModal={this.props.showRetrieveFundsModal}
+                showAddMsgToRequestModal={this.props.showAddMsgToRequestModal}
+                showRefundFundsModal={this.props.showRefundFundsModal}
+              />
+            </div>
+          </Col>
         );
       });
     }
@@ -128,39 +134,49 @@ class TwoPartyCombine extends React.Component {
 
     return (
       <>
-        <Form
-          noValidate
-          // onSubmit={this.handleSubmitClick}
-          onChange={this.onChange}
-        >
-          {/* ORDER FILTER FORM BELOW */}
+        <Row className="justify-content-md-center">
+          <Col md={9} lg={8} xl={7} xxl={6}>
+            <Form
+              noValidate
+              // onSubmit={this.handleSubmitClick}
+              onChange={this.onChange}
+            >
+              {/* ORDER FILTER FORM BELOW */}
 
-          <Form.Group className="mb-3" controlId="formFilter">
-            {/* <Form.Label>
+              <Form.Group className="mb-3" controlId="formFilter">
+                {/* <Form.Label>
             <h5 style={{ marginTop: ".5rem", marginBottom: ".2rem" }}>
               Payment Schedule
             </h5>
           </Form.Label> */}
 
-            <Form.Select
-              style={{ fontWeight: "bold" }}
-              // bg={formBkg}
-              //text={formText}
-              data-bs-theme={formBkg}
-              defaultValue={this.props.DisplayReqsOrPmts}
-            >
-              <option value="Payments" style={{ fontWeight: "bold" }}>
-                Your Payments
-              </option>
-              <option value="Requests" style={{ fontWeight: "bold" }}>
-                Your Requests
-              </option>
-            </Form.Select>
-          </Form.Group>
-        </Form>
+                <Form.Select
+                  style={{ fontWeight: "bold" }}
+                  // bg={formBkg}
+                  //text={formText}
+                  data-bs-theme={formBkg}
+                  defaultValue={this.props.DisplayReqsOrPmts}
+                >
+                  <option value="Payments" style={{ fontWeight: "bold" }}>
+                    Your Payments
+                  </option>
+                  <option value="Requests" style={{ fontWeight: "bold" }}>
+                    Your Requests
+                  </option>
+                </Form.Select>
+              </Form.Group>
+            </Form>
 
-        <p></p>
-        {this.props.DisplayReqsOrPmts === "Payments" ? <>{payments}</> : <></>}
+            <p></p>
+          </Col>
+        </Row>
+        {this.props.DisplayReqsOrPmts === "Payments" ? (
+          <>
+            <Row className="justify-content-md-center">{payments}</Row>
+          </>
+        ) : (
+          <></>
+        )}
         {this.props.DisplayReqsOrPmts === "Payments" &&
         this.props.ReqsToYou.length === 0 ? (
           <>
@@ -171,7 +187,13 @@ class TwoPartyCombine extends React.Component {
         ) : (
           <></>
         )}
-        {this.props.DisplayReqsOrPmts === "Requests" ? <>{requests}</> : <> </>}
+        {this.props.DisplayReqsOrPmts === "Requests" ? (
+          <>
+            <Row className="justify-content-md-center">{requests}</Row>
+          </>
+        ) : (
+          <> </>
+        )}
         {this.props.DisplayReqsOrPmts === "Requests" &&
         this.props.ReqsFromYou.length === 0 ? (
           <>
