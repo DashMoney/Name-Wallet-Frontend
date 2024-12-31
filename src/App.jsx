@@ -338,12 +338,12 @@ class App extends React.Component {
       OrdersControllers: [],
       OrdersNames: [],
       OrdersPubkeys: [],
-      isLoadingOrdersMerchant: false,
+      isLoadingOrdersMerchant: true,
 
       OrdersConfirms: [],
       Orders2PartyReqs: [],
       Orders2PartyResps: [],
-      isLoadingOrders2Party: false,
+      isLoadingOrders2Party: true,
 
       // RECEIVED ORDERS PAGE STATE ^^^^
 
@@ -6420,7 +6420,7 @@ class App extends React.Component {
               "base64"
             ).toJSON();
 
-            console.log("newConfirm:\n", returnedDoc);
+            // console.log("newConfirm:\n", returnedDoc);
             //Filter so that only the merchant send a confirm to the customer -> JUST DO THIS IN THE CARD ie DOWN STREAM
             //confirm.$ownerId === inventory.$ownerId -> Done in YourOrder.jsx to filter out
             docArray = [...docArray, returnedDoc];
@@ -6580,8 +6580,18 @@ class App extends React.Component {
     // let requestItem = this.state.Inventory.find((item) => {
     //   return item.$id === theRequest.itemId;
     // });
+    let inventoryFound = this.state.YourOrdersInventories.find((invntry) => {
+      return invntry.$ownerId === theOrder.toId;
+    });
+    console.log(inventoryFound);
+    let nameFound = this.state.YourOrdersNames.find((theName) => {
+      return theName.$ownerId === theOrder.toId;
+    });
+    console.log(nameFound);
     this.setState(
       {
+        SelectedMerchantName: nameFound,
+        SelectedInventory: inventoryFound,
         //SelectedOrder: requestItem,
         SelectedOrder: theOrder,
         //I also need the name <- NOT FOR MY POSTS
@@ -9247,7 +9257,7 @@ class App extends React.Component {
         isLoadingOrdersMerchant: true,
         isOrdersRefreshReady: false, // pass to refresh button
       },
-      () => this.getOrders()
+      () => this.getOrdersInventory()
     );
 
     //REFRESH -> TIMEOUT
@@ -13783,7 +13793,7 @@ class App extends React.Component {
                 identity={this.state.identity}
                 identityInfo={this.state.identityInfo}
                 uniqueName={this.state.uniqueName}
-                MerchantNameDoc={this.state.MerchantNameDoc}
+                //MerchantNameDoc={this.state.MerchantNameDoc}
                 DisplayOrders={this.state.DisplayOrders}
                 //
                 mode={this.state.mode}
@@ -14346,7 +14356,6 @@ class App extends React.Component {
             SelectedRental={this.state.SelectedRental}
             selectedRequest={this.state.selectedRequest}
             MerchantNameDoc={this.state.MerchantNameDoc}
-            //uniqueName={uniqueName}
             deleteRequest={this.deleteRequest}
             isModalShowing={this.state.isModalShowing}
             hideModal={this.hideModal}
@@ -14430,8 +14439,8 @@ class App extends React.Component {
         this.state.presentModal === "DeleteOrderModal" ? (
           <DeleteOrderModal
             whichNetwork={this.state.whichNetwork}
-            MerchantNameDoc={this.state.MerchantNameDoc}
-            Inventory={this.state.Inventory}
+            MerchantNameDoc={this.state.SelectedMerchantName}
+            Inventory={this.state.SelectedInventory}
             order={this.state.SelectedOrder}
             deleteOrder={this.deleteOrder}
             isModalShowing={this.state.isModalShowing}

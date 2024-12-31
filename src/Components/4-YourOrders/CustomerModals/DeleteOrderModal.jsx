@@ -51,14 +51,14 @@ class DeleteOrderModal extends React.Component {
 
     this.props.order.cart.forEach((cartTuple) => {
       //NEED TO GET THE PRICE FROM THE INVENTORY LIKE I GET THE QTY FROM THE INVENTORY
-      // let variantFromInventory = this.props.Inventory.find((item) => {
+      // let variantFromInventory = this.props.Inventory.items.find((item) => {
       //   return (
       //     item.itemId === cartTuple[0].itemId &&
       //     item.variants[0] === cartTuple[0].variant
       //   );
       // });
 
-      let theItem = this.props.Inventory.find((item) => {
+      let theItem = this.props.Inventory.items.find((item) => {
         return item.itemId === cartTuple[0].itemId;
       }); //this gets active as well
 
@@ -121,7 +121,7 @@ class DeleteOrderModal extends React.Component {
     let theIndex = 0;
 
     this.props.order.cart.forEach((cartItem, index) => {
-      let theItem = this.props.Inventory.find((item) => {
+      let theItem = this.props.Inventory.items.find((item) => {
         return item.itemId === cartItem[0].itemId; //This is from the cart
       });
 

@@ -123,7 +123,6 @@ class OrdersPage extends React.Component {
               ) : (
                 <></>
               )}
-
               {this.props.Your2PartyPubKey === "Querying" ||
               this.props.isLoadingOrdersMerchant ||
               this.props.isLoadingOrders2Party ? (
@@ -140,6 +139,7 @@ class OrdersPage extends React.Component {
               )}
             </Col>
           </Row>
+
           {this.props.Your2PartyPubKey === "Querying" ||
           this.props.Your2PartyPubKey === "No Pub Key" ||
           this.props.isLoadingOrdersMerchant ||

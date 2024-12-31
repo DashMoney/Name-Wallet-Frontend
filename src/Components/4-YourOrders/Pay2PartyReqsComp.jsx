@@ -81,7 +81,6 @@ class Pay2PartyReqsComp extends React.Component {
   };
 
   callDAPIfor2Party = (theTxId, requestPubKey) => {
-    
     const client = new Dash.Client(dapiClientNoWallet(this.props.whichNetwork));
     async function dapiClientMethods() {
       console.log("theTxId:", theTxId);
@@ -342,8 +341,8 @@ class Pay2PartyReqsComp extends React.Component {
       if (this.state.Loading2PartyAddress && response.sigObject === "") {
         if (
           requestPubKey !== undefined &&
-          this.props.req.error === undefined &&
-          response.error === undefined
+          this.props.req.error === "" &&
+          response.error === ""
         ) {
           this.callDAPIfor2Party(response.txId, requestPubKey);
           console.log("calledDAPI for TX");

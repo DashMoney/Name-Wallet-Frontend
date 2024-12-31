@@ -381,10 +381,10 @@ class YourOrder extends React.Component {
               {this.handleTotal(inventory.items)}
             </div>
 
-            {confirm === undefined ? (
+            {/* {confirm === undefined ? (
               <>
                 <p></p>
-                {/* <div className="ButtonRightNoUnderline"> */}
+                
                 <Button
                   variant="primary"
                   onClick={() =>
@@ -396,11 +396,10 @@ class YourOrder extends React.Component {
                 >
                   <b>Delete Order</b>
                 </Button>
-                {/* </div> */}
               </>
             ) : (
               <></>
-            )}
+            )} */}
 
             {confirm !== undefined ? (
               <>

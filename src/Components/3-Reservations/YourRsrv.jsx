@@ -299,7 +299,7 @@ class YourRsrv extends React.Component {
               </b>
             </h4>
 
-            {confirm === undefined ? (
+            {/* {confirm === undefined ? (
               <>
                 <div className="ButtonRightNoUnderline">
                   <Button
@@ -317,7 +317,7 @@ class YourRsrv extends React.Component {
               </>
             ) : (
               <></>
-            )}
+            )} */}
 
             {confirm !== undefined ? (
               <>
