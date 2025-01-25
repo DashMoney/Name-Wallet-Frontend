@@ -160,6 +160,7 @@ class OrdersPage extends React.Component {
                     isLoadingOrdersMerchant={this.props.isLoadingOrdersMerchant}
                     isOrdersRefreshReady={this.props.isOrdersRefreshReady}
                     handleRefresh_Orders={this.handleRefresh_Orders}
+                    OrdersInventoryDoc={this.props.OrdersInventoryDoc}
                     Inventory={this.props.Inventory}
                     UnconfirmedOrders={this.props.UnconfirmedOrders}
                     ConfirmedOrders={this.props.ConfirmedOrders}

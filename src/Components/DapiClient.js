@@ -65,9 +65,6 @@ export default function dapiClient(
         // DGRContract: {
         //   contractId: "BWLc5EGfSEAwEcUqSddYa6BDeZ9TgyZEupSqmouWLB5i",
         // },
-        // PODContract: {
-        //   contractId: "37wtDWoftBmXbSeNkmi9EA5CkYWPRRUprCs1KmiJ7tK6",
-        // },
       },
     };
   } else {
@@ -103,7 +100,7 @@ export default function dapiClient(
           contractId: "HjHocG4oyLHgpnRMJEGagaTyrx6HaboCiGdcBzY3RKPU",
         },
         ONLINESTOREContract: {
-          contractId: "C7w3BAZHvoijzDrRv9MvsvAGgqdSBS2Nbc341kkrpovV",
+          contractId: "E1pambYerWzGaGdQVQcf9tyL5qRKh9mKgiYW9mETupjQ", //"C7w3BAZHvoijzDrRv9MvsvAGgqdSBS2Nbc341kkrpovV",
         },
 
         // DMIOContract: {
@@ -112,9 +109,9 @@ export default function dapiClient(
 
         // DGRContract: {
         //   contractId: "HLu6Q3RDpGF5dJSmJjuszRfx9nkdwV2DYoURx3jyXWv6",
-        // },
-        // PODContract: {
-        //   contractId: "3tyrgqV4SQ91Nd8wt9RvwWLfHraSFLgaYXmB54zX2kdw",
+        //
+        //"5HVk6JR8pCvN2aBdQM9UvbsB7ND254JSA18Ya5TTdgPZ"
+        // ^^ new one on 01/2025 with DashMoney3
         // },
       },
     };

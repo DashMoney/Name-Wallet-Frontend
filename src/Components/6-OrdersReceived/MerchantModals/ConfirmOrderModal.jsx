@@ -129,6 +129,27 @@ class ConfirmOrderModal extends React.Component {
       }
     });
 
+    //this.props.Inventory.shipOpts
+    //Add the Shipping HERE**
+    let shipCost = 0;
+
+    //this.props.this.props.order.shipping !== "" &&
+    //this.props.Inventory.shipOpts.length === 0
+
+    if (
+      this.props.Inventory.shipOpts.length !== 0 &&
+      this.props.order.shipping !== ""
+    ) {
+      let shipOpt = this.props.Inventory.shipOpts.find((opt) => {
+        return opt[1] === this.props.order.shipping;
+      });
+      if (shipOpt !== undefined) {
+        shipCost = shipOpt[2];
+      }
+    }
+
+    theTotal += shipCost;
+
     return (
       <h4 className="indentMembers" style={{ color: "#008de4" }}>
         <b>{handleDenomDisplay(this.props.whichNetwork, theTotal)}</b>
@@ -153,6 +174,27 @@ class ConfirmOrderModal extends React.Component {
         //console.log(theTotal);
       }
     });
+
+    //Add the Shipping HERE**
+    let shipCost = 0;
+
+    //this.props.order.shipping !== "" &&
+    //this.props.Inventory.shipOpts.length === 0
+
+    if (
+      this.props.Inventory.shipOpts.length !== 0 &&
+      this.props.order.shipping !== ""
+    ) {
+      let shipOpt = this.props.Inventory.shipOpts.find((opt) => {
+        return opt[1] === this.props.order.shipping;
+      });
+      if (shipOpt !== undefined) {
+        shipCost = shipOpt[2];
+      }
+    }
+
+    theTotal += shipCost;
+
     return Number(theTotal);
   };
 
@@ -268,6 +310,12 @@ class ConfirmOrderModal extends React.Component {
 
     let qtyVerified = this.handleSufficientInventory(); //Need to calc here -> this.handleSufficientInventory
 
+    //this.props.order.shipping
+
+    let shippingSelect = this.props.Inventory.shipOpts.find((opt) => {
+      return opt[1] === this.props.order.shipping;
+    });
+
     return (
       <>
         <Modal
@@ -358,6 +406,31 @@ class ConfirmOrderModal extends React.Component {
                   <tbody>{variantRows}</tbody>
                 </Table>
               </>
+            )}
+
+            {this.props.Inventory.shipOpts.length !== 0 &&
+            shippingSelect !== undefined ? (
+              <>
+                <h4>Shipping</h4>
+                <div
+                  className="cardTitle"
+                  style={{ marginRight: "1rem", marginLeft: ".5rem" }}
+                >
+                  <p style={{ marginBottom: "0rem" }}>{shippingSelect[0]}</p>
+                  <p //style={{ color: "#008de4" }}
+                  >
+                    <b>
+                      {handleDenomDisplay(
+                        this.props.whichNetwork,
+                        shippingSelect[2]
+                      )}
+                    </b>
+                  </p>
+                </div>
+                <p></p>
+              </>
+            ) : (
+              <></>
             )}
 
             {/* Amount */}

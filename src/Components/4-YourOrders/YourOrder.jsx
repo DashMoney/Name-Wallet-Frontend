@@ -49,6 +49,14 @@ class YourOrder extends React.Component {
       return <Badge bg="success">Confirmed</Badge>;
     }
 
+    if (
+      theConfirm.amt !== theOrder.amt //&&
+      //theConfirm.arriveDate === theOrder.arriveDate
+    ) {
+      //console.log("Acceptance Rejected");
+      return <Badge bg="warning">Amount Error</Badge>;
+    }
+
     // if (paidThrs.length === 0) {
     //   //console.log("Ordered");
     //   return <Badge bg="success">Ordered</Badge>;
@@ -82,14 +90,14 @@ class YourOrder extends React.Component {
 
     this.props.order.cart.forEach((cartTuple) => {
       //NEED TO GET THE PRICE FROM THE INVENTORY LIKE I GET THE QTY FROM THE INVENTORY
-      // let variantFromInventory = theInventory.find((item) => {
+      // let variantFromInventory = theInventory.items.find((item) => {
       //   return (
       //     item.itemId === cartTuple[0].itemId &&
       //     item.variants[0] === cartTuple[0].variant
       //   );
       // });
 
-      let theItem = theInventory.find((item) => {
+      let theItem = theInventory.items.find((item) => {
         return item.itemId === cartTuple[0].itemId;
       }); //this gets active as well
 
@@ -121,6 +129,31 @@ class YourOrder extends React.Component {
         //console.log(theTotal);
       }
     });
+
+    //Add the Shipping HERE**
+    let shipCost = 0;
+
+    //this.props.SelectedShippingOption !== "" &&
+    // Approach #2 ^^ to Name-Wallet BELOW
+    //this.props.order.shipping !== '' &&
+
+    //this.props.ShippingOptions.length === 0
+    // Approach #2 ^^ to Name-Wallet BELOW
+    //theInventory.shipOpts.length === 0
+
+    if (
+      theInventory.shipOpts.length !== 0 &&
+      this.props.order.shipping !== ""
+    ) {
+      let shipOpt = theInventory.shipOpts.find((opt) => {
+        return opt[1] === this.props.order.shipping;
+      });
+      if (shipOpt !== undefined) {
+        shipCost = shipOpt[2];
+      }
+    }
+
+    theTotal += shipCost;
 
     return (
       <h4 className="indentMembers" style={{ color: "#008de4" }}>
@@ -272,6 +305,13 @@ class YourOrder extends React.Component {
     });
 
     //  Table Creation ^^^
+    let shippingSelect = undefined;
+    //this.props.order.shipping
+    if (inventory.shipOpts !== undefined) {
+      shippingSelect = inventory.shipOpts.find((opt) => {
+        return opt[1] === this.props.order.shipping;
+      });
+    }
 
     return (
       <>
@@ -372,13 +412,37 @@ class YourOrder extends React.Component {
               </>
             )}
 
+            {inventory.length !== 0 && shippingSelect !== undefined ? (
+              <>
+                <h4>Shipping</h4>
+                <div
+                  className="cardTitle"
+                  style={{ marginRight: "1rem", marginLeft: ".5rem" }}
+                >
+                  <p style={{ marginBottom: "0rem" }}>{shippingSelect[0]}</p>
+                  <p //style={{ color: "#008de4" }}
+                  >
+                    <b>
+                      {handleDenomDisplay(
+                        this.props.whichNetwork,
+                        shippingSelect[2]
+                      )}
+                    </b>
+                  </p>
+                </div>
+                <p></p>
+              </>
+            ) : (
+              <></>
+            )}
+
             <p></p>
             <div className="cartTotal">
               <h4>
                 <b>Total</b> ({this.handleTotalItems()})<b>:</b>
               </h4>
 
-              {this.handleTotal(inventory.items)}
+              {this.handleTotal(inventory)}
             </div>
 
             {/* {confirm === undefined ? (

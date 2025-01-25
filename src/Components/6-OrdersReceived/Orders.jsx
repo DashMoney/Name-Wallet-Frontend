@@ -63,6 +63,7 @@ class Orders extends React.Component {
                 order={order}
                 today={today}
                 yesterday={yesterday}
+                OrdersInventoryDoc={this.props.OrdersInventoryDoc}
                 identity={this.props.identity} //For if my review so can edit
                 uniqueName={this.props.uniqueName}
                 handleConfirmOrderModal={this.props.handleConfirmOrderModal}
@@ -109,6 +110,7 @@ class Orders extends React.Component {
                 handleSelectedYourOrder={this.props.handleSelectedYourOrder}
                 handleSelectedPage={this.props.handleSelectedPage}
                 handleSelectedItem={this.props.handleSelectedItem}
+                OrdersInventoryDoc={this.props.OrdersInventoryDoc}
                 Inventory={this.props.Inventory}
                 // UnconfirmedOrders={this.props.UnconfirmedOrders}
                 ConfirmedOrders={this.props.ConfirmedOrders}

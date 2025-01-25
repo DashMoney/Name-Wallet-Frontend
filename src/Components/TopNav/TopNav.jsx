@@ -314,50 +314,38 @@ class TopNav extends React.Component {
                   )}
 
                   <p></p>
-                  {/* 
-                  <h4>
+
+                  {/* <h4>
                     <b>Utils</b>
-                  </h4> */}
-                  {/* {isLoginComplete ? (
+                  </h4>
+                  {isLoginComplete ? (
                     <NavSelects
-                      selection="Wallet"
+                      selection="Reviews"
                       selectedDapp={this.props.selectedDapp}
                       handleSelectedDapp={this.props.handleSelectedDapp}
                     />
-                  ) : (*/}
-                  {/* <Nav.Link className="canvasLinkDisabled" disabled>
-                    <h5>
-                      <b>Reviews</b>
-                    </h5>
-                  </Nav.Link> */}
-                  {/*  )} */}
+                  ) : (
+                    <Nav.Link className="canvasLinkDisabled" disabled>
+                      <h5>
+                        <b>Reviews</b>
+                      </h5>
+                    </Nav.Link>
+                  )}
 
-                  {/* {isLoginComplete ? (
+                  {isLoginComplete ? (
                     <NavSelects
-                      selection="Wallet"
+                      selection="Address Wallet"
                       selectedDapp={this.props.selectedDapp}
                       handleSelectedDapp={this.props.handleSelectedDapp}
                     />
-                  ) : (*/}
-                  {/* <Nav.Link className="canvasLinkDisabled" disabled>
-                    <h5>
-                      <b>Simple Wallet</b>
-                    </h5>
-                  </Nav.Link> */}
-                  {/*  )} */}
+                  ) : (
+                    <Nav.Link className="canvasLinkDisabled" disabled>
+                      <h5>
+                        <b>Address Wallet</b>
+                      </h5>
+                    </Nav.Link>
+                  )} */}
 
-                  {/* <NavSelects
-                    selection="Reviews"
-                    selectedDapp={this.props.selectedDapp}
-                    handleSelectedDapp={this.props.handleSelectedDapp}
-                  />
-
-                  <NavSelects
-                    selection="Proof of Funds"
-                    selectedDapp={this.props.selectedDapp}
-                    handleSelectedDapp={this.props.handleSelectedDapp}
-                  />
-                  <p></p> */}
                   <p></p>
                   <div
                     className="d-grid gap-2"

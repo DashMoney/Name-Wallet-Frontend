@@ -26,7 +26,7 @@ import LoginForm from "./Components/0-LoginPage/LoginForm";
 import AccountLogin from "./Components/0-LoginPage/AccountLogin";
 import IdentityControlPage from "./Components/0-LoginPage/IdentityControlPage";
 
-import WalletPage from "./Components/9-Wallet/WalletPage";
+import WalletPage from "./Components/8-Wallet/WalletPage";
 
 import ReviewsPage from "./Components/7-Reviews/ReviewsPage";
 
@@ -81,7 +81,7 @@ import DeleteRequestModal from "./Components/3-Reservations/CustomerModals/Delet
 
 import YourOrdersPage from "./Components/4-YourOrders/YourOrdersPage";
 
-import DeleteOrderModal from "./Components/4-YourOrders/CustomerModals/DeleteOrderModal";
+//import DeleteOrderModal from "./Components/4-YourOrders/CustomerModals/DeleteOrderModal";
 
 import AddMessageToResponseModalYOURORDERS from "./Components/4-YourOrders/CustomerModals/AddMessageToResponseModalYOURORDERS";
 import Pay2PartyRequestModalYOURORDERS from "./Components/4-YourOrders/CustomerModals/Pay2PartyRequestModalYOURORDERS";
@@ -110,12 +110,12 @@ import AddMsgToRequestModalORDERS from "./Components/6-OrdersReceived/MerchantMo
 import Refund2PartyModalORDERS from "./Components/6-OrdersReceived/MerchantModals/Refund2PartyModalORDERS";
 import RetrieveFundsModalORDERS from "./Components/6-OrdersReceived/MerchantModals/RetrieveFundsModalORDERS";
 
-import ConfirmAddrPaymentModal from "./Components/9-Wallet/ConfirmAddrPaymentModal";
-import RegisterDGMModal from "./Components/RegisterDGMModal";
-import ThreadModal_WALLET from "./Components/9-Wallet/ThreadModal_WALLET";
-import WalletTXModal from "./Components/WalletTXModal";
-import PayRequestModal from "./Components/9-Wallet/PayRequestModal";
-import RejectReqModal from "./Components/9-Wallet/RejectReqModal";
+import ConfirmAddrPaymentModal from "./Components/8-Wallet/ConfirmAddrPaymentModal";
+//import RegisterDGMModal from "./Components/RegisterDGMModal";
+//import ThreadModal_WALLET from "./Components/8-Wallet/ThreadModal_WALLET";
+//import WalletTXModal from "./Components/WalletTXModal";
+//import PayRequestModal from "./Components/8-Wallet/PayRequestModal";
+//import RejectReqModal from "./Components/8-Wallet/RejectReqModal";
 
 import CreateReviewModal from "./Components/7-Reviews/ReviewModals/CreateReviewModal";
 import EditReviewModal from "./Components/7-Reviews/ReviewModals/EditReviewModal";
@@ -329,9 +329,9 @@ class App extends React.Component {
 
       DisplayOrders: "Orders",
 
-      OrdersInventory: [],
-      //     Inventory: [],
-      //     InventoryDoc: [],
+      OrdersInventoryDoc: {},
+      OrdersInventory: [], //<- This is not used
+      Inventory: [],
 
       OrdersOrders: [], //Request
       OrdersProxies: [],
@@ -2604,35 +2604,35 @@ class App extends React.Component {
   // ^^^^ - PAYMENT REQUEST
 
   //Oh this just closes the alert i think
-  handleSuccessAlert_WALLET = () => {
+  handleSuccessAlert_TWOPARTY = () => {
     this.setState({
-      WALLET_sendSuccess: false,
-      WALLET_sendMsgSuccess: false,
+      TWOPARTY_sendSuccess: false,
+      TWOPARTY_sendMsgSuccess: false,
     });
   }; //THis should just show up in wallet of on the request right?
   //So like
 
-  handleFailureAlert_WALLET = () => {
+  handleFailureAlert_TWOPARTY = () => {
     this.setState({
-      WALLET_sendFailure: false,
+      TWOPARTY_sendFailure: false,
     });
   };
 
-  handleFailureMsgAlert_WALLET = () => {
+  handleFailureMsgAlert_TWOPARTY = () => {
     this.setState({
-      WALLET_sendMsgFailure: false,
+      TWOPARTY_sendMsgFailure: false,
     });
   };
   // BELOW - PAYMENT REQUEST
-  handleFailurePmtMsgAlert_WALLET = () => {
+  handleFailurePmtMsgAlert_TWOPARTY = () => {
     this.setState({
-      WALLET_sendPmtMsgFailure: false,
+      TWOPARTY_sendPmtMsgFailure: false,
     });
   };
 
-  handleSuccessPmtMsgAlert_WALLET = () => {
+  handleSuccessPmtMsgAlert_TWOPARTY = () => {
     this.setState({
-      WALLET_sendPmtMsgSuccess: false,
+      TWOPARTY_sendPmtMsgSuccess: false,
     });
   };
 
@@ -6254,6 +6254,7 @@ class App extends React.Component {
             let returnedDoc = n.toJSON();
             //console.log("Inventories:\n", returnedDoc);
             returnedDoc.items = JSON.parse(returnedDoc.items);
+            returnedDoc.shipOpts = JSON.parse(returnedDoc.shipOpts);
             //console.log("newInventories:\n", returnedDoc);
             docArray = [...docArray, returnedDoc];
           }
@@ -6576,30 +6577,30 @@ class App extends React.Component {
       .finally(() => client.disconnect());
   };
 
-  handleDeleteOrderModal = (theOrder, index) => {
-    // let requestItem = this.state.Inventory.find((item) => {
-    //   return item.$id === theRequest.itemId;
-    // });
-    let inventoryFound = this.state.YourOrdersInventories.find((invntry) => {
-      return invntry.$ownerId === theOrder.toId;
-    });
-    console.log(inventoryFound);
-    let nameFound = this.state.YourOrdersNames.find((theName) => {
-      return theName.$ownerId === theOrder.toId;
-    });
-    console.log(nameFound);
-    this.setState(
-      {
-        SelectedMerchantName: nameFound,
-        SelectedInventory: inventoryFound,
-        //SelectedOrder: requestItem,
-        SelectedOrder: theOrder,
-        //I also need the name <- NOT FOR MY POSTS
-        SelectedOrderIndex: index, //<- Need this for the editingfunction!!
-      },
-      () => this.showModal("DeleteOrderModal")
-    );
-  };
+  // handleDeleteOrderModal = (theOrder, index) => {
+  //   // let requestItem = this.state.Inventory.find((item) => {
+  //   //   return item.$id === theRequest.itemId;
+  //   // });
+  //   let inventoryFound = this.state.YourOrdersInventories.find((invntry) => {
+  //     return invntry.$ownerId === theOrder.toId;
+  //   });
+  //   console.log(inventoryFound);
+  //   let nameFound = this.state.YourOrdersNames.find((theName) => {
+  //     return theName.$ownerId === theOrder.toId;
+  //   });
+  //   console.log(nameFound);
+  //   this.setState(
+  //     {
+  //       SelectedMerchantName: nameFound,
+  //       SelectedInventory: inventoryFound,
+  //       //SelectedOrder: requestItem,
+  //       SelectedOrder: theOrder,
+  //       //I also need the name <- NOT FOR MY POSTS
+  //       SelectedOrderIndex: index, //<- Need this for the editingfunction!!
+  //     },
+  //     () => this.showModal("DeleteOrderModal")
+  //   );
+  // };
 
   deleteOrder = () => {
     //console.log("Called Delete Order");
@@ -6660,7 +6661,7 @@ class App extends React.Component {
       .finally(() => client.disconnect());
   };
 
-  // THIS IS FOR THE RESPONSE DOCUMENT <- **
+  // THIS IS FOR THE RESPONSE DOCUMENT <- ***
 
   showAddMessageToResponseModal_YOURORDERS = (
     theResponse,
@@ -9315,7 +9316,7 @@ class App extends React.Component {
           //console.log("There are no Inventory");
 
           this.setState({
-            OrdersInventoryDoc: {},
+            OrdersInventoryDoc: { shipping: [] },
             OrdersInventory: [],
 
             //Inventory: [],
@@ -9345,6 +9346,7 @@ class App extends React.Component {
             //   "base64"
             // ).toJSON();
             returnedDoc.items = JSON.parse(returnedDoc.items);
+            returnedDoc.shipOpts = JSON.parse(returnedDoc.shipOpts);
             //console.log("newInventory:\n", returnedDoc.items);
             docArray = [...docArray, returnedDoc];
           }
@@ -9391,6 +9393,10 @@ class App extends React.Component {
 
         // let newArray = JSON.parse(JSON.stringify(theInventory.items)); //deep copy
         let newArray = JSON.parse(JSON.stringify(theInventoryDoc.items)); //deep copy
+
+        this.setState({
+          OrdersInventoryDoc: theInventoryDoc,
+        });
 
         if (d.length === 0) {
           //console.log("There are no YourOrdersConfirms");
@@ -10098,6 +10104,8 @@ class App extends React.Component {
         toId: this.state.SelectedOrder.$ownerId,
         amt: this.state.SelectedOrder.amt,
         cart: JSON.stringify(this.state.SelectedOrder.cart),
+        msg: "",
+        shipping: this.state.SelectedOrder.shipping,
       };
       //console.log(' Create: ', confirmProperties);
 
@@ -11021,113 +11029,6 @@ class App extends React.Component {
     );
   };
 
-  showConfirmModal_WALLET = (
-    inputName,
-    inputNumber,
-    dgmAddressDoc,
-    message
-  ) => {
-    this.setState(
-      {
-        WALLET_sendSuccess: false,
-        WALLET_sendFailure: false,
-        WALLET_sendMsgSuccess: false,
-        WALLET_sendMsgFailure: false,
-        WALLET_sendToName: inputName,
-        WALLET_amountToSend: Number((inputNumber * 100000000).toFixed(0)), //Number(inputNumber).toFixed(3),<- Old way // put in sats!! -> DONE
-        WALLET_sendToAddress: dgmAddressDoc.address,
-        WALLET_sendToDGMAddressDoc: dgmAddressDoc,
-        WALLET_messageToSend: message,
-        presentModal: "ConfirmPaymentModal",
-        isModalShowing: true,
-      } //,() => {
-      // console.log(this.state.sendToName);
-      // console.log(this.state.amountToSend);
-      // console.log(this.state.messageToSend);
-      // }
-    );
-  };
-  // BELOW - PAYMENT REQUEST
-  showRequestModal_WALLET = (inputNameDoc, inputNumber, message) => {
-    this.setState(
-      {
-        WALLET_sendPmtMsgSuccess: false,
-        WALLET_sendPmtMsgFailure: false,
-        WALLET_requestPmtNameDoc: inputNameDoc,
-        WALLET_sendToName: inputNameDoc.label,
-        WALLET_amountToSend: Number((inputNumber * 100000000).toFixed(0)),
-        WALLET_messageToSend: message,
-        presentModal: "ConfirmRequestModal",
-        isModalShowing: true,
-      } //,() => {
-      // console.log(this.state.sendToName);
-      // console.log(this.state.amountToSend);
-      // console.log(this.state.messageToSend);
-      // }
-    );
-  };
-
-  showPayRequestModal_WALLET = (
-    inputNameDoc, //name and OwnerId
-    reqMsgDoc //NEED FOR MSGID
-    //inputNumber //Should already be in duffs
-  ) => {
-    //THIS IS AFTER YOU CLICK PAY ON PAYMENT REQUEST
-    this.setState(
-      {
-        WALLET_sendSuccess: false,
-        WALLET_sendFailure: false,
-        WALLET_sendMsgSuccess: false,
-        WALLET_sendMsgFailure: false,
-        WALLET_sendPmtMsgSuccess: false,
-        WALLET_sendPmtMsgFailure: false,
-        WALLET_requestPmtNameDoc: inputNameDoc,
-        WALLET_requestPmtReqDoc: reqMsgDoc,
-        WALLET_sendToName: inputNameDoc.label,
-        WALLET_amountToSend: Number(reqMsgDoc.amt), //Number((inputNumber * 100000000).toFixed(0)), //Number(inputNumber).toFixed(3),<- Old way // put in sats!! -> DONE
-        // WALLET_sendToAddress: dgmAddressDoc.address,
-        // WALLET_sendToDGMAddressDoc: dgmAddressDoc,
-        // WALLET_messageToSend: message,
-        presentModal: "PayRequestModal",
-        isModalShowing: true,
-      } //,() => {
-      // console.log(this.state.sendToName);
-      // console.log(this.state.amountToSend);
-      // console.log(this.state.messageToSend);
-      // }
-    );
-  };
-
-  showRejectReplyReqModal_WALLET = (
-    inputNameDoc, //name and OwnerId
-    reqMsgDoc //NEED FOR MSGID***
-    //inputNumber //Should already be in duffs
-  ) => {
-    this.setState(
-      {
-        WALLET_sendSuccess: false,
-        WALLET_sendFailure: false,
-        WALLET_sendMsgSuccess: false,
-        WALLET_sendMsgFailure: false,
-        WALLET_sendPmtMsgSuccess: false,
-        WALLET_sendPmtMsgFailure: false,
-        WALLET_requestPmtNameDoc: inputNameDoc,
-        WALLET_requestPmtReqDoc: reqMsgDoc,
-        WALLET_sendToName: inputNameDoc.label,
-        WALLET_amountToSend: Number(reqMsgDoc.amt), //Number((inputNumber * 100000000).toFixed(0)), //Number(inputNumber).toFixed(3),<- Old way // put in sats!! -> DONE
-        // WALLET_sendToAddress: dgmAddressDoc.address,
-        // WALLET_sendToDGMAddressDoc: dgmAddressDoc,
-        // WALLET_messageToSend: message,
-        presentModal: "RejectReqModal",
-        isModalShowing: true,
-      } //,() => {
-      // console.log(this.state.sendToName);
-      // console.log(this.state.amountToSend);
-      // console.log(this.state.messageToSend);
-      // }
-    );
-  };
-
   // ^^^^ - PAYMENT REQUEST
   handleSuccessAlert_WALLET = () => {
     this.setState({
@@ -11351,7 +11252,7 @@ class App extends React.Component {
     this.getByYou_WALLET(theIdentity);
     this.getToYou_WALLET(theIdentity);
   };
-
+  //CLEAR ALL THIS OUT. ->
   getAddresses_WALLET = () => {
     const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
 
@@ -11538,507 +11439,8 @@ class App extends React.Component {
     //.finally(() => client.disconnect()); // <- Caused Error -> YES error dont use
   };
 
-  sendDashtoName_WALLET = () => {
-    this.setState({
-      isLoadingRefresh_WALLET: true,
-      isLoadingButtons_WALLET: true,
-      isLoadingWallet: true,
-      isLoadingForm_WALLET: true,
-    });
-
-    const client = new Dash.Client(
-      dapiClient(
-        this.state.whichNetwork,
-        this.state.mnemonic,
-        this.state.skipSynchronizationBeforeHeight
-      )
-    );
-
-    const payToRecipient = async () => {
-      const account = await client.getWalletAccount();
-
-      let dashAmt = this.state.WALLET_amountToSend;
-      console.log("sats sent in TX:", dashAmt);
-      console.log(typeof dashAmt);
-
-      // let amt = dashAmt.toFixed(0).toString();
-      // console.log(amt);
-      // console.log(typeof amt);
-
-      const transaction = account.createTransaction({
-        recipient: this.state.WALLET_sendToAddress,
-        satoshis: dashAmt, //Must be a string!!
-      });
-      //return transaction;//Use to disable TX
-      return account.broadcastTransaction(transaction);
-    };
-
-    payToRecipient()
-      .then((d) => {
-        console.log("Payment TX:\n", d);
-
-        this.setState(
-          {
-            // isLoadingWallet: false,
-            // isLoadingButtons: false,
-            // isLoadingForm: false,
-            WALLET_sendSuccess: true,
-          },
-          () => this.handlePostPayment_WALLET(d)
-        );
-      })
-      .catch((e) => {
-        console.error("Something went wrong:\n", e);
-        this.setState({
-          isLoadingRefresh_WALLET: false,
-          isLoadingWallet: false,
-          isLoadingButtons_WALLET: false,
-          isLoadingForm_WALLET: false,
-          WALLET_sendFailure: true,
-        });
-      });
-    //.finally(() => client.disconnect()); // <- Caused Error in the past, added back seems to fix more recent payment error. -> YES error dont use
-  };
   //
-  //3 BELOW FOR PAYMENT REQUESTS**
 
-  requestDashfromName_WALLET = () => {
-    //console.log("Called Submit Request Pmt Doc");
-
-    this.setState({
-      isLoadingRefresh_WALLET: true,
-      isLoadingButtons_WALLET: true,
-      isLoadingForm_WALLET: true,
-    });
-
-    const client = new Dash.Client(
-      dapiClient(
-        this.state.whichNetwork,
-        this.state.mnemonic,
-        this.state.skipSynchronizationBeforeHeight
-      )
-    );
-
-    let docProperties = {};
-
-    const submitDocument = async () => {
-      const { platform } = client;
-      // const identity = await platform.identities.get(this.state.identity); // Your identity ID
-
-      let identity = "";
-      if (this.state.identityRaw !== "") {
-        identity = this.state.identityRaw;
-      } else {
-        identity = await platform.identities.get(this.state.identity);
-      } // Your identity ID
-
-      docProperties = {
-        msg: this.state.WALLET_messageToSend,
-        toId: this.state.WALLET_requestPmtNameDoc.$ownerId,
-        txId: "", //Blank txId means Pmt Request
-        amt: this.state.WALLET_amountToSend,
-      };
-
-      //console.log(docProperties);
-
-      // Create the note document
-      const dgmDocument = await platform.documents.create(
-        "DGMContract.dgmmsg",
-        identity,
-        docProperties
-      );
-
-      console.log(dgmDocument.toJSON());
-
-      //############################################################
-      //This below disconnects the document sending..***
-
-      //return dgmDocument;
-
-      //This is to disconnect the Document Creation***
-
-      //############################################################
-
-      const documentBatch = {
-        create: [dgmDocument], // Document(s) to create
-      };
-
-      await platform.documents.broadcast(documentBatch, identity);
-      return dgmDocument;
-    };
-
-    submitDocument()
-      .then((d) => {
-        let returnedDoc = d.toJSON();
-        console.log("Msg Document:\n", returnedDoc);
-
-        let newMsg;
-
-        // required:['toId','txId',"$createdAt", "$updatedAt"],
-
-        newMsg = {
-          $ownerId: returnedDoc.$ownerId,
-          $id: returnedDoc.$id,
-          toId: this.state.WALLET_requestPmtNameDoc.$ownerId,
-          txId: "",
-          msg: this.state.WALLET_messageToSend,
-          amt: returnedDoc.amt,
-          $createdAt: returnedDoc.$createdAt,
-          $updatedAt: returnedDoc.$updatedAt,
-        };
-
-        this.setState(
-          {
-            WALLET_ByYouMsgs: [newMsg, ...this.state.WALLET_ByYouMsgs],
-            isLoadingRefresh_WALLET: false,
-            isLoadingButtons_WALLET: false,
-            isLoadingForm_WALLET: false,
-            WALLET_sendPmtMsgSuccess: true,
-          },
-          () => this.loadIdentityCredits()
-        );
-      })
-      .catch((e) => {
-        this.setState({
-          isLoadingRefresh_WALLET: false,
-          isLoadingButtons_WALLET: false,
-          isLoadingForm_WALLET: false,
-          WALLET_sendPmtMsgFailure: true,
-        });
-
-        console.error("Something went wrong creating new PmtReq:\n", e);
-      })
-      .finally(() => client.disconnect());
-
-    //THIS BELOW IS THE NAME DOC ADD, SO PROCESSES DURING DOC SUBMISSION ***
-
-    //NOT ME BUT WHO I AM SENDING TO!! <- Fixed!
-
-    let nameDoc = {
-      $ownerId: this.state.WALLET_requestPmtNameDoc.$ownerId,
-      label: this.state.WALLET_requestPmtNameDoc.label,
-    };
-
-    this.setState({
-      WALLET_ByYouNames: [nameDoc, ...this.state.WALLET_ByYouNames],
-    });
-    //END OF NAME DOC ADD***
-  };
-
-  payDashtoRequest_WALLET = (theDGMAddr, addedMessage) => {
-    //console.log(theDGMAddr);
-    // console.log(addedMessage);
-    this.setState({
-      isLoadingRefresh_WALLET: true,
-      isLoadingButtons_WALLET: true,
-      isLoadingWallet: true,
-      isLoadingForm_WALLET: true,
-      isLoadingMsgs_WALLET: true,
-      WALLET_messageToSend: "MSGFORpaidthr",
-    });
-
-    const client = new Dash.Client(
-      dapiClient(
-        this.state.whichNetwork,
-        this.state.mnemonic,
-        this.state.skipSynchronizationBeforeHeight
-      )
-    );
-
-    const payToRecipient = async () => {
-      const account = await client.getWalletAccount();
-
-      let dashAmt = this.state.WALLET_amountToSend;
-      console.log("sats sent in TX:", dashAmt);
-      console.log(typeof dashAmt);
-
-      // let amt = dashAmt.toFixed(0).toString();
-      // console.log(amt);
-      // console.log(typeof amt);
-
-      const transaction = account.createTransaction({
-        recipient: theDGMAddr,
-        satoshis: dashAmt, //Must be a string!!
-      });
-      //return transaction; //Use to disable TX
-      return account.broadcastTransaction(transaction);
-    };
-
-    payToRecipient()
-      .then((d) => {
-        console.log("Payment TX:\n", d);
-
-        this.setState(
-          {
-            // isLoadingWallet: false,
-            // isLoadingButtons: false,
-            // isLoadingForm: false,
-            WALLET_sendSuccess: true,
-          },
-          () => this.submitDGMThreadforRequest_WALLET(d, addedMessage)
-        );
-      })
-      .catch((e) => {
-        console.error("Something went wrong:\n", e);
-        this.setState({
-          isLoadingRefresh_WALLET: false,
-          isLoadingWallet: false,
-          isLoadingButtons_WALLET: false,
-          isLoadingMsgs_WALLET: false,
-          isLoadingForm_WALLET: false,
-          WALLET_sendFailure: true,
-        });
-      });
-    //.finally(() => client.disconnect()); // <- Caused Error in the past, added back seems to fix more recent payment error. -> YES error dont use
-  };
-  submitDGMThreadforRequest_WALLET = (theTxId, addedMessage) => {
-    this.setState({
-      isLoadingRefresh_WALLET: true,
-      isLoadingWallet: true,
-      isLoadingButtons_WALLET: true,
-      isLoadingForm_WALLET: true,
-      isLoadingMsgs_WALLET: true,
-    });
-
-    //console.log(addedMessage);
-
-    const client = new Dash.Client(
-      dapiClient(
-        this.state.whichNetwork,
-        this.state.mnemonic,
-        this.state.skipSynchronizationBeforeHeight
-      )
-    );
-
-    let docProperties = {};
-
-    const submitDocuments = async () => {
-      const { platform } = client;
-
-      let identity = "";
-      if (this.state.identityRaw !== "") {
-        identity = this.state.identityRaw;
-      } else {
-        identity = await platform.identities.get(this.state.identity);
-      } // Your identity ID
-
-      docProperties = {
-        msg: addedMessage,
-        msgId: this.state.WALLET_requestPmtReqDoc.$id,
-        txId: theTxId,
-      };
-
-      // Create the note document
-      const dgmDocument = await platform.documents.create(
-        "DGMContract.dgmthr",
-        identity,
-        docProperties
-      );
-
-      //console.log(dsoDocument.toJSON());
-
-      //############################################################
-      //This below disconnects the document sending..***
-
-      //return dgmDocument;
-
-      //This is to disconnect the Document Creation***
-
-      //############################################################
-
-      const documentBatch = {
-        create: [dgmDocument], // Document(s) to create
-      };
-
-      await platform.documents.broadcast(documentBatch, identity);
-      return dgmDocument;
-    };
-
-    submitDocuments()
-      .then((d) => {
-        let returnedDoc = d.toJSON();
-        console.log("Thread Documents:\n", returnedDoc);
-
-        let newThread;
-
-        // required: [' 'msg','msgId', "$createdAt", "$updatedAt"],
-
-        newThread = {
-          $ownerId: returnedDoc.$ownerId,
-          $id: returnedDoc.$id,
-          msgId: this.state.WALLET_requestPmtReqDoc.$id,
-          msg: addedMessage,
-          txId: theTxId,
-          $createdAt: returnedDoc.$createdAt,
-        };
-
-        this.setState(
-          {
-            WALLET_ByYouThreads: [newThread, ...this.state.WALLET_ByYouThreads],
-            //BELOW 3 are handle in the POSTPAYMENTWallet function.
-            //isLoadingRefresh_WALLET: false,
-            //isLoadingWallet: false,
-            //isLoadingButtons_WALLET: false,
-            isLoadingForm_WALLET: false,
-            WALLET_sendMsgSuccess: true,
-            isLoadingMsgs_WALLET: false,
-          },
-          () => this.handleLoginforPostPaymentWallet_WALLET()
-        );
-      })
-      .catch((e) => {
-        this.setState(
-          {
-            isLoadingRefresh_WALLET: false,
-            isLoadingWallet: false,
-            isLoadingButtons_WALLET: false,
-            isLoadingForm_WALLET: false,
-            WALLET_sendMsgFailure: true,
-            isLoadingMsgs_WALLET: false,
-          },
-          () => this.handleLoginforPostPaymentWallet_WALLET()
-        );
-
-        console.error("Something went wrong creating new thread:\n", e);
-      })
-      .finally(() => client.disconnect());
-    // THIS BELOW IS THE NAME DOC ADD, SO PROCESSES DURING DOC SUBMISSION ***
-
-    // NOT ME BUT WHO I AM SENDING TO!! <- Fixed!
-
-    let nameDoc = {
-      $ownerId: this.state.WALLET_requestPmtNameDoc.$ownerId,
-      label: this.state.WALLET_requestPmtNameDoc.label,
-    };
-
-    this.setState({
-      WALLET_ByYouNames: [nameDoc, ...this.state.WALLET_ByYouNames],
-    });
-    //END OF NAME DOC ADD***
-  };
-
-  rejectOrReplyRequestThread_WALLET = (addedMessage, ifReject) => {
-    this.setState({
-      isLoadingRefresh_WALLET: true,
-      isLoadingWallet: true,
-
-      isLoadingButtons_WALLET: true,
-      isLoadingForm_WALLET: true,
-      isLoadingMsgs_WALLET: true,
-    });
-
-    //console.log(addedMessage);
-
-    const client = new Dash.Client(
-      dapiClient(
-        this.state.whichNetwork,
-        this.state.mnemonic,
-        this.state.skipSynchronizationBeforeHeight
-      )
-    );
-
-    let docProperties = {};
-
-    const submitDocuments = async () => {
-      const { platform } = client;
-
-      let identity = "";
-      if (this.state.identityRaw !== "") {
-        identity = this.state.identityRaw;
-      } else {
-        identity = await platform.identities.get(this.state.identity);
-      } // Your identity ID
-      if (ifReject) {
-        docProperties = {
-          msg: addedMessage,
-          msgId: this.state.WALLET_requestPmtReqDoc.$id,
-          txId: "rej",
-        };
-      } else {
-        docProperties = {
-          msg: addedMessage,
-          msgId: this.state.WALLET_requestPmtReqDoc.$id,
-        };
-      }
-
-      // Create the note document
-      const dgmDocument = await platform.documents.create(
-        "DGMContract.dgmthr",
-        identity,
-        docProperties
-      );
-
-      //console.log(dsoDocument.toJSON());
-
-      //############################################################
-      //This below disconnects the document sending..***
-
-      // return dgmDocument;
-
-      //This is to disconnect the Document Creation***
-
-      //############################################################
-
-      const documentBatch = {
-        create: [dgmDocument], // Document(s) to create
-      };
-
-      await platform.documents.broadcast(documentBatch, identity);
-      return dgmDocument;
-    };
-
-    submitDocuments()
-      .then((d) => {
-        let returnedDoc = d.toJSON();
-        console.log("Thread Documents:\n", returnedDoc);
-
-        let newThread;
-
-        // required: [' 'msg','msgId', "$createdAt", "$updatedAt"],
-        if (ifReject) {
-          newThread = {
-            $ownerId: returnedDoc.$ownerId,
-            $id: returnedDoc.$id,
-            msgId: this.state.WALLET_requestPmtReqDoc.$id,
-            msg: addedMessage,
-            $createdAt: returnedDoc.$createdAt,
-            txId: "rej",
-          };
-        } else {
-          newThread = {
-            $ownerId: returnedDoc.$ownerId,
-            $id: returnedDoc.$id,
-            msgId: this.state.WALLET_requestPmtReqDoc.$id,
-            msg: addedMessage,
-            $createdAt: returnedDoc.$createdAt,
-          };
-        }
-
-        this.setState({
-          WALLET_ByYouThreads: [newThread, ...this.state.WALLET_ByYouThreads],
-
-          isLoadingRefresh_WALLET: false,
-          isLoadingWallet: false,
-          isLoadingButtons_WALLET: false,
-          isLoadingForm_WALLET: false,
-
-          isLoadingMsgs_WALLET: false,
-        });
-      })
-      .catch((e) => {
-        this.setState({
-          isLoadingRefresh_WALLET: false,
-          isLoadingWallet: false,
-          isLoadingButtons_WALLET: false,
-          isLoadingForm_WALLET: false,
-
-          isLoadingMsgs_WALLET: false,
-        });
-
-        console.error("Something went wrong creating new thread:\n", e);
-      })
-      .finally(() => client.disconnect());
-  };
   //
   // ^^^ FOR PAYMENT REQUESTS**
   //
@@ -12053,224 +11455,6 @@ class App extends React.Component {
     } else {
       this.submitDGMMessage_WALLET(txId);
     }
-  };
-  //BELOW  handle the msg fail to send in the below function and change the wording/create an new alert that handles. <= do it =>
-  submitDGMMessage_WALLET = (theTXId) => {
-    console.log("Called Submit DGM MSG Doc");
-
-    const client = new Dash.Client(
-      dapiClient(
-        this.state.whichNetwork,
-        this.state.mnemonic,
-        this.state.skipSynchronizationBeforeHeight
-      )
-    );
-
-    let docProperties = {};
-
-    const submitDocument = async () => {
-      const { platform } = client;
-      // const identity = await platform.identities.get(this.state.identity); // Your identity ID
-
-      let identity = "";
-      if (this.state.identityRaw !== "") {
-        identity = this.state.identityRaw;
-      } else {
-        identity = await platform.identities.get(this.state.identity);
-      } // Your identity ID
-
-      docProperties = {
-        msg: this.state.WALLET_messageToSend,
-        toId: this.state.WALLET_sendToDGMAddressDoc.$ownerId,
-        txId: theTXId,
-      };
-
-      //console.log(docProperties);
-
-      // Create the note document
-      const dgmDocument = await platform.documents.create(
-        "DGMContract.dgmmsg",
-        identity,
-        docProperties
-      );
-
-      console.log(dgmDocument.toJSON());
-
-      //############################################################
-      //This below disconnects the document sending..***
-
-      // return dgmDocument;
-
-      //This is to disconnect the Document Creation***
-
-      //############################################################
-
-      const documentBatch = {
-        create: [dgmDocument], // Document(s) to create
-      };
-
-      await platform.documents.broadcast(documentBatch, identity);
-      return dgmDocument;
-    };
-
-    submitDocument()
-      .then((d) => {
-        let returnedDoc = d.toJSON();
-        console.log("Msg Document:\n", returnedDoc);
-
-        let newMsg;
-
-        // required:['toId','txId',"$createdAt", "$updatedAt"],
-
-        newMsg = {
-          $ownerId: returnedDoc.$ownerId,
-          $id: returnedDoc.$id,
-          toId: this.state.WALLET_sendToDGMAddressDoc.$ownerId,
-          txId: theTXId,
-          msg: this.state.WALLET_messageToSend,
-          $createdAt: returnedDoc.$createdAt,
-        };
-
-        this.setState(
-          {
-            WALLET_ByYouMsgs: [newMsg, ...this.state.WALLET_ByYouMsgs],
-            isLoadingForm_WALLET: false,
-            WALLET_sendMsgSuccess: true,
-          },
-          () => this.handleLoginforPostPaymentWallet_WALLET()
-        );
-      })
-      .catch((e) => {
-        this.setState(
-          {
-            isLoadingForm_WALLET: false,
-            WALLET_sendMsgFailure: true,
-          },
-          () => this.handleLoginforPostPaymentWallet_WALLET()
-        );
-
-        console.error("Something went wrong creating new msg:\n", e);
-      })
-      .finally(() => client.disconnect());
-
-    //THIS BELOW IS THE NAME DOC ADD, SO PROCESSES DURING DOC SUBMISSION ***
-
-    //NOT ME BUT WHO I AM SENDING TO!! <- Fixed!
-
-    let nameDoc = {
-      $ownerId: this.state.WALLET_sendToDGMAddressDoc.$ownerId,
-      label: this.state.WALLET_sendToName,
-    };
-
-    this.setState({
-      WALLET_ByYouNames: [nameDoc, ...this.state.WALLET_ByYouNames],
-    });
-    //END OF NAME DOC ADD***
-  };
-
-  submitDGMThread_WALLET = (addedMessage) => {
-    this.setState({
-      isLoadingRefresh_WALLET: true,
-      isLoadingWallet: true,
-      isLoadingButtons_WALLET: true,
-      isLoadingForm_WALLET: true,
-      isLoadingMsgs_WALLET: true,
-    });
-
-    //console.log(addedMessage);
-
-    const client = new Dash.Client(
-      dapiClient(
-        this.state.whichNetwork,
-        this.state.mnemonic,
-        this.state.skipSynchronizationBeforeHeight
-      )
-    );
-
-    let docProperties = {};
-
-    const submitDocuments = async () => {
-      const { platform } = client;
-
-      let identity = "";
-      if (this.state.identityRaw !== "") {
-        identity = this.state.identityRaw;
-      } else {
-        identity = await platform.identities.get(this.state.identity);
-      } // Your identity ID
-
-      docProperties = {
-        msg: addedMessage,
-        msgId: this.state.WALLET_ThreadMessageId,
-      };
-
-      // Create the note document
-      const dgmDocument = await platform.documents.create(
-        "DGMContract.dgmthr",
-        identity,
-        docProperties
-      );
-
-      //console.log(dsoDocument.toJSON());
-
-      //############################################################
-      //This below disconnects the document sending..***
-
-      // return dgmDocument;
-
-      //This is to disconnect the Document Creation***
-
-      //############################################################
-
-      const documentBatch = {
-        create: [dgmDocument], // Document(s) to create
-      };
-
-      await platform.documents.broadcast(documentBatch, identity);
-      return dgmDocument;
-    };
-
-    submitDocuments()
-      .then((d) => {
-        let returnedDoc = d.toJSON();
-        console.log("Thread Documents:\n", returnedDoc);
-
-        let newThread;
-
-        // required: [' 'msg','msgId', "$createdAt", "$updatedAt"],
-
-        newThread = {
-          $ownerId: returnedDoc.$ownerId,
-          $id: returnedDoc.$id,
-          msgId: this.state.WALLET_ThreadMessageId,
-          msg: addedMessage,
-          $createdAt: returnedDoc.$createdAt,
-        };
-
-        this.setState({
-          WALLET_ByYouThreads: [newThread, ...this.state.WALLET_ByYouThreads],
-
-          isLoadingRefresh_WALLET: false,
-          isLoadingWallet: false,
-          isLoadingButtons_WALLET: false,
-          isLoadingForm_WALLET: false,
-
-          isLoadingMsgs_WALLET: false,
-        });
-      })
-      .catch((e) => {
-        this.setState({
-          isLoadingRefresh_WALLET: false,
-          isLoadingWallet: false,
-          isLoadingButtons_WALLET: false,
-          isLoadingForm_WALLET: false,
-
-          isLoadingMsgs_WALLET: false,
-        });
-
-        console.error("Something went wrong creating new thread:\n", e);
-      })
-      .finally(() => client.disconnect());
   };
 
   /*
@@ -13668,7 +12852,7 @@ class App extends React.Component {
 
                 YourOrdersNames={this.state.YourOrdersNames}
                 //
-                handleDeleteOrderModal={this.handleDeleteOrderModal}
+                //handleDeleteOrderModal={this.handleDeleteOrderModal}
                 //
                 identity={this.state.identity}
                 identityInfo={this.state.identityInfo}
@@ -13776,6 +12960,7 @@ class App extends React.Component {
                 isLoadingOrdersMerchant={this.state.isLoadingOrdersMerchant}
                 isOrdersRefreshReady={this.state.isOrdersRefreshReady}
                 handleRefresh_Orders={this.handleRefresh_Orders}
+                OrdersInventoryDoc={this.state.OrdersInventoryDoc}
                 Inventory={this.state.Inventory}
                 UnconfirmedOrders={this.state.OrdersOrders}
                 ConfirmedOrders={this.state.OrdersConfirms}
@@ -14434,22 +13619,6 @@ class App extends React.Component {
         )}
 
         {/* RSRVS ^^^ || YOUR ORDERS (BELOW) */}
-
-        {this.state.isModalShowing &&
-        this.state.presentModal === "DeleteOrderModal" ? (
-          <DeleteOrderModal
-            whichNetwork={this.state.whichNetwork}
-            MerchantNameDoc={this.state.SelectedMerchantName}
-            Inventory={this.state.SelectedInventory}
-            order={this.state.SelectedOrder}
-            deleteOrder={this.deleteOrder}
-            isModalShowing={this.state.isModalShowing}
-            hideModal={this.hideModal}
-            mode={this.state.mode}
-          />
-        ) : (
-          <></>
-        )}
 
         {this.state.isModalShowing &&
         this.state.presentModal === "AddMessageToResponseModalYOURORDERS" ? (
