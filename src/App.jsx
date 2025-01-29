@@ -26,9 +26,11 @@ import LoginForm from "./Components/0-LoginPage/LoginForm";
 import AccountLogin from "./Components/0-LoginPage/AccountLogin";
 import IdentityControlPage from "./Components/0-LoginPage/IdentityControlPage";
 
-import WalletPage from "./Components/8-Wallet/WalletPage";
+import WalletPage from "./Components/9-Wallet/WalletPage";
 
 import ReviewsPage from "./Components/7-Reviews/ReviewsPage";
+
+import NearbyPage from "./Components/8-NearBy/NearbyPage";
 
 import TopUpIdentityModal from "./Components/TopUpIdentityModal";
 
@@ -110,7 +112,7 @@ import AddMsgToRequestModalORDERS from "./Components/6-OrdersReceived/MerchantMo
 import Refund2PartyModalORDERS from "./Components/6-OrdersReceived/MerchantModals/Refund2PartyModalORDERS";
 import RetrieveFundsModalORDERS from "./Components/6-OrdersReceived/MerchantModals/RetrieveFundsModalORDERS";
 
-import ConfirmAddrPaymentModal from "./Components/8-Wallet/ConfirmAddrPaymentModal";
+import ConfirmAddrPaymentModal from "./Components/9-Wallet/ConfirmAddrPaymentModal";
 //import RegisterDGMModal from "./Components/RegisterDGMModal";
 //import ThreadModal_WALLET from "./Components/8-Wallet/ThreadModal_WALLET";
 //import WalletTXModal from "./Components/WalletTXModal";
@@ -349,29 +351,13 @@ class App extends React.Component {
 
       //WALLET PAGE
 
-      WALLET_whichTab: "Your Wallet",
-
-      WALLET_whichPayType: "Pay",
-
       isLoadingButtons_WALLET: true,
       isLoadingForm_WALLET: false,
 
-      isLoadingRefresh_WALLET: false, // This is not implemented maybe use to consolidate the confirmations, Buttons and Form?? or just add another?? -> So I think that the purpose of the refresh is currently only to keep the msgs viewable while the page reload/finishes the queries ->
+      isLoadingRefresh_WALLET: false,
 
-      isLoadingMsgs_WALLET: true,
-
-      isLoadingAddresses_WALLET: true, //Addresses of others, not mine
-
-      dgmDocuments: [], //MOVE TO GENERAL BC USED IN MY STORE <=
-      //WALLET_Login7 <= use this to control the "Enable Pay to Name" so doesn't show up before its been checked.
-
-      WALLET_sendToName: "",
-      WALLET_requestPmtNameDoc: "",
-      WALLET_requestPmtReqDoc: "",
       WALLET_sendToAddress: "",
       WALLET_amountToSend: 0,
-      WALLET_messageToSend: "",
-      WALLET_sendToDGMAddressDoc: "",
 
       WALLET_sendSuccess: false,
       WALLET_sendFailure: false,
@@ -386,48 +372,6 @@ class App extends React.Component {
       WALLET_sendPmtMsgFailure: false,
 
       //*** *** *** *** ***
-
-      WALLET_Login1: false,
-      WALLET_Login2: false,
-      WALLET_Login3: false,
-      WALLET_Login4: false,
-      WALLET_Login5: false,
-      WALLET_Login6: false,
-      WALLET_Login7: false,
-
-      WALLET_ByYouMsgs: [],
-      WALLET_ByYouNames: [],
-      WALLET_ByYouThreads: [],
-
-      WALLET_ToYouMsgs: [],
-      WALLET_ToYouNames: [],
-      WALLET_ToYouThreads: [],
-
-      //BELOW Refresh
-      WALLET_Refresh1: false,
-      WALLET_Refresh2: false,
-      WALLET_Refresh3: false,
-      WALLET_Refresh4: false,
-      WALLET_Refresh5: false,
-      WALLET_Refresh6: false,
-
-      WALLET_RefreshIdentityInfo: "",
-      WALLET_RefreshIdentityRaw: "",
-
-      WALLET_RefreshByYouMsgs: [],
-      WALLET_RefreshByYouNames: [],
-      WALLET_RefreshByYouThreads: [],
-
-      WALLET_RefreshToYouMsgs: [],
-      WALLET_RefreshToYouNames: [],
-      WALLET_RefreshToYouThreads: [],
-
-      //ABOVE Refresh
-
-      //*** *** *** *** ***
-
-      WALLET_ThreadMessageId: "",
-      WALLET_messageToWhomName: "",
 
       //WALLET PAGE STATE^^^^^^
 
@@ -499,42 +443,82 @@ class App extends React.Component {
 
       //REVIEWS PAGE STATE^^^^^^
 
-      //PROOFS PAGE
-      whichTab_POD: "Search",
+      //NEAR BY PAGE
 
-      isLoadingSearch_POD: false,
+      OnPageLoadNEARBY: true,
+      InitialPullNearBy: true,
 
-      isLoadingYourProofs: true,
+      whichNearbyTab: "Search",
+      selectedCategoryButton: "offbiz",
 
-      nameToSearch_POD: "",
-      nameFormat_POD: false,
-      isTooLongNameError_POD: false, // <- not connected to anything
+      isLoadingDSODM: false,
 
-      SearchedNameDoc_POD: {
-        $ownerId: "4h5j6j",
-        label: "Alice",
-      },
+      isLoadingNearbyInitial: true,
+      isLoadingNearbySearch: false,
+      isLoadingNearbyForm: false,
 
-      SearchedProofs: [
-        {
-          $ownerId: "4h5j6j",
-          $id: "7ku98rj",
+      isLoadingYourPosts: true,
 
-          address: "yadAMKzCFruDYg7bsvLVFfjXuVsN4rPqzw",
-          message: "Its a me, Mario! I mean Alice lol",
-          signature:
-            "H2KKtQ1vdvAMeGHATxCa8Scj+xwscwzbIfpGKE20Ff1+PQQ+3vYZCKOoynzZ+SP9Wkv7k7es0XjFsgt4eK/7d0g=",
+      //Event Groups -> getDGTInvitesForEvents
+      dgtInvitesForEvents: [],
+      isLoadingGroupEvents: true,
 
-          $createdAt: Date.now() - 1000000,
-        },
-      ],
+      //##### LOCATION FORM STATE ######
+      whichCountryRegion: "Country",
 
-      YourProofs: [],
+      cityInput: "",
+      validCity: true,
+      tooLongCityNameError: false,
 
-      selectedYourProof: "",
-      selectedYourProofIndex: "",
+      countryRegionInput: "",
+      validCountryRegion: true,
+      tooLongCountryRegionNameError: false,
+      //^^^^^ LOCATION FORM STATE ^^^^^
 
-      //PROOFS PAGE STATE^^^^^^
+      citySubmitted: "",
+      countryRegionSubmitted: "Country",
+      whichSubmitted: "offbiz",
+
+      //#####  POSTS TO DISPLAY ######
+      OffRentPosts: [],
+      OffRentNames: [],
+
+      OffBizPosts: [],
+      OffBizNames: [],
+
+      OffOtherPosts: [],
+      OffOtherNames: [],
+      //EVENTS
+      OffEventsPosts: [],
+      OffEventsNames: [],
+
+      LookRentPosts: [],
+      LookRentNames: [],
+
+      LookOtherPosts: [],
+      LookOtherNames: [],
+      //^^^^^ POSTS TO DISPLAY ^^^^^
+
+      //##### Search POSTS ######
+
+      OffBizPulled: false,
+      OffEventsPulled: false,
+      OffRentPulled: false,
+      OffTradePulled: false,
+      LookRentPulled: false,
+      LookTradePulled: false,
+
+      //^^^^^ Search POSTS ^^^^^
+
+      selectedSearchedPost: "",
+      selectedSearchedPostNameDoc: "",
+
+      yourPostsToDisplay: [],
+
+      selectedYourPost: "",
+      selectedYourPostIndex: "",
+
+      //NEAR BY PAGE STATE^^^^^^
 
       selectedDapp: "Login",
 
@@ -882,8 +866,6 @@ class App extends React.Component {
     //After(Identity/Name) -> trigger added to 2 Functions ABOVE
     // ForYou(Messages)
     //this.startMessagesQuerySeq(theIdentity);
-    // DGM msgs(to&from) && //DGM AddressesFromWallet!
-    //this.handleLoginQueries_WALLET(theIdentity);
   };
 
   handleAccountRetry = () => {
@@ -1206,12 +1188,6 @@ class App extends React.Component {
     //After(Identity/Name) -> trigger added to 2 Functions ABOVE
     // ForYou(Messages)
     // this.startMessagesQuerySeq(theIdentity);
-    // DGM msgs(to&from) && //DGM AddressesFromWallet!
-    // this.handleLoginQueries_WALLET(theIdentity);
-    //
-    //if(this.state.platformLogin){}
-    // this.getAddresses_WALLET(); //REQUIRES -> this.state.accountHistory
-    // NEED TO CALL ^^^ AFTER THE WALLET IS PULLED <=
   };
 
   // ####  ####  WRITE ACTIONS BELOW  #### ####
@@ -11108,70 +11084,17 @@ class App extends React.Component {
       .finally(() => client.disconnect());
   };
 
-  handleThread_WALLET = (msgDocId, toName) => {
-    if (!this.state.isLoadingRefresh_WALLET) {
-      this.setState(
-        {
-          WALLET_ThreadMessageId: msgDocId,
-          WALLET_messageToWhomName: toName,
-        },
-        () => this.showModal("ThreadModal_WALLET")
-      );
-    }
-  };
-
   handleRefresh_WALLET = () => {
     this.setState({
       isLoadingWallet: true,
       isLoadingRefresh_WALLET: true,
       isLoadingButtons_WALLET: true,
-      isLoadingMsgs_WALLET: true,
+
       WALLET_sendSuccess: false,
       WALLET_sendFailure: false,
-      WALLET_sendMsgSuccess: false,
-      WALLET_sendMsgFailure: false,
     });
 
-    this.getRefreshByYou(this.state.identity);
-    this.getRefreshToYou(this.state.identity);
-    this.getRefreshIdentityInfo(this.state.identity);
     this.refreshWallet_WALLET();
-  };
-
-  checkRefreshRace = () => {
-    if (
-      this.state.WALLET_Refresh1 &&
-      this.state.WALLET_Refresh2 &&
-      this.state.WALLET_Refresh3 &&
-      this.state.WALLET_Refresh4 &&
-      this.state.WALLET_Refresh5 &&
-      this.state.WALLET_Refresh6
-    ) {
-      this.setState({
-        WALLET_ByYouMsgs: this.state.WALLET_RefreshByYouMsgs,
-        WALLET_ByYouNames: this.state.WALLET_RefreshByYouNames,
-        WALLET_ByYouThreads: this.state.WALLET_RefreshByYouThreads,
-
-        WALLET_ToYouMsgs: this.state.WALLET_RefreshToYouMsgs,
-        WALLET_ToYouNames: this.state.WALLET_RefreshToYouNames,
-        WALLET_ToYouThreads: this.state.WALLET_RefreshToYouThreads,
-
-        identityInfo: this.state.WALLET_RefreshIdentityInfo,
-        identityRaw: this.state.WALLET_RefreshIdentityRaw,
-
-        isLoadingWallet: false,
-        isLoadingRefresh_WALLET: false,
-        isLoadingButtons_WALLET: false,
-        isLoadingMsgs_WALLET: false,
-
-        WALLET_Refresh1: false,
-        WALLET_Refresh2: false,
-        WALLET_Refresh3: false,
-        WALLET_Refresh4: false,
-        WALLET_Refresh5: false,
-        WALLET_Refresh6: false,
-      });
-    }
   };
 
   refreshWallet_WALLET = () => {
@@ -11199,180 +11122,17 @@ class App extends React.Component {
       .then((d) => {
         //console.log("Wallet Account:\n", d);
 
-        this.setState(
-          {
-            WALLET_Refresh6: true,
-          },
-          () => this.checkRefreshRace()
-        );
+        this.setState({
+          isLoadingWallet: false,
+          isLoadingRefresh_WALLET: false,
+          isLoadingButtons_WALLET: false,
+        });
       })
       .catch((e) => {
         console.error("Something went wrong RefreshWallet:\n", e);
       })
       .finally(() => client.disconnect());
   };
-
-  getRefreshIdentityInfo = (theIdentity) => {
-    console.log("Called get Refresh Identity Info");
-
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-    const retrieveIdentity = async () => {
-      return client.platform.identities.get(theIdentity); // Your identity ID
-    };
-
-    retrieveIdentity()
-      .then((d) => {
-        console.log("Identity retrieved:\n", d.toJSON());
-        let idInfo = d.toJSON();
-        this.setState(
-          {
-            WALLET_RefreshIdentityInfo: idInfo,
-            WALLET_RefreshIdentityRaw: d,
-            WALLET_Refresh5: true,
-          },
-          () => this.checkRefreshRace()
-        );
-      })
-      .catch((e) => {
-        console.error("Something went wrong in getRefreshIdentityInfo:\n", e);
-      })
-      .finally(() => client.disconnect());
-  };
-
-  handleLoginQueries_WALLET = (theIdentity) => {
-    //Add the GET ADDRESSES
-
-    if (this.state.dgmDocuments.length === 0) {
-      this.queryDGMDocument(theIdentity);
-      // this.setState({
-      //   WALLET_Login7: true,
-      // });
-    }
-    this.getByYou_WALLET(theIdentity);
-    this.getToYou_WALLET(theIdentity);
-  };
-  //CLEAR ALL THIS OUT. ->
-  getAddresses_WALLET = () => {
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-    const getDocuments = async () => {
-      console.log("Called getAddresses.");
-
-      //CREATE A FUNCTION THAT GETS ALL THE ADDRESS FROM WALLET HISTORY ->
-      //2 sides -> send to AND received from
-      //NO ^^ ONLY SEND TO. CANT BE SURE WHERE RECIEVED IS FROM BUT I ONLY NEED THE SEND TO RESEND THE MSG AND ORDERS!
-      //*** BUT  *** THEN CAN USE THE PLATFORM DATA **txId** FOR THE RECEIVED?? <= ??
-
-      // let the component do the sorting for display
-      // console.log(this.state.accountHistory);
-      let addresses = [];
-      this.state.accountHistory.forEach((tx, index) => {
-        if (tx.type === "sent") {
-          let addressToUse = tx.to.find((addr) => {
-            // console.log(addr);
-            return addr.addressType === "unknown";
-          });
-          // console.log(`AddressFromWallet:${addressToUse}`);
-          if (addressToUse.address !== "false") {
-            addresses.push(addressToUse.address);
-          }
-        }
-      });
-
-      // console.log(addresses);
-
-      //SET UNIQUE!!
-      let setOfAddresses = [...new Set(addresses)];
-
-      let arrayOfAddresses = [...setOfAddresses];
-
-      if (addresses !== undefined && addresses.length !== 0) {
-        return client.platform.documents.get("DGMContract.dgmaddress", {
-          where: [["address", "in", arrayOfAddresses]],
-          orderBy: [["address", "asc"]],
-        });
-      } else {
-        return [];
-      }
-    };
-
-    getDocuments()
-      .then((d) => {
-        if (d.length === 0) {
-          console.log("There are no Addresses_WALLET");
-          this.setState({
-            isLoadingAddresses_WALLET: false,
-          });
-        } else {
-          let docArray = [];
-          //console.log("Getting Addresses_WALLET");
-          for (const n of d) {
-            let returnedDoc = n.toJSON();
-            // console.log("Addr Doc:\n", returnedDoc);
-
-            docArray = [...docArray, returnedDoc];
-          }
-          this.getAddressesNames_WALLET(docArray);
-        }
-      })
-      .catch((e) => {
-        console.error("Something went wrong:\n", e);
-      })
-      .finally(() => client.disconnect());
-  };
-
-  getAddressesNames_WALLET = (docArray) => {
-    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-    //START OF NAME RETRIEVAL
-
-    let ownerarrayOfOwnerIds = docArray.map((doc) => {
-      return doc.$ownerId;
-    });
-
-    let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
-
-    let arrayOfOwnerIds = [...setOfOwnerIds];
-
-    //console.log("Calling getByYouNames");
-
-    const getNameDocuments = async () => {
-      return client.platform.documents.get("DPNSContract.domain", {
-        where: [["records.identity", "in", arrayOfOwnerIds]],
-        orderBy: [["records.identity", "asc"]],
-      });
-    };
-
-    getNameDocuments()
-      .then((d) => {
-        //WHAT IF THERE ARE NO NAMES? -> THEN THIS WON'T BE CALLED
-        // if (d.length === 0) {
-        //   console.log("No DPNS domain documents retrieved.");
-        // }
-
-        let nameDocArray = [];
-
-        for (const n of d) {
-          //console.log("NameDoc:\n", n.toJSON());
-
-          nameDocArray = [n.toJSON(), ...nameDocArray];
-        }
-        //console.log(`DPNS Name Docs: ${nameDocArray}`);
-
-        this.setState({
-          WALLET_addressesNames: nameDocArray,
-          WALLET_addresses: docArray,
-          isLoadingAddresses_WALLET: false,
-        });
-      })
-      .catch((e) => {
-        console.error("Something went wrong getting address Names:\n", e);
-      })
-      .finally(() => client.disconnect());
-    //END OF NAME RETRIEVAL
-  };
-
-  addAddress_WALLET = () => {}; //USE TO UPDATE addresses_WALLET once pmt is made! ->
 
   //FROM: https://dashpay.github.io/platform/Wallet-library/account/createTransaction/
 
@@ -12313,8 +12073,1646 @@ class App extends React.Component {
    *                                         ################
    *                                         ###          ####
    *                                         ###           ####
-   *
-   *
+   */
+
+  //NEAR BY FUNCTIONS
+
+  handleNearbyTab = (eventKey) => {
+    if (eventKey === "Search")
+      this.setState({
+        whichNearbyTab: "Search",
+      });
+    else {
+      this.setState({
+        whichNearbyTab: "Your Posts",
+      });
+    }
+  };
+
+  pullInitialTriggerNEARBY = () => {
+    this.getYourPosts(this.state.identity);
+    //this.getDGTInvitesForEvents(); //Use InitialPullNearBy As control
+    this.setState({
+      InitialPullNearBy: false,
+    });
+  };
+
+  pullOnPageLoadTriggerNEARBY = () => {
+    if (this.state.OnPageLoadNEARBY) {
+      this.getInitialPosts();
+      this.setState({
+        OnPageLoadNEARBY: false,
+      });
+    }
+  };
+
+  // FORM FUNCTIONS
+  triggerCountryButton = () => {
+    this.setState({
+      whichCountryRegion: "Country",
+    });
+  };
+
+  triggerRegionButton = () => {
+    this.setState({
+      whichCountryRegion: "Region",
+    });
+  };
+
+  handleNearbyOnChangeValidation = (event) => {
+    this.setState({
+      nameAvail: false,
+      identityIdReceipient: "", //Test if this clears the error msg after failed send ->
+      dgmDocumentsForReceipient: [],
+      isError: false,
+    });
+
+    if (event.target.id === "formCityName") {
+      this.cityNameValidate(event.target.value);
+    }
+
+    if (event.target.id === "formCountryRegionName") {
+      this.countryRegionNameValidate(event.target.value);
+    }
+  };
+
+  cityNameValidate = (cityName) => {
+    let regex = /^.{0,32}$/;
+    let valid = regex.test(cityName);
+
+    if (valid) {
+      this.setState({
+        cityInput: cityName,
+        tooLongCityNameError: false,
+        validCity: true,
+      });
+    } else {
+      if (cityName.length > 32) {
+        this.setState({
+          cityInput: cityName,
+          tooLongCityNameError: true,
+          validCity: false,
+        });
+      } else {
+        this.setState({
+          cityInput: cityName,
+          validCity: false,
+        });
+      }
+    }
+  };
+
+  countryRegionNameValidate = (countryRegionName) => {
+    let regex = /^.{0,32}$/;
+    let valid = regex.test(countryRegionName);
+
+    if (valid) {
+      this.setState({
+        countryRegionInput: countryRegionName,
+        tooLongCountryRegionNameError: false,
+        validCountryRegion: true,
+      });
+    } else {
+      if (countryRegionName.length > 32) {
+        this.setState({
+          countryRegionInput: countryRegionName,
+          tooLongCountryRegionNameError: true,
+          validCountryRegion: false,
+        });
+      } else {
+        this.setState({
+          countryRegionInput: countryRegionName,
+          validCountryRegion: false,
+        });
+      }
+    }
+  };
+
+  // ^^^^ FORM FUNCTIONS
+
+  // 5 BUTTONS below form
+  handleSelectedCategoryButton = (clickedButton) => {
+    //What are the clickedButton input? -> "lookrent" 'offbiz' 'offevents' offother lookother -> DONE
+    //
+
+    this.setState(
+      {
+        selectedCategoryButton: clickedButton,
+      },
+      () => this.checkIfPulledAlready()
+    );
+  };
+
+  // ^^^^ 5 BUTTONS below form
+
+  handleYourPost = (index) => {
+    this.setState(
+      {
+        selectedYourPost: this.state.yourPostsToDisplay[index],
+        //I also need the name <- NOT FOR MY POSTS
+        selectedYourPostIndex: index, //<- Need this for the editingfunction!!
+      },
+      () => this.showModal("EditPostModal")
+    );
+  };
+
+  handleYourEvent = (index) => {
+    this.setState(
+      {
+        selectedYourPost: this.state.yourPostsToDisplay[index],
+        //I also need the name <- NOT FOR MY POSTS
+        selectedYourPostIndex: index, //<- Need this for the editingfunction!!
+      },
+      () => this.showModal("EditEventModal")
+    );
+  };
+
+  handleSearchedPost = (post, nameDoc) => {
+    this.setState(
+      {
+        selectedSearchedPost: post,
+        selectedSearchedPostNameDoc: nameDoc,
+      },
+      () => this.showModal("PostModal")
+    );
+  };
+
+  handleSearchedEvent = (event, nameDoc) => {
+    this.setState(
+      {
+        selectedSearchedPost: event,
+        selectedSearchedPostNameDoc: nameDoc,
+      },
+      () => this.showModal("EventModal")
+    );
+  };
+
+  getYourPosts = (theIdentity) => {
+    //console.log("Calling getYourPosts");
+
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("DMIOContract.dmiopost", {
+        where: [
+          ["$ownerId", "==", theIdentity], // offrent, offbiz, offother, lookrent, lookother
+          ["$createdAt", "<=", Date.now()],
+        ],
+        orderBy: [["$createdAt", "desc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          console.log("There are no Your Posts");
+
+          this.setState({
+            isLoadingYourPosts: false,
+          });
+        } else {
+          let docArray = [];
+          //console.log("GettingYour Posts");
+          for (const n of d) {
+            console.log("Document:\n", n.toJSON());
+            docArray = [...docArray, n.toJSON()];
+          }
+
+          this.setState({
+            yourPostsToDisplay: docArray,
+            isLoadingYourPosts: false,
+          });
+        }
+      })
+      .catch((e) => console.error("Something went wrong:\n", e))
+      .finally(() => client.disconnect());
+  };
+
+  getInitialPosts = () => {
+    this.getInitialOffBiz();
+  };
+
+  getInitialOffBiz = () => {
+    //console.log("Calling getInitialOffBiz");
+
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    const getDocuments = async () => {
+      return client.platform.documents.get("DMIOContract.dmiopost", {
+        where: [
+          ["category", "==", "offbiz"], // offrent, offbiz, offother, lookrent, lookother
+          ["$createdAt", "<=", Date.now()],
+        ],
+        orderBy: [["$createdAt", "desc"]],
+      });
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("There are no OffBiz Posts");
+
+          this.setState({
+            isLoadingNearbyInitial: false,
+            OffBizPulled: true,
+          });
+        } else {
+          let docArray = [];
+          //console.log("Getting ForyouByyouMsgs");
+          for (const n of d) {
+            //console.log("Document:\n", n.toJSON());
+            docArray = [...docArray, n.toJSON()];
+          }
+          this.getInitialOffBizNames(docArray);
+        }
+      })
+      .catch((e) => console.error("Something went wrong:\n", e))
+      .finally(() => client.disconnect());
+  };
+
+  getInitialOffBizNames = (docArray) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+    //START OF NAME RETRIEVAL
+
+    let ownerarrayOfOwnerIds = docArray.map((doc) => {
+      return doc.$ownerId;
+    });
+
+    let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
+
+    let arrayOfOwnerIds = [...setOfOwnerIds];
+
+    //console.log("Calling getNamesforDSOmsgs");
+
+    const getNameDocuments = async () => {
+      return client.platform.documents.get("DPNSContract.domain", {
+        where: [["records.identity", "in", arrayOfOwnerIds]],
+        orderBy: [["records.identity", "asc"]],
+      });
+    };
+
+    getNameDocuments()
+      .then((d) => {
+        //WHAT IF THERE ARE NO NAMES? -> THEN THIS WON'T BE CALLED
+        if (d.length === 0) {
+          //console.log("No DPNS domain documents retrieved.");
+        }
+
+        let nameDocArray = [];
+
+        for (const n of d) {
+          //console.log("NameDoc:\n", n.toJSON());
+
+          nameDocArray = [n.toJSON(), ...nameDocArray];
+        }
+        //console.log(`DPNS Name Docs: ${nameDocArray}`);
+
+        this.setState({
+          OffBizPosts: docArray,
+          OffBizNames: nameDocArray,
+          isLoadingNearbyInitial: false,
+          OffBizPulled: true,
+        });
+      })
+      .catch((e) => {
+        console.error(
+          "Something went wrong getting Initial OffBiz Names:\n",
+          e
+        );
+      })
+      .finally(() => client.disconnect());
+    //END OF NAME RETRIEVAL
+  };
+
+  // BELOW IF FOR WHEN HIT "SUBMIT" <=
+  //
+  submittedStateAndCategoryTHENConstruct = () => {
+    //THIS IS CALLED DIRECTLY FROM LOCATION FORM AND USES THE STATE FROM ONCHANGE. SO THIS MAKES MY CONVERSION A BIT MORE TRICKY
+    //I JUST NEED TO ADD SOME STATE THAT SAVES THE ONCHANGE UPON SUBMISSION AND RESETS THE PULLED STATES..
+
+    this.setState(
+      {
+        citySubmitted: this.state.cityInput,
+        countryRegionSubmitted: this.state.countryRegionInput,
+        whichSubmitted: this.state.whichCountryRegion,
+        //Submitted ^^^
+        OffBizPulled: false,
+        OffEventsPulled: false,
+        OffRentPulled: false,
+        OffTradePulled: false,
+        LookRentPulled: false,
+        LookTradePulled: false,
+        //Pulled States^^^
+
+        OffRentPosts: [],
+        OffRentNames: [],
+
+        OffBizPosts: [],
+        OffBizNames: [],
+
+        OffOtherPosts: [],
+        OffOtherNames: [],
+        //EVENTS
+        OffEventsPosts: [],
+        OffEventsNames: [],
+
+        LookRentPosts: [],
+        LookRentNames: [],
+
+        LookOtherPosts: [],
+        LookOtherNames: [],
+        //CLEAR ^^^ THE STATES.
+
+        isLoadingNearbySearch: true,
+        isLoadingNearbyForm: true,
+      },
+      () => this.constructQueryThenSearch()
+    );
+  };
+  //BELOW IS FOR WHEN HIT CATEGORY BUTTON =>
+  checkIfPulledAlready = () => {
+    switch (this.state.selectedCategoryButton) {
+      case "offbiz":
+        if (!this.state.OffBizPulled) {
+          this.constructQueryThenSearch();
+        }
+        break;
+      case "offevents":
+        if (!this.state.OffEventsPulled) {
+          this.constructQueryThenSearch();
+        }
+        break;
+      case "offrent":
+        if (!this.state.OffRentPulled) {
+          this.constructQueryThenSearch();
+        }
+        break;
+      case "offother":
+        if (!this.state.OffTradePulled) {
+          this.constructQueryThenSearch();
+        }
+        break;
+      case "lookrent":
+        if (!this.state.LookRentPulled) {
+          this.constructQueryThenSearch();
+        }
+        break;
+      case "lookother":
+        if (!this.state.LookTradePulled) {
+          this.constructQueryThenSearch();
+        }
+        break;
+      default:
+        console.log("No case that matches!");
+    }
+  };
+
+  //This one will be interesting bc I am goin to construct the query and then pass it to each of the functions this will save about 3 or 4 different
+
+  constructQueryThenSearch = () => {
+    //IF THE PULLED IS ALREADY DONE DONT PULL AGAIN -> THIS NEED TO CHECK THE PULL STATE BASED ON THE BUTTON
+    if (!this.state.isLoadingNearbySearch && !this.state.isLoadingNearbyForm) {
+      this.setState({
+        isLoadingNearbySearch: true,
+        isLoadingNearbyForm: true,
+      });
+    }
+    //So what are the parts and I assume I will pull from state for the parameters
+    /* NEED TO DO 5 QUERIES FOR EACH SEARCH (need to normalize/lowercase)
+  SO ITS AN OBJECT!!! 
+  { 
+    where: [
+      ['city', '==', ****City***],
+      ['country', '==', ****Country***], OR  ['region', '==', ****Region***],
+      ['category', '==', 'offrent'],
+      ["$createdAt", "<=",  Date.now()],
+        ],
+        orderBy: [["$createdAt", "desc"]],
+  }*/
+
+    /**
+   * //##### LOCATION FORM STATE ######
+      whichCountryRegion: "Country",
+
+      cityInput: "",
+      validCity: false,
+      tooLongCityNameError: false,
+
+      countryRegionInput: "",
+      validCountryRegion: false,
+      tooLongCountryRegionNameError: false,
+      //^^^^^ LOCATION FORM STATE ^^^^^
+   */
+
+    //1) CREATE THE where ARRAY ->
+    //2) tHEN TACK ON THE CONSTANT STUFF ->
+    //3) CUSTOMIZE THE CATEGORY IN EACH FUNCTION ->
+
+    //How to search if all blank-> it is handled automatically ??
+
+    //Do i want to add the category here and then change in each or just add the rest in each?? -> just change in each that is pretty easy. <- how then?
+    //I got a way, dont fill in 3rd spot, use find with length === 2 and then push the specific query!! <- I like it => done
+
+    let whereArray = [];
+
+    if (this.state.citySubmitted !== "") {
+      whereArray.push([
+        "city",
+        "==",
+        this.state.citySubmitted.toLocaleLowerCase(),
+      ]); //push adds to end!
+    }
+
+    if (this.state.countryRegionSubmitted !== "") {
+      if (this.state.whichSubmitted === "Country") {
+        whereArray.push([
+          "country",
+          "==",
+          this.state.countryRegionSubmitted.toLocaleLowerCase(),
+        ]);
+      }
+      if (this.state.whichSubmitted === "Region") {
+        whereArray.push([
+          "region",
+          "==",
+          this.state.countryRegionSubmitted.toLocaleLowerCase(),
+        ]);
+      }
+    }
+
+    let categoryIndex = whereArray.length;
+
+    whereArray.push(["category", "=="]);
+
+    whereArray.push(["$createdAt", "<=", Date.now()]);
+
+    let queryObject = {
+      where: whereArray,
+      orderBy: [["$createdAt", "desc"]],
+    };
+
+    // console.log(queryObject);
+
+    switch (this.state.selectedCategoryButton) {
+      case "offbiz":
+        this.getOffBiz(queryObject, categoryIndex);
+        break;
+      case "offevents":
+        this.getOffEvents(queryObject, categoryIndex);
+        break;
+      case "offrent":
+        this.getOffRent(queryObject, categoryIndex);
+        break;
+      case "offother":
+        this.getOffOther(queryObject, categoryIndex);
+        break;
+      case "lookrent":
+        this.getLookRent(queryObject, categoryIndex);
+        break;
+      case "lookother":
+        this.getLookOther(queryObject, categoryIndex);
+        break;
+      default:
+        console.log("No case that matches!");
+    }
+
+    // this.getOffRent(queryObject, categoryIndex);
+    // this.getOffBiz(queryObject, categoryIndex);
+    // this.getOffOther(queryObject, categoryIndex);
+    // this.getOffEvents(queryObject, categoryIndex);
+    // this.getLookRent(queryObject, categoryIndex);
+    // this.getLookOther(queryObject, categoryIndex);
+  };
+
+  getOffRent = (queryObj, cateIndex) => {
+    let queryOffRent = JSON.parse(JSON.stringify(queryObj));
+
+    queryOffRent.where[cateIndex].push("offrent");
+
+    //This passed in parameter won't affect the other functions right?? => NO shallow and needs deep object copying..... => DONE
+
+    //console.log("Calling getOffRent");
+
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    const getDocuments = async () => {
+      return client.platform.documents.get(
+        "DMIOContract.dmiopost",
+        queryOffRent
+      );
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("There are no getOffRent Posts");
+
+          this.setState({
+            OffRentPosts: [],
+            OffRentPulled: true,
+            isLoadingNearbySearch: false,
+            isLoadingNearbyForm: false,
+          });
+        } else {
+          let docArray = [];
+          //console.log("Getting getOffRent Posts");
+          for (const n of d) {
+            //console.log("Document:\n", n.toJSON());
+            docArray = [...docArray, n.toJSON()];
+          }
+          this.getOffRentNames(docArray);
+        }
+      })
+      .catch((e) => console.error("Something went wrong:\n", e))
+      .finally(() => client.disconnect());
+  };
+
+  getOffRentNames = (docArray) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+    //START OF NAME RETRIEVAL
+
+    let ownerarrayOfOwnerIds = docArray.map((doc) => {
+      return doc.$ownerId;
+    });
+
+    let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
+
+    let arrayOfOwnerIds = [...setOfOwnerIds];
+
+    //console.log("Calling getNamesforDSOmsgs");
+
+    const getNameDocuments = async () => {
+      return client.platform.documents.get("DPNSContract.domain", {
+        where: [["records.identity", "in", arrayOfOwnerIds]],
+        orderBy: [["records.identity", "asc"]],
+      });
+    };
+
+    getNameDocuments()
+      .then((d) => {
+        //WHAT IF THERE ARE NO NAMES? -> THEN THIS WON'T BE CALLED
+        if (d.length === 0) {
+          //console.log("No DPNS domain documents retrieved.");
+        }
+
+        let nameDocArray = [];
+
+        for (const n of d) {
+          //console.log("NameDoc:\n", n.toJSON());
+
+          nameDocArray = [n.toJSON(), ...nameDocArray];
+        }
+        //console.log(`DPNS Name Docs: ${nameDocArray}`);
+
+        this.setState({
+          OffRentNames: nameDocArray,
+          OffRentPosts: docArray,
+          OffRentPulled: true,
+          isLoadingNearbySearch: false,
+          isLoadingNearbyForm: false,
+        });
+      })
+      .catch((e) => {
+        console.error("Something went wrong getting OffRent Names:\n", e);
+      })
+      .finally(() => client.disconnect());
+    //END OF NAME RETRIEVAL
+  };
+
+  getOffBiz = (queryObj, cateIndex) => {
+    //console.log("Calling getOffBiz");
+    let queryOffBiz = JSON.parse(JSON.stringify(queryObj));
+    queryOffBiz.where[cateIndex].push("offbiz");
+
+    //console.log(queryObj);
+
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    const getDocuments = async () => {
+      return client.platform.documents.get(
+        "DMIOContract.dmiopost",
+        queryOffBiz
+        // {
+        //   where: [
+        //     ["category", "==", "offbiz"], // offrent, offbiz, offother, lookrent, lookother
+        //     ["$createdAt", "<=", Date.now()],
+        //   ],
+        //   orderBy: [["$createdAt", "desc"]],
+        // }
+      );
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("There are no getOffBiz");
+
+          this.setState({
+            OffBizPosts: [],
+            OffBizPulled: true,
+            isLoadingNearbySearch: false,
+            isLoadingNearbyForm: false,
+          });
+        } else {
+          let docArray = [];
+          //console.log("Getting getOffBiz");
+          for (const n of d) {
+            //console.log("Document:\n", n.toJSON());
+            docArray = [...docArray, n.toJSON()];
+          }
+          this.getOffBizNames(docArray);
+        }
+      })
+      .catch((e) => console.error("Something went wrong:\n", e))
+      .finally(() => client.disconnect());
+  };
+
+  getOffBizNames = (docArray) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+    //START OF NAME RETRIEVAL
+
+    let ownerarrayOfOwnerIds = docArray.map((doc) => {
+      return doc.$ownerId;
+    });
+
+    let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
+
+    let arrayOfOwnerIds = [...setOfOwnerIds];
+
+    //console.log("Calling getOffBizNames");
+
+    const getNameDocuments = async () => {
+      return client.platform.documents.get("DPNSContract.domain", {
+        where: [["records.identity", "in", arrayOfOwnerIds]],
+        orderBy: [["records.identity", "asc"]],
+      });
+    };
+
+    getNameDocuments()
+      .then((d) => {
+        //WHAT IF THERE ARE NO NAMES? -> THEN THIS WON'T BE CALLED
+        if (d.length === 0) {
+          //console.log("No DPNS domain documents retrieved.");
+        }
+
+        let nameDocArray = [];
+
+        for (const n of d) {
+          //console.log("NameDoc:\n", n.toJSON());
+
+          nameDocArray = [n.toJSON(), ...nameDocArray];
+        }
+        //console.log(`DPNS Name Docs: ${nameDocArray}`);
+
+        this.setState({
+          OffBizNames: nameDocArray,
+          OffBizPosts: docArray,
+          OffBizPulled: true,
+          isLoadingNearbySearch: false,
+          isLoadingNearbyForm: false,
+        });
+      })
+      .catch((e) => {
+        console.error("Something went wrong getting OffBiz Names:\n", e);
+      })
+      .finally(() => client.disconnect());
+    //END OF NAME RETRIEVAL
+  };
+
+  // getOffOther = (queryObj, cateIndex) => {
+  //   //console.log("Calling getOffOther");
+  //   let queryOffOther = JSON.parse(JSON.stringify(queryObj));
+
+  //   queryOffOther.where[cateIndex].push("offother");
+
+  //   const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+  //   const getDocuments = async () => {
+  //     return client.platform.documents.get(
+  //       "DMIOContract.dmiopost",
+  //       queryOffOther
+  //     );
+  //   };
+
+  //   getDocuments()
+  //     .then((d) => {
+  //       if (d.length === 0) {
+  //         //console.log("There are no OffOther");
+
+  //         this.setState({
+  //           OffTradePulled: true,
+  //           OffOtherPosts: [],
+  //           isLoadingNearbySearch: false,
+  //           isLoadingNearbyForm: false,
+  //         });
+  //       } else {
+  //         let docArray = [];
+  //         //console.log("Getting OffOther");
+  //         for (const n of d) {
+  //           //console.log("Document:\n", n.toJSON());
+  //           docArray = [...docArray, n.toJSON()];
+  //         }
+  //         this.getOffOtherNames(docArray);
+  //       }
+  //     })
+  //     .catch((e) => console.error("Something went wrong getOffOther:\n", e))
+  //     .finally(() => client.disconnect());
+  // };
+
+  // getOffOtherNames = (docArray) => {
+  //   const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+  //   //START OF NAME RETRIEVAL
+
+  //   let ownerarrayOfOwnerIds = docArray.map((doc) => {
+  //     return doc.$ownerId;
+  //   });
+
+  //   let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
+
+  //   let arrayOfOwnerIds = [...setOfOwnerIds];
+
+  //   // arrayOfOwnerIds = arrayOfOwnerIds.map((item) =>
+  //   //   Buffer.from(Identifier.from(item))
+  //   // );
+
+  //   //console.log("Calling getNamesOffOthers");
+
+  //   const getNameDocuments = async () => {
+  //     return client.platform.documents.get("DPNSContract.domain", {
+  //       where: [["records.identity", "in", arrayOfOwnerIds]],
+  //       orderBy: [["records.identity", "asc"]],
+  //     });
+  //   };
+
+  //   getNameDocuments()
+  //     .then((d) => {
+  //       //WHAT IF THERE ARE NO NAMES? -> THEN THIS WON'T BE CALLED
+  //       if (d.length === 0) {
+  //         //console.log("No DPNS domain documents retrieved.");
+  //       }
+
+  //       let nameDocArray = [];
+
+  //       for (const n of d) {
+  //         //console.log("NameDoc:\n", n.toJSON());
+
+  //         nameDocArray = [n.toJSON(), ...nameDocArray];
+  //       }
+  //       //console.log(`DPNS Name Docs: ${nameDocArray}`);
+
+  //       this.setState({
+  //         OffOtherNames: nameDocArray,
+  //         OffOtherPosts: docArray,
+  //         OffTradePulled: true,
+  //         isLoadingNearbySearch: false,
+  //         isLoadingNearbyForm: false,
+  //       });
+  //     })
+  //     .catch((e) => {
+  //       console.error("Something went wrong getting OffOther Names:\n", e);
+  //     })
+  //     .finally(() => client.disconnect());
+  //   //END OF NAME RETRIEVAL
+  // };
+
+  getOffEvents = (queryObj, cateIndex) => {
+    //console.log("Calling getOffEvents");
+    let queryOffEvents = JSON.parse(JSON.stringify(queryObj));
+
+    queryOffEvents.where[cateIndex].push("events");
+
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+    const getDocuments = async () => {
+      return client.platform.documents.get(
+        "DMIOContract.dmiopost",
+        queryOffEvents
+      );
+    };
+
+    getDocuments()
+      .then((d) => {
+        if (d.length === 0) {
+          //console.log("There are no OffEvents");
+
+          this.setState({
+            OffEventsPulled: true,
+            OffEventsPosts: [],
+            isLoadingNearbySearch: false,
+            isLoadingNearbyForm: false,
+          });
+        } else {
+          let docArray = [];
+          //console.log("Getting OffEvents");
+          for (const n of d) {
+            console.log("Document:\n", n.toJSON());
+            docArray = [...docArray, n.toJSON()];
+          }
+          this.getOffEventsNames(docArray);
+        }
+      })
+      .catch((e) => console.error("Something went wrong getOffEvents:\n", e))
+      .finally(() => client.disconnect());
+  };
+
+  getOffEventsNames = (docArray) => {
+    const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+    //START OF NAME RETRIEVAL
+
+    let ownerarrayOfOwnerIds = docArray.map((doc) => {
+      return doc.$ownerId;
+    });
+
+    let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
+
+    let arrayOfOwnerIds = [...setOfOwnerIds];
+
+    // arrayOfOwnerIds = arrayOfOwnerIds.map((item) =>
+    //   Buffer.from(Identifier.from(item))
+    // );
+
+    //console.log("Calling getNamesOffEvents");
+
+    const getNameDocuments = async () => {
+      return client.platform.documents.get("DPNSContract.domain", {
+        where: [["records.identity", "in", arrayOfOwnerIds]],
+        orderBy: [["records.identity", "asc"]],
+      });
+    };
+
+    getNameDocuments()
+      .then((d) => {
+        //WHAT IF THERE ARE NO NAMES? -> THEN THIS WON'T BE CALLED
+        if (d.length === 0) {
+          //console.log("No DPNS domain documents retrieved.");
+        }
+
+        let nameDocArray = [];
+
+        for (const n of d) {
+          //console.log("NameDoc:\n", n.toJSON());
+
+          nameDocArray = [n.toJSON(), ...nameDocArray];
+        }
+        //console.log(`DPNS Name Docs: ${nameDocArray}`);
+
+        this.setState({
+          OffEventsNames: nameDocArray,
+          OffEventsPosts: docArray, //<- RECONNECT  //[],
+          OffEventsPulled: true,
+          isLoadingNearbySearch: false,
+          isLoadingNearbyForm: false,
+        });
+      })
+      .catch((e) => {
+        console.error("Something went wrong getting OffOther Names:\n", e);
+      })
+      .finally(() => client.disconnect());
+    //END OF NAME RETRIEVAL
+  };
+
+  // getLookRent = (queryObj, cateIndex) => {
+  //   //console.log("Calling getLookRent");
+  //   let queryLookRent = JSON.parse(JSON.stringify(queryObj));
+
+  //   queryLookRent.where[cateIndex].push("lookrent");
+
+  //   const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+  //   const getDocuments = async () => {
+  //     return client.platform.documents.get(
+  //       "DMIOContract.dmiopost",
+  //       queryLookRent
+  //     );
+  //   };
+
+  //   getDocuments()
+  //     .then((d) => {
+  //       if (d.length === 0) {
+  //         //console.log("There are no LookRent Posts");
+
+  //         this.setState({
+  //           LookRentPulled: true,
+  //           LookRentPosts: [],
+  //           isLoadingNearbySearch: false,
+  //           isLoadingNearbyForm: false,
+  //         });
+  //       } else {
+  //         let docArray = [];
+  //         //console.log("Getting LookRent Posts");
+  //         for (const n of d) {
+  //           //console.log("Document:\n", n.toJSON());
+  //           docArray = [...docArray, n.toJSON()];
+  //         }
+  //         this.getLookRentNames(docArray);
+  //       }
+  //     })
+  //     .catch((e) => console.error("Something went wrong:\n", e))
+  //     .finally(() => client.disconnect());
+  // };
+
+  // getLookRentNames = (docArray) => {
+  //   const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+  //   //START OF NAME RETRIEVAL
+
+  //   let ownerarrayOfOwnerIds = docArray.map((doc) => {
+  //     return doc.$ownerId;
+  //   });
+
+  //   let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
+
+  //   let arrayOfOwnerIds = [...setOfOwnerIds];
+
+  //   // arrayOfOwnerIds = arrayOfOwnerIds.map((item) =>
+  //   //   Buffer.from(Identifier.from(item))
+  //   // );
+
+  //   //console.log("Calling LookRentNames");
+
+  //   const getNameDocuments = async () => {
+  //     return client.platform.documents.get("DPNSContract.domain", {
+  //       where: [["records.identity", "in", arrayOfOwnerIds]],
+  //       orderBy: [["records.identity", "asc"]],
+  //     });
+  //   };
+
+  //   getNameDocuments()
+  //     .then((d) => {
+  //       //WHAT IF THERE ARE NO NAMES? -> THEN THIS WON'T BE CALLED
+  //       if (d.length === 0) {
+  //         //console.log("No DPNS domain documents retrieved.");
+  //       }
+
+  //       let nameDocArray = [];
+
+  //       for (const n of d) {
+  //         //console.log("NameDoc:\n", n.toJSON());
+
+  //         nameDocArray = [n.toJSON(), ...nameDocArray];
+  //       }
+  //       //console.log(`DPNS Name Docs: ${nameDocArray}`);
+
+  //       this.setState({
+  //         LookRentNames: nameDocArray,
+  //         LookRentPosts: docArray,
+  //         LookRentPulled: true,
+  //         isLoadingNearbySearch: false,
+  //         isLoadingNearbyForm: false,
+  //       });
+  //     })
+  //     .catch((e) => {
+  //       console.error("Something went wrong getting LookRent Names:\n", e);
+  //     })
+  //     .finally(() => client.disconnect());
+  //   //END OF NAME RETRIEVAL
+  // };
+
+  // getLookOther = (queryObj, cateIndex) => {
+  //   //console.log("Calling getLookOther");
+
+  //   let queryLookOther = JSON.parse(JSON.stringify(queryObj));
+
+  //   queryLookOther.where[cateIndex].push("lookother");
+
+  //   const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+
+  //   const getDocuments = async () => {
+  //     return client.platform.documents.get(
+  //       "DMIOContract.dmiopost",
+  //       queryLookOther
+  //     );
+  //   };
+
+  //   getDocuments()
+  //     .then((d) => {
+  //       if (d.length === 0) {
+  //         //console.log("There are no LookOther Posts");
+
+  //         this.setState({
+  //           LookTradePulled: true,
+  //           LookOtherPosts: [],
+  //           isLoadingNearbySearch: false,
+  //           isLoadingNearbyForm: false,
+  //         });
+  //       } else {
+  //         let docArray = [];
+  //         //console.log("Getting LookOther Posts");
+  //         for (const n of d) {
+  //           //console.log("Document:\n", n.toJSON());
+  //           docArray = [...docArray, n.toJSON()];
+  //         }
+  //         this.getLookOtherNames(docArray);
+  //       }
+  //     })
+  //     .catch((e) => console.error("Something went wrong:\n", e))
+  //     .finally(() => client.disconnect());
+  // };
+
+  // getLookOtherNames = (docArray) => {
+  //   const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
+  //   //START OF NAME RETRIEVAL
+
+  //   let ownerarrayOfOwnerIds = docArray.map((doc) => {
+  //     return doc.$ownerId;
+  //   });
+
+  //   let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
+
+  //   let arrayOfOwnerIds = [...setOfOwnerIds];
+
+  //   // arrayOfOwnerIds = arrayOfOwnerIds.map((item) =>
+  //   //   Buffer.from(Identifier.from(item))
+  //   // );
+
+  //   //console.log("Calling getNamesforDSOmsgs");
+
+  //   const getNameDocuments = async () => {
+  //     return client.platform.documents.get("DPNSContract.domain", {
+  //       where: [["records.identity", "in", arrayOfOwnerIds]],
+  //       orderBy: [["records.identity", "asc"]],
+  //     });
+  //   };
+
+  //   getNameDocuments()
+  //     .then((d) => {
+  //       //WHAT IF THERE ARE NO NAMES? -> THEN THIS WON'T BE CALLED
+  //       if (d.length === 0) {
+  //         //console.log("No DPNS domain documents retrieved.");
+  //       }
+
+  //       let nameDocArray = [];
+
+  //       for (const n of d) {
+  //         //console.log("NameDoc:\n", n.toJSON());
+
+  //         nameDocArray = [n.toJSON(), ...nameDocArray];
+  //       }
+  //       //console.log(`DPNS Name Docs: ${nameDocArray}`);
+
+  //       this.setState({
+  //         LookOtherNames: nameDocArray,
+  //         LookOtherPosts: docArray,
+  //         LookTradePulled: true,
+  //         isLoadingNearbySearch: false,
+  //         isLoadingNearbyForm: false,
+  //       });
+  //     })
+  //     .catch((e) => {
+  //       console.error("Something went wrong getting LookOther Names:\n", e);
+  //     })
+  //     .finally(() => client.disconnect());
+  //   //END OF NAME RETRIEVAL
+  // };
+
+  //$$  $$   $$$  $$  $  $$  $$$  $$$  $$  $$
+
+  createYourPost = (postObject) => {
+    //console.log("Called Create Post");
+
+    this.setState({
+      isLoadingYourPosts: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const submitPostDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      }
+      let postProperties;
+      if (postObject.category !== "events") {
+        postProperties = {
+          city: postObject.city, //.toLocaleLowerCase() <- done in modal
+          region: postObject.region,
+          country: postObject.country,
+
+          description: postObject.description,
+          category: postObject.category,
+
+          link: postObject.link,
+          address: postObject.address,
+
+          active: postObject.active,
+          dgp: postObject.dgp,
+        };
+      } else {
+        postProperties = {
+          city: postObject.city, //.toLocaleLowerCase() <- done in modal
+          region: postObject.region,
+          country: postObject.country,
+
+          description: postObject.description,
+          category: postObject.category,
+          link: postObject.link,
+
+          active: postObject.active,
+          dgp: false, // postObject.dgp,
+          //EVENTS
+          group: postObject.group,
+          address: postObject.address,
+          date: postObject.date,
+          time: postObject.time,
+        };
+      }
+      console.log("Post to Create: ", postProperties);
+
+      // Create the note document
+      const dmioDocument = await platform.documents.create(
+        "DMIOContract.dmiopost",
+        identity,
+        postProperties
+      );
+
+      //############################################################
+      //This below disconnects the document sending..***
+
+      //return dmioDocument;
+
+      //This is to disconnect the Document Creation***
+      //############################################################
+
+      const documentBatch = {
+        create: [dmioDocument], // Document(s) to create
+      };
+
+      await platform.documents.broadcast(documentBatch, identity);
+      return dmioDocument;
+    };
+
+    submitPostDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+        console.log("Document:\n", returnedDoc);
+
+        let post;
+        if (postObject.category !== "events") {
+          post = {
+            $ownerId: returnedDoc.$ownerId,
+            $id: returnedDoc.$id,
+            $createdAt: returnedDoc.$createdAt,
+
+            city: postObject.city,
+            region: postObject.region,
+            country: postObject.country,
+
+            description: postObject.description,
+            category: postObject.category,
+            link: postObject.link,
+            address: postObject.addressInput,
+
+            active: postObject.active,
+            dgp: postObject.dgp,
+          };
+        } else {
+          post = {
+            $ownerId: returnedDoc.$ownerId,
+            $id: returnedDoc.$id,
+            $createdAt: returnedDoc.$createdAt,
+
+            city: postObject.city, //.toLocaleLowerCase() <- done in modal
+            region: postObject.region,
+            country: postObject.country,
+
+            description: postObject.description,
+            category: postObject.category,
+            link: postObject.link,
+
+            active: postObject.active,
+            dgp: false, // postObject.dgp,
+            //EVENTS
+            group: postObject.group,
+            address: postObject.address,
+            date: postObject.date,
+            time: postObject.time,
+          };
+        }
+
+        this.setState(
+          {
+            yourPostsToDisplay: [post, ...this.state.yourPostsToDisplay],
+            isLoadingYourPosts: false,
+          },
+          () => this.sendFrontendFee()
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong with post creation:\n", e);
+        this.setState({
+          yourPostError: true,
+          isLoadingYourPosts: false,
+        });
+      })
+      .finally(() => client.disconnect());
+  };
+
+  editYourPost = (postObject) => {
+    // console.log("Called Edit Post");
+
+    this.setState({
+      isLoadingYourPosts: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const submitPostDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      }
+
+      const [document] = await client.platform.documents.get(
+        "DMIOContract.dmiopost",
+        {
+          where: [
+            [
+              "$id",
+              "==",
+              this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+                .$id,
+            ],
+          ],
+        }
+      );
+      /**
+ * city: postObject.city, 
+      region: postObject.region,
+      country: postObject.country,
+
+      description: postObject.description,
+      category: postObject.category,
+
+      link: postObject.link,
+      address:postObject.address,
+      
+      active: postObject.active,
+      dgp: postObject.dgp,
+ */
+
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex].city !==
+        postObject.city
+      ) {
+        document.set("city", postObject.city);
+      }
+
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+          .region !== postObject.region
+      ) {
+        document.set("region", postObject.region);
+      }
+
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+          .country !== postObject.country
+      ) {
+        document.set("country", postObject.country);
+      }
+
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+          .category !== postObject.category
+      ) {
+        document.set("category", postObject.category);
+      }
+
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+          .description !== postObject.description
+      ) {
+        document.set("description", postObject.description);
+      }
+
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex].link !==
+        postObject.link
+      ) {
+        document.set("link", postObject.link);
+      }
+
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+          .address !== postObject.address
+      ) {
+        document.set("address", postObject.address);
+      }
+
+      // if ( //THIS FAILS -> I DON'T THINK YOU CAN ADD .. <=
+      //   this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+      //     .address === undefined
+      // ) {
+      //   document.set("address", postObject.address);
+      // }
+
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+          .active !== postObject.active
+      ) {
+        document.set("active", postObject.active);
+      }
+
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex].dgp !==
+        postObject.dgp
+      ) {
+        document.set("dgp", postObject.dgp);
+      }
+
+      //TEST ->
+      await platform.documents.broadcast({ replace: [document] }, identity);
+      return document;
+
+      //############################################################
+      //This below disconnects the document editing..***
+
+      //return document;
+
+      //This is to disconnect the Document editing***
+      //############################################################
+    };
+
+    submitPostDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+        console.log("Edited Post Doc:\n", returnedDoc);
+
+        let post = {
+          $ownerId: returnedDoc.$ownerId,
+          $id: returnedDoc.$id,
+          $createdAt: returnedDoc.$createdAt,
+
+          city: postObject.city,
+          region: postObject.region,
+          country: postObject.country,
+
+          description: postObject.description,
+          category: postObject.category,
+
+          link: postObject.link,
+          address: postObject.address,
+
+          active: postObject.active,
+          dgp: postObject.dgp,
+        };
+
+        let editedPosts = this.state.yourPostsToDisplay;
+
+        editedPosts.splice(this.state.selectedYourPostIndex, 1, post);
+
+        this.setState(
+          {
+            yourPostsToDisplay: editedPosts,
+            isLoadingYourPosts: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong with Post creation:\n", e);
+        this.setState({
+          postError: true,
+          isLoadingYourPosts: false,
+        });
+      })
+      .finally(() => client.disconnect());
+  };
+
+  editYourEvent = (postObject) => {
+    //console.log("Called Edit Event");
+
+    this.setState({
+      isLoadingYourPosts: true,
+    });
+
+    const client = new Dash.Client(
+      dapiClient(
+        this.state.whichNetwork,
+        this.state.mnemonic,
+        this.state.skipSynchronizationBeforeHeight
+      )
+    );
+
+    const submitPostDoc = async () => {
+      const { platform } = client;
+
+      let identity = "";
+      if (this.state.identityRaw !== "") {
+        identity = this.state.identityRaw;
+      } else {
+        identity = await platform.identities.get(this.state.identity);
+      }
+
+      const [document] = await client.platform.documents.get(
+        "DMIOContract.dmiopost",
+        {
+          where: [
+            [
+              "$id",
+              "==",
+              this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+                .$id,
+            ],
+          ],
+        }
+      );
+
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex].city !==
+        postObject.city
+      ) {
+        document.set("city", postObject.city);
+      }
+
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+          .region !== postObject.region
+      ) {
+        document.set("region", postObject.region);
+      }
+
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+          .country !== postObject.country
+      ) {
+        document.set("country", postObject.country);
+      }
+
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+          .category !== postObject.category
+      ) {
+        document.set("category", postObject.category);
+      }
+
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+          .description !== postObject.description
+      ) {
+        document.set("description", postObject.description);
+      }
+      //Group Date Address Time
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+          .group !== undefined
+      ) {
+        if (
+          this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+            .group !== postObject.group
+        ) {
+          document.set("group", postObject.group);
+        }
+      }
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex].date !==
+        undefined
+      ) {
+        if (
+          this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+            .date !== postObject.date
+        ) {
+          document.set("date", postObject.date);
+        }
+      }
+
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+          .address !== undefined
+      ) {
+        if (
+          this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+            .address !== postObject.address
+        ) {
+          document.set("address", postObject.address);
+        }
+      }
+
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex].time !==
+        undefined
+      ) {
+        if (
+          this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+            .time !== postObject.time
+        ) {
+          document.set("time", postObject.time);
+        }
+      }
+
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex].link !==
+        undefined
+      ) {
+        if (
+          this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+            .link !== postObject.link
+        ) {
+          document.set("link", postObject.link);
+        }
+      }
+
+      // if (
+      //   this.state.yourPostsToDisplay[this.state.selectedYourPostIndex].dgp !==
+      //   undefined
+      // ) {
+      //   if (
+      //     this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+      //       .dgp !== postObject.dgp
+      //   ) {
+      //     document.set("dgp", postObject.dgp);
+      //   }
+      // }
+
+      if (
+        this.state.yourPostsToDisplay[this.state.selectedYourPostIndex]
+          .active !== postObject.active
+      ) {
+        document.set("active", postObject.active);
+      }
+
+      await platform.documents.broadcast({ replace: [document] }, identity);
+      return document;
+
+      //############################################################
+      //This below disconnects the document editing..***
+
+      //return document;
+
+      //This is to disconnect the Document editing***
+      //############################################################
+    };
+
+    submitPostDoc()
+      .then((d) => {
+        let returnedDoc = d.toJSON();
+        console.log("Edited Post Doc:\n", returnedDoc);
+
+        let post = {
+          $ownerId: returnedDoc.$ownerId,
+          $id: returnedDoc.$id,
+          $createdAt: returnedDoc.$createdAt,
+
+          city: postObject.city,
+          region: postObject.region,
+          country: postObject.country,
+
+          description: postObject.description,
+          category: postObject.category,
+          link: postObject.link,
+
+          group: postObject.group,
+          date: postObject.date,
+
+          address: postObject.address,
+          time: postObject.time,
+
+          active: postObject.active,
+          dgp: false,
+        };
+
+        let editedPosts = this.state.yourPostsToDisplay;
+
+        editedPosts.splice(this.state.selectedYourPostIndex, 1, post);
+
+        this.setState(
+          {
+            yourPostsToDisplay: editedPosts,
+            isLoadingYourPosts: false,
+          },
+          () => this.loadIdentityCredits()
+        );
+      })
+      .catch((e) => {
+        console.error("Something went wrong with Post creation:\n", e);
+        this.setState({
+          postError: true,
+          isLoadingYourPosts: false,
+        });
+      })
+      .finally(() => client.disconnect());
+  };
+
+  /*
    *    ################
    *          ###
    *          ###
@@ -13074,130 +14472,184 @@ class App extends React.Component {
             <></>
           )}
 
-          {/* {this.state.selectedDapp === "Wallet" ? (
-                <>
-                  <WalletPage
-                    WALLET_Login7={this.state.WALLET_Login7} //This is for the enable pay to name control
-                    isLoginComplete={isLoginComplete}
-                    WALLET_whichTab={this.state.WALLET_whichTab}
-                    handleTab_WALLET={this.handleTab_WALLET}
-                    showModal={this.showModal}
-                    WALLET_messageToSend={this.state.WALLET_messageToSend}
-                    sendDashtoName={this.sendDashtoName_WALLET}
-                    requestDashfromName={this.requestDashfromName_WALLET}
-                    isModalShowing={this.state.isModalShowing}
-                    presentModal={this.state.presentModal}
-                    hideModal={this.hideModal}
-                    closeTopNav={this.closeTopNav}
-                    WALLET_sendFailure={this.state.WALLET_sendFailure}
-                    WALLET_sendSuccess={this.state.WALLET_sendSuccess}
-                    WALLET_sendMsgSuccess={this.state.WALLET_sendMsgSuccess}
-                    WALLET_sendMsgFailure={this.state.WALLET_sendMsgFailure}
-                    WALLET_sendPmtMsgSuccess={
-                      this.state.WALLET_sendPmtMsgSuccess
-                    }
-                    WALLET_sendPmtMsgFailure={
-                      this.state.WALLET_sendPmtMsgFailure
-                    }
-                    handleFailureAlert_WALLET={this.handleFailureAlert_WALLET}
-                    handleSuccessAlert_WALLET={this.handleSuccessAlert_WALLET}
-                    handleFailureMsgAlert_WALLET={
-                      this.handleFailureMsgAlert_WALLET
-                    }
-                    handleFailurePmtMsgAlert_WALLET={
-                      this.handleFailurePmtMsgAlert_WALLET
-                    }
-                    handleSuccessPmtMsgAlert_WALLET={
-                      this.handleSuccessPmtMsgAlert_WALLET
-                    }
-                    WALLET_amountToSend={this.state.WALLET_amountToSend}
-                    WALLET_sendToName={this.state.WALLET_sendToName}
-                    WALLET_requestPmtNameDoc={
-                      this.state.WALLET_requestPmtNameDoc
-                    }
-                    WALLET_sendToAddress={this.state.WALLET_sendToAddress}
-                    mnemonic={this.state.mnemonic}
-                    whichNetwork={this.state.whichNetwork}
-                    skipSynchronizationBeforeHeight={
-                      this.state.skipSynchronizationBeforeHeight
-                    }
-                    dgmDocuments={this.state.dgmDocuments}
-                    isLoadingRefresh_WALLET={this.state.isLoadingRefresh_WALLET}
-                    isLoadingButtons_WALLET={this.state.isLoadingButtons_WALLET}
-                    isLoadingWallet={this.state.isLoadingWallet}
-                    isLoadingForm_WALLET={this.state.isLoadingForm_WALLET}
-                    mode={this.state.mode}
-                    accountBalance={this.state.accountBalance}
-                    accountHistory={this.state.accountHistory} //ADD THIS TO THE LOGIN PROCESS =>
-                    accountAddress={this.state.accountAddress} //ADD THIS TO THE LOGIN PROCESS =>
-                    identity={this.state.identity}
-                    identityInfo={this.state.identityInfo}
-                    uniqueName={this.state.uniqueName}
-                    showConfirmModal={this.showConfirmModal_WALLET}
-                    showRequestModal={this.showRequestModal_WALLET}
-                    showAddrConfirmModal={this.showAddrConfirmModal_WALLET}
-                    showPayRequestModal={this.showPayRequestModal_WALLET}
-                    showRejectReplyReqModal={
-                      this.showRejectReplyReqModal_WALLET
-                    }
-                    handleThread_WALLET={this.handleThread_WALLET}
-                    WALLET_ByYouMsgs={this.state.WALLET_ByYouMsgs}
-                    WALLET_ByYouNames={this.state.WALLET_ByYouNames}
-                    WALLET_ByYouThreads={this.state.WALLET_ByYouThreads}
-                    WALLET_ToYouMsgs={this.state.WALLET_ToYouMsgs}
-                    WALLET_ToYouNames={this.state.WALLET_ToYouNames}
-                    WALLET_ToYouThreads={this.state.WALLET_ToYouThreads}
-                    isLoadingMsgs_WALLET={this.state.isLoadingMsgs_WALLET}
-                    handleRefresh_WALLET={this.handleRefresh_WALLET}
-                    whichPayType={this.state.WALLET_whichPayType}
-                    triggerRequestButton={this.triggerRequestButton}
-                    triggerPayButton={this.triggerPayButton}
-                  />
-                </>
-              ) : (
-                <></>
-              )} */}
-
           {/* Add  Dapp here */}
           {/* <h1 style={{ paddingTop: "1rem", textAlign: "center" }}>
                     Still Constructing
                   </h1> */}
 
-          {/* {this.state.selectedDapp === "Reviews" ? (
-                <>
-                  <ReviewsPage
-                    isLoginComplete={isLoginComplete}
-                    InitialPullReviews={this.state.InitialPullReviews}
-                    pullInitialTriggerREVIEWS={this.pullInitialTriggerREVIEWS}
-                    whichReviewsTab={this.state.whichReviewsTab}
-                    handleReviewsTab={this.handleReviewsTab}
-                    identityInfo={this.state.identityInfo}
-                    uniqueName={this.state.uniqueName}
-                    showModal={this.showModal}
-                    mode={this.state.mode}
-                    nameToSearch={this.state.nameToSearch}
-                    nameFormat={this.state.nameFormat}
-                    SearchedNameDoc={this.state.SearchedNameDoc}
-                    searchName={this.searchName_REVIEW}
-                    handleReviewsOnChangeValidation={
-                      this.handleReviewsOnChangeValidation
-                    }
-                    SearchedReviews={this.state.SearchedReviews}
-                    isLoadingReviewsSearch={this.state.isLoadingReviewsSearch}
-                    identity={this.state.identity}
-                    handleEditReview={this.handleEditReview}
-                    SearchedReviewNames={this.state.SearchedReviewNames}
-                    SearchedReplies={this.state.SearchedReplies}
-                    YourReviews={this.state.YourReviews}
-                    YourReviewNames={this.state.YourReviewNames}
-                    YourReplies={this.state.YourReplies}
-                    handleYourReply={this.handleYourReply}
-                    isLoadingYourReviews={this.state.isLoadingYourReviews}
-                  />
-                </>
-              ) : (
-                <></>
-              )} */}
+          {this.state.selectedDapp === "Reviews" ? (
+            <>
+              <ReviewsPage
+                isLoginComplete={isLoginComplete}
+                InitialPullReviews={this.state.InitialPullReviews}
+                pullInitialTriggerREVIEWS={this.pullInitialTriggerREVIEWS}
+                whichReviewsTab={this.state.whichReviewsTab}
+                handleReviewsTab={this.handleReviewsTab}
+                identityInfo={this.state.identityInfo}
+                uniqueName={this.state.uniqueName}
+                showModal={this.showModal}
+                mode={this.state.mode}
+                nameToSearch={this.state.nameToSearch}
+                nameFormat={this.state.nameFormat}
+                SearchedNameDoc={this.state.SearchedNameDoc}
+                searchName={this.searchName_REVIEW}
+                handleReviewsOnChangeValidation={
+                  this.handleReviewsOnChangeValidation
+                }
+                SearchedReviews={this.state.SearchedReviews}
+                isLoadingReviewsSearch={this.state.isLoadingReviewsSearch}
+                identity={this.state.identity}
+                handleEditReview={this.handleEditReview}
+                SearchedReviewNames={this.state.SearchedReviewNames}
+                SearchedReplies={this.state.SearchedReplies}
+                YourReviews={this.state.YourReviews}
+                YourReviewNames={this.state.YourReviewNames}
+                YourReplies={this.state.YourReplies}
+                handleYourReply={this.handleYourReply}
+                isLoadingYourReviews={this.state.isLoadingYourReviews}
+              />
+            </>
+          ) : (
+            <></>
+          )}
+
+          {this.state.selectedDapp === "Nearby" ? (
+            <>
+              <NearbyPage
+                isLoginComplete={isLoginComplete}
+                InitialPullNearBy={this.state.InitialPullNearBy}
+                pullInitialTriggerNEARBY={this.pullInitialTriggerNEARBY}
+                pullOnPageLoadTriggerNEARBY={this.pullOnPageLoadTriggerNEARBY}
+                OnPageLoadNEARBY={this.state.OnPageLoadNEARBY}
+                whichNearbyTab={this.state.whichNearbyTab}
+                handleNearbyTab={this.handleNearbyTab}
+                identityInfo={this.state.identityInfo}
+                uniqueName={this.state.uniqueName}
+                showModal={this.showModal}
+                whichCountryRegion={this.state.whichCountryRegion}
+                mode={this.state.mode}
+                cityInput={this.state.cityInput}
+                validCity={this.state.validCity}
+                tooLongCityNameError={this.state.tooLongCityNameError}
+                countryRegionInput={this.state.countryRegionInput}
+                validCountryRegion={this.state.validCountryRegion}
+                tooLongCountryRegionNameError={
+                  this.state.tooLongCountryRegionNameError
+                }
+                isLoadingNearbyForm={this.state.isLoadingNearbyForm}
+                triggerCountryButton={this.triggerCountryButton}
+                triggerRegionButton={this.triggerRegionButton}
+                handleNearbyOnChangeValidation={
+                  this.handleNearbyOnChangeValidation
+                }
+                submittedStateAndCategoryTHENConstruct={
+                  this.submittedStateAndCategoryTHENConstruct
+                }
+                selectedCategoryButton={this.state.selectedCategoryButton}
+                handleSelectedCategoryButton={this.handleSelectedCategoryButton}
+                isLoadingNearbySearch={this.state.isLoadingNearbySearch}
+                isLoadingNearbyInitial={this.state.isLoadingNearbyInitial}
+                OffBizPulled={this.state.OffBizPulled}
+                OffEventsPulled={this.state.OffEventsPulled}
+                OffRentPulled={this.state.OffRentPulled}
+                OffTradePulled={this.state.OffTradePulled}
+                LookRentPulled={this.state.LookRentPulled}
+                LookTradePulled={this.state.LookTradePulled}
+                OffRentPosts={this.state.OffRentPosts}
+                OffBizPosts={this.state.OffBizPosts}
+                OffOtherPosts={this.state.OffOtherPosts}
+                OffEventsPosts={this.state.OffEventsPosts}
+                LookRentPosts={this.state.LookRentPosts}
+                LookOtherPosts={this.state.LookOtherPosts}
+                handleSearchedPost={this.handleSearchedPost}
+                handleSearchedEvent={this.handleSearchedEvent}
+                OffRentNames={this.state.OffRentNames}
+                OffBizNames={this.state.OffBizNames}
+                OffOtherNames={this.state.OffOtherNames}
+                OffEventsNames={this.state.OffEventsNames}
+                LookRentNames={this.state.LookRentNames}
+                LookOtherNames={this.state.LookOtherNames}
+                yourPostsToDisplay={this.state.yourPostsToDisplay}
+                handleYourPost={this.handleYourPost}
+                handleYourEvent={this.handleYourEvent}
+                isLoadingYourPosts={this.state.isLoadingYourPosts}
+              />
+            </>
+          ) : (
+            <></>
+          )}
+          {this.state.selectedDapp === "Wallet" ? (
+            <>
+              <WalletPage
+                WALLET_Login7={this.state.WALLET_Login7} //This is for the enable pay to name control
+                isLoginComplete={isLoginComplete}
+                WALLET_whichTab={this.state.WALLET_whichTab}
+                handleTab_WALLET={this.handleTab_WALLET}
+                showModal={this.showModal}
+                WALLET_messageToSend={this.state.WALLET_messageToSend}
+                sendDashtoName={this.sendDashtoName_WALLET}
+                requestDashfromName={this.requestDashfromName_WALLET}
+                isModalShowing={this.state.isModalShowing}
+                presentModal={this.state.presentModal}
+                hideModal={this.hideModal}
+                closeTopNav={this.closeTopNav}
+                WALLET_sendFailure={this.state.WALLET_sendFailure}
+                WALLET_sendSuccess={this.state.WALLET_sendSuccess}
+                WALLET_sendMsgSuccess={this.state.WALLET_sendMsgSuccess}
+                WALLET_sendMsgFailure={this.state.WALLET_sendMsgFailure}
+                WALLET_sendPmtMsgSuccess={this.state.WALLET_sendPmtMsgSuccess}
+                WALLET_sendPmtMsgFailure={this.state.WALLET_sendPmtMsgFailure}
+                handleFailureAlert_WALLET={this.handleFailureAlert_WALLET}
+                handleSuccessAlert_WALLET={this.handleSuccessAlert_WALLET}
+                handleFailureMsgAlert_WALLET={this.handleFailureMsgAlert_WALLET}
+                handleFailurePmtMsgAlert_WALLET={
+                  this.handleFailurePmtMsgAlert_WALLET
+                }
+                handleSuccessPmtMsgAlert_WALLET={
+                  this.handleSuccessPmtMsgAlert_WALLET
+                }
+                WALLET_amountToSend={this.state.WALLET_amountToSend}
+                WALLET_sendToName={this.state.WALLET_sendToName}
+                WALLET_requestPmtNameDoc={this.state.WALLET_requestPmtNameDoc}
+                WALLET_sendToAddress={this.state.WALLET_sendToAddress}
+                mnemonic={this.state.mnemonic}
+                whichNetwork={this.state.whichNetwork}
+                skipSynchronizationBeforeHeight={
+                  this.state.skipSynchronizationBeforeHeight
+                }
+                dgmDocuments={this.state.dgmDocuments}
+                isLoadingRefresh_WALLET={this.state.isLoadingRefresh_WALLET}
+                isLoadingButtons_WALLET={this.state.isLoadingButtons_WALLET}
+                isLoadingWallet={this.state.isLoadingWallet}
+                isLoadingForm_WALLET={this.state.isLoadingForm_WALLET}
+                mode={this.state.mode}
+                accountBalance={this.state.accountBalance}
+                accountHistory={this.state.accountHistory} //ADD THIS TO THE LOGIN PROCESS =>
+                accountAddress={this.state.accountAddress} //ADD THIS TO THE LOGIN PROCESS =>
+                identity={this.state.identity}
+                identityInfo={this.state.identityInfo}
+                uniqueName={this.state.uniqueName}
+                showConfirmModal={this.showConfirmModal_WALLET}
+                showRequestModal={this.showRequestModal_WALLET}
+                showAddrConfirmModal={this.showAddrConfirmModal_WALLET}
+                showPayRequestModal={this.showPayRequestModal_WALLET}
+                showRejectReplyReqModal={this.showRejectReplyReqModal_WALLET}
+                WALLET_ByYouMsgs={this.state.WALLET_ByYouMsgs}
+                WALLET_ByYouNames={this.state.WALLET_ByYouNames}
+                WALLET_ByYouThreads={this.state.WALLET_ByYouThreads}
+                WALLET_ToYouMsgs={this.state.WALLET_ToYouMsgs}
+                WALLET_ToYouNames={this.state.WALLET_ToYouNames}
+                WALLET_ToYouThreads={this.state.WALLET_ToYouThreads}
+                isLoadingMsgs_WALLET={this.state.isLoadingMsgs_WALLET}
+                handleRefresh_WALLET={this.handleRefresh_WALLET}
+                whichPayType={this.state.WALLET_whichPayType}
+                triggerRequestButton={this.triggerRequestButton}
+                triggerPayButton={this.triggerPayButton}
+              />
+            </>
+          ) : (
+            <></>
+          )}
         </Container>
         {/* #####    BELOW ARE THE MODALS    #####    */}
         {this.state.isModalShowing &&
@@ -14054,6 +15506,49 @@ class App extends React.Component {
             replyToEdit={this.state.replyToEdit}
             replyingToName={this.state.replyingToName}
             editReply={this.editReply}
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+            closeTopNav={this.closeTopNav}
+          />
+        ) : (
+          <></>
+        )}
+        {/* *         ###   ###
+         *          ####   ##
+         *         ## ## ###
+         *        ##  ####
+         *      ###   ### */}
+        {this.state.isModalShowing &&
+        this.state.presentModal === "CreatePostModal" ? (
+          <CreatePostModal
+            isModalShowing={this.state.isModalShowing}
+            createYourPost={this.createYourPost}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+            closeTopNav={this.closeTopNav}
+          />
+        ) : (
+          <></>
+        )}
+        {this.state.isModalShowing &&
+        this.state.presentModal === "EditPostModal" ? (
+          <EditPostModal
+            selectedYourPost={this.state.selectedYourPost}
+            editYourPost={this.editYourPost}
+            isModalShowing={this.state.isModalShowing}
+            hideModal={this.hideModal}
+            mode={this.state.mode}
+            closeTopNav={this.closeTopNav}
+          />
+        ) : (
+          <></>
+        )}
+        {this.state.isModalShowing &&
+        this.state.presentModal === "EditEventModal" ? (
+          <EditEventModal
+            selectedYourPost={this.state.selectedYourPost}
+            editYourEvent={this.editYourEvent}
             isModalShowing={this.state.isModalShowing}
             hideModal={this.hideModal}
             mode={this.state.mode}

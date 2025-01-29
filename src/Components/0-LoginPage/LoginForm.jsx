@@ -85,7 +85,7 @@ class LoginForm extends React.Component {
             <b>
               This Name-Wallet, on this webpage, is currently a prototype
               implementation, used to showcase Proxy Accounts and facilate
-              payments for other Dash Frontends. ( Moving this to desktop with
+              payments for other Dash Frontends. (Moving this to desktop with
               ElectronJS is the end goal.)
             </b>
           </p>

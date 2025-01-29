@@ -3,6 +3,9 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
 
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+
 import YourReview from "./YourReview";
 
 class YourReviews extends React.Component {
@@ -15,24 +18,28 @@ class YourReviews extends React.Component {
     let yourreviews = this.props.YourReviews.map((yourreview, index) => {
       //console.log(item);
       return (
-        <YourReview
-          key={index}
-          mode={this.props.mode}
-          index={index}
-          today={today}
-          yesterday={yesterday}
-          // identity={this.props.identity}
-          // uniqueName={this.props.uniqueName}
+        <Col key={index} lg={4}>
+          <div style={{ marginBottom: "0.5rem" }}>
+            <YourReview
+              //key={index}
+              mode={this.props.mode}
+              index={index}
+              today={today}
+              yesterday={yesterday}
+              // identity={this.props.identity}
+              // uniqueName={this.props.uniqueName}
 
-          YourNameDoc={{
-            $ownerId: this.props.identity,
-            label: this.props.uniqueName,
-          }}
-          yourreview={yourreview}
-          YourReviewNames={this.props.YourReviewNames}
-          YourReplies={this.props.YourReplies}
-          handleYourReply={this.props.handleYourReply} //Goes and determines if edit or create REPLY
-        />
+              YourNameDoc={{
+                $ownerId: this.props.identity,
+                label: this.props.uniqueName,
+              }}
+              yourreview={yourreview}
+              YourReviewNames={this.props.YourReviewNames}
+              YourReplies={this.props.YourReplies}
+              handleYourReply={this.props.handleYourReply} //Goes and determines if edit or create REPLY
+            />
+          </div>
+        </Col>
       );
     });
 
@@ -60,7 +67,7 @@ class YourReviews extends React.Component {
                   Just tap on the review to reply!
                 </p>
                 <p></p>
-                {yourreviews}
+                <Row className="justify-content-md-center">{yourreviews}</Row>
               </>
             )}
           </>

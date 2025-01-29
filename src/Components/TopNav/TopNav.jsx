@@ -315,10 +315,15 @@ class TopNav extends React.Component {
 
                   <p></p>
 
-                  {/* <h4>
+                  <h4 style={{ color: "#008de4" }}>
                     <b>Utils</b>
                   </h4>
-                  {isLoginComplete ? (
+                  <NavSelects
+                    selection="Reviews"
+                    selectedDapp={this.props.selectedDapp}
+                    handleSelectedDapp={this.props.handleSelectedDapp}
+                  />
+                  {/* {isLoginComplete ? (
                     <NavSelects
                       selection="Reviews"
                       selectedDapp={this.props.selectedDapp}
@@ -330,21 +335,41 @@ class TopNav extends React.Component {
                         <b>Reviews</b>
                       </h5>
                     </Nav.Link>
-                  )}
+                  )} */}
 
-                  {isLoginComplete ? (
+                  <NavSelects
+                    selection="Nearby"
+                    selectedDapp={this.props.selectedDapp}
+                    handleSelectedDapp={this.props.handleSelectedDapp}
+                  />
+
+                  {/* {isLoginComplete ? (
                     <NavSelects
-                      selection="Address Wallet"
+                      selection="Nearby"
                       selectedDapp={this.props.selectedDapp}
                       handleSelectedDapp={this.props.handleSelectedDapp}
                     />
                   ) : (
                     <Nav.Link className="canvasLinkDisabled" disabled>
                       <h5>
-                        <b>Address Wallet</b>
+                        <b>Nearby</b>
                       </h5>
                     </Nav.Link>
                   )} */}
+
+                  {isLoginComplete ? (
+                    <NavSelects
+                      selection="Wallet"
+                      selectedDapp={this.props.selectedDapp}
+                      handleSelectedDapp={this.props.handleSelectedDapp}
+                    />
+                  ) : (
+                    <Nav.Link className="canvasLinkDisabled" disabled>
+                      <h5>
+                        <b>Wallet</b>
+                      </h5>
+                    </Nav.Link>
+                  )}
 
                   <p></p>
                   <div

@@ -5,18 +5,16 @@ import Spinner from "react-bootstrap/Spinner";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 
-import Nav from "react-bootstrap/Nav";
+//import Nav from "react-bootstrap/Nav";
+
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 
 import PaymentAddrComponent from "./PaymentAddrComponent";
-
 import ConfirmPaymentModal from "./ConfirmPaymentModal";
-
 import CreditsOnPage from "../CreditsOnPage";
 
 import handleDenomDisplay from "../UnitDisplay";
-
-import dapiClientNoWallet from "../DapiClientNoWallet";
-import Dash from "dash";
 
 class WalletPage extends React.Component {
   constructor(props) {
@@ -174,98 +172,63 @@ class WalletPage extends React.Component {
 
     return (
       <>
-        <Nav
-          fill
-          variant="pills"
-          defaultActiveKey={this.props.WALLET_whichTab}
-          onSelect={(eventKey) => this.props.handleTab_WALLET(eventKey)}
-        >
-          <Nav.Item>
-            <Nav.Link eventKey="Your Wallet">
-              <b>Your Wallet</b>
-            </Nav.Link>
-          </Nav.Item>
-          {/* <Nav.Item>
-            <Nav.Link eventKey="Payments">
-              <b>Payments</b>
-            </Nav.Link>
-          </Nav.Item> */}
-        </Nav>
+        <Row className="justify-content-md-center">
+          <Col md={9} lg={8} xl={7} xxl={6}>
+            <div
+              className="bodytext" //id="sidetextonlysides"
+            >
+              {/* ********** LOADING SPINNERS ********** */}
 
-        <div id="sidetextonlysides">
-          {/* <h3>
-            <Badge bg="primary">Your Connected Wallet</Badge>
-          </h3> */}
-
-          {/* ********** LOADING SPINNERS ********** */}
-
-          {this.props.isLoadingWallet ? (
-            <>
-              <div className="paddingBadge">
-                <b>Wallet Balance</b>
-
-                <h4>Loading..</h4>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="paddingBadge">
-                <div className="cardTitle">
-                  <div>
+              {this.props.isLoadingWallet ? (
+                <>
+                  <div className="paddingBadge">
                     <b>Wallet Balance</b>
-                    <h4 style={{ color: "#008de4" }}>
-                      <b>
-                        {handleDenomDisplay(
-                          this.props.whichNetwork,
-                          this.props.accountBalance
-                        )}
-                      </b>
-                    </h4>
+
+                    <h4>Loading..</h4>
                   </div>
+                </>
+              ) : (
+                <>
+                  <div className="paddingBadge">
+                    <div className="cardTitle">
+                      <div>
+                        <b>Wallet Balance</b>
+                        <h4 style={{ color: "#008de4" }}>
+                          <b>
+                            {handleDenomDisplay(
+                              this.props.whichNetwork,
+                              this.props.accountBalance
+                            )}
+                          </b>
+                        </h4>
+                      </div>
 
-                  {this.props.WALLET_whichTab === "Your Wallet" ? (
-                    <Button
-                      style={{ marginRight: "1rem" }}
-                      variant="primary"
-                      onClick={() => this.props.handleRefresh_WALLET()}
-                    >
-                      <b>Refresh</b>
-                    </Button>
-                  ) : (
-                    <></>
-                  )}
-                </div>
-              </div>
-
-              {/* <div className="indentStuff">
-                <b>Wallet Balance</b>
-                <h4 style={{ color: "#008de4" }}>
-                  <b>{handleDenomDisplay(this.props.whichNetwork,this.props.accountBalance)}</b>
-                </h4>
-              </div>
-              <p></p> */}
-            </>
-          )}
-        </div>
-        {/* **** ^^^^ LOADING SPINNERS ^^^^ **** */}
-
-        {/* ********** FORMS AND INFO ********** */}
-
-        {this.props.identity !== "No Identity" &&
-        this.props.uniqueName !== "Er" &&
-        this.props.identityInfo !== "Load Failure" &&
-        this.props.accountBalance !== 0 ? (
-          <>
-            <div id="sidetextonlytop">
-              <CreditsOnPage
-                identityInfo={this.props.identityInfo}
-                uniqueName={this.props.uniqueName}
-                showModal={this.props.showModal}
-              />
+                      <Button
+                        style={{ marginRight: "1rem" }}
+                        variant="primary"
+                        onClick={() => this.props.handleRefresh_WALLET()}
+                      >
+                        <b>Refresh</b>
+                      </Button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
+            {/* **** ^^^^ LOADING SPINNERS ^^^^ **** */}
 
-            {this.props.WALLET_whichTab === "Your Wallet" ? (
+            {/* ********** FORMS AND INFO ********** */}
+
+            {this.props.accountBalance !== 0 ? (
               <>
+                <div id="sidetextonlytop">
+                  <CreditsOnPage
+                    identityInfo={this.props.identityInfo}
+                    uniqueName={this.props.uniqueName}
+                    showModal={this.props.showModal}
+                  />
+                </div>
+
                 <div id="sidetextonlysides">
                   {/* BELOW IS EXCHANGE FORM TABS -> CHANGE TO PAY AND REQUEST */}
 
@@ -420,35 +383,35 @@ class WalletPage extends React.Component {
             ) : (
               <></>
             )}
-          </>
-        ) : (
-          <></>
-        )}
 
-        <div style={{ marginLeft: "1rem", marginTop: "1rem" }}>
-          <PaymentAddrComponent
-            mode={this.props.mode}
-            accountAddress={this.props.accountAddress}
-          />
-        </div>
+            <div style={{ marginLeft: "1rem", marginTop: "1rem" }}>
+              <PaymentAddrComponent
+                mode={this.props.mode}
+                accountAddress={this.props.accountAddress}
+              />
+            </div>
 
-        {this.props.isModalShowing &&
-        this.props.presentModal === "ConfirmPaymentModal" ? (
-          <ConfirmPaymentModal
-            whichNetwork={this.props.whichNetwork}
-            sendToName={this.props.WALLET_sendToName}
-            amountToSend={this.props.WALLET_amountToSend}
-            messageToSend={this.props.WALLET_messageToSend}
-            sendDashtoName={this.props.sendDashtoName}
-            handleClearModalPostPmtConfirm={this.handleClearModalPostPmtConfirm}
-            isModalShowing={this.props.isModalShowing}
-            hideModal={this.props.hideModal}
-            mode={this.props.mode}
-            closeTopNav={this.props.closeTopNav}
-          />
-        ) : (
-          <></>
-        )}
+            {this.props.isModalShowing &&
+            this.props.presentModal === "ConfirmPaymentModal" ? (
+              <ConfirmPaymentModal
+                whichNetwork={this.props.whichNetwork}
+                sendToName={this.props.WALLET_sendToName}
+                amountToSend={this.props.WALLET_amountToSend}
+                messageToSend={this.props.WALLET_messageToSend}
+                sendDashtoName={this.props.sendDashtoName}
+                handleClearModalPostPmtConfirm={
+                  this.handleClearModalPostPmtConfirm
+                }
+                isModalShowing={this.props.isModalShowing}
+                hideModal={this.props.hideModal}
+                mode={this.props.mode}
+                closeTopNav={this.props.closeTopNav}
+              />
+            ) : (
+              <></>
+            )}
+          </Col>
+        </Row>
       </>
     );
   }

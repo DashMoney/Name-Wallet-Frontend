@@ -103,16 +103,16 @@ export default function dapiClient(
           contractId: "E1pambYerWzGaGdQVQcf9tyL5qRKh9mKgiYW9mETupjQ", //"C7w3BAZHvoijzDrRv9MvsvAGgqdSBS2Nbc341kkrpovV",
         },
 
-        // DMIOContract: {
-        //   contractId: "DftSJ4QDatQo4YNgWdRmYvg4fg2sMsyHSxmanvAKSjRr",
-        // },
+        DMIOContract: {
+          contractId: "DftSJ4QDatQo4YNgWdRmYvg4fg2sMsyHSxmanvAKSjRr",
+        },
 
-        // DGRContract: {
-        //   contractId: "HLu6Q3RDpGF5dJSmJjuszRfx9nkdwV2DYoURx3jyXWv6",
-        //
-        //"5HVk6JR8pCvN2aBdQM9UvbsB7ND254JSA18Ya5TTdgPZ"
-        // ^^ new one on 01/2025 with DashMoney3
-        // },
+        DGRContract: {
+          contractId: "HLu6Q3RDpGF5dJSmJjuszRfx9nkdwV2DYoURx3jyXWv6",
+
+          //"5HVk6JR8pCvN2aBdQM9UvbsB7ND254JSA18Ya5TTdgPZ"
+          // ^^ new one on 01/2025 with DashMoney3
+        },
       },
     };
   }

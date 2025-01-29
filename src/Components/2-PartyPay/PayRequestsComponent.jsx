@@ -46,11 +46,13 @@ class PayRequestsComponent extends React.Component {
     });
   };
 
-  //IS CHECKALREADYSENT THE SAME AS CHECKWITHDRAWAL? <- NO
+  //IS CHECKALREADYSENT THE SAME AS CHECKWITHDRAWAL? <- NO for when to call but yes in that it is similar in that it looks for a certain UTXO.
   // SENT IS SENT AND WITH
+  // callCheckAlreadySent if have a response but no TXId, BUT then it wouldn't get made..
+  // OKAY so.. callCheckAlreadySent if not response yet!! ****
 
   callCheckAlreadySent = () => {
-    //call the .js function ->
+    //call the .js function -> when no response to check TXhistory
     // whatever return set to state ->
   };
 
@@ -88,7 +90,6 @@ class PayRequestsComponent extends React.Component {
   };
 
   callDAPIfor2Party = (theTxId, requestPubKey) => {
-    
     const client = new Dash.Client(dapiClientNoWallet(this.props.whichNetwork));
     async function dapiClientMethods() {
       console.log("theTxId:", theTxId);
