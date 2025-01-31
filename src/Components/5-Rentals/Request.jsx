@@ -89,11 +89,13 @@ class Request extends React.Component {
     //DO I NEED TO DO SOMETHING FOR THE CUSTOMER ALSO ? ->
 
     //Filter so that only the merchant send a confirm to the requester -> ***JUST DO THIS IN THE CARD ie  WAY DOWN STREAM****
-    // if (returnedDoc.$ownerId === this.state.MerchantId) {
+    //THIS ^^^ is wrong.
+    //
+    //BELOW is done in the query  (getRentalsConfirms)
+    // if (returnedDoc.$ownerId === this.state.identity) {
     //   docArray = [...docArray, returnedDoc];
     // }
-
-    ///******* DO THIS FIX ********** */
+    //
 
     if (this.props.DisplayRequests === "Confirmed") {
       confirm = this.props.RentalConfirms.find((confirm) => {
@@ -170,7 +172,8 @@ class Request extends React.Component {
               this.props.showRentals2PartyReqModal(
                 confirm,
                 requestName,
-                this.props.request.amt
+                //this.props.request.amt
+                confirm.amt
               )
             }
           >
@@ -363,7 +366,10 @@ class Request extends React.Component {
                   <Button
                     variant="primary"
                     onClick={() =>
-                      this.props.handleConfirmRequestModal(this.props.request)
+                      this.props.handleConfirmRequestModal(
+                        this.props.request,
+                        requestName
+                      )
                     }
                   >
                     <b>Confirm Reservation</b>

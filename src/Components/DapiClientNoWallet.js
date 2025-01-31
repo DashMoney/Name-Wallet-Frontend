@@ -94,7 +94,7 @@ export default function dapiClientNoWallet(theNetwork) {
           contractId: "EDLpeKCEFKGXDieomj4DidpCBJzuKf8paAHXcc1kQ89T",
         },
         RENTALSContract: {
-          contractId: "HjHocG4oyLHgpnRMJEGagaTyrx6HaboCiGdcBzY3RKPU",
+          contractId: "Czf3vDBKQZu8zNNsqTqVjxp2FoZEuhVfELULjkGV3S2B", //"HjHocG4oyLHgpnRMJEGagaTyrx6HaboCiGdcBzY3RKPU",
         },
         ONLINESTOREContract: {
           contractId: "E1pambYerWzGaGdQVQcf9tyL5qRKh9mKgiYW9mETupjQ", //"C7w3BAZHvoijzDrRv9MvsvAGgqdSBS2Nbc341kkrpovV",

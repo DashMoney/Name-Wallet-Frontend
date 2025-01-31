@@ -302,7 +302,8 @@ class Order extends React.Component {
               this.props.showOrders2PartyReqModal(
                 confirm,
                 orderName,
-                this.props.order.amt
+                //this.props.order.amt
+                confirm.amt
               )
             }
           >
@@ -554,6 +555,13 @@ class Order extends React.Component {
 
               {this.handleTotal()}
             </div>
+            {/* <div className="cartTotal">
+              <h4>
+                <b>Total</b> ({this.handleTotalItems()})<b>:</b>
+              </h4>
+
+              {this.handleTotal()}
+            </div> */}
 
             {confirm === undefined && !this.props.isLoadingOrders ? (
               <>

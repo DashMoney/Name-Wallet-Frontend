@@ -5,6 +5,7 @@ import Modal from "react-bootstrap/Modal";
 
 import Spinner from "react-bootstrap/Spinner";
 import CloseButton from "react-bootstrap/CloseButton";
+import Alert from "react-bootstrap/Alert";
 
 import handleDenomDisplay from "../../UnitDisplay";
 
@@ -271,6 +272,17 @@ class ConfirmRentalsRequestModal extends React.Component {
 
     let amtVerified = this.props.request.amt === calcAmt;
     //console.log(amtVerified);
+    let wasRentalDocUpdated = true;
+    //if amtVerified does not match
+    if (!amtVerified) {
+      if (
+        this.props.SelectedRental.$updatedAt < this.props.request.$updatedAt
+      ) {
+        wasRentalDocUpdated = false;
+      }
+      // if not before then DENY === amtVerified=false && wasRentalDocUpdated=false
+      // if after then allow&ALERT === amtVerified=false && wasRentalDocUpdated=true
+    }
 
     return (
       <>
@@ -359,7 +371,10 @@ class ConfirmRentalsRequestModal extends React.Component {
                 >
                   Total Cost{" "}
                   <b style={{ marginLeft: "1rem", color: "#008de4" }}>
-                    {handleDenomDisplay(this.props.whichNetwork, calcAmt)}
+                    {handleDenomDisplay(
+                      this.props.whichNetwork,
+                      this.props.request.amt
+                    )}
                   </b>
                 </h4>
                 <p></p>
@@ -368,12 +383,47 @@ class ConfirmRentalsRequestModal extends React.Component {
               <></>
             )}
 
-            {!amtVerified && !this.state.LoadingConfirms ? (
+            {!amtVerified &&
+            wasRentalDocUpdated &&
+            !this.state.LoadingConfirms ? (
               <>
-                <p>
-                  The amount from the request does not match the current rental
-                  rate.
-                </p>
+                <Alert variant="danger">
+                  <Alert.Heading>Request Amount (Warning)</Alert.Heading>
+                  <p>
+                    The <b>Total Amount</b> from the <b>Request does Not</b>{" "}
+                    match the <b>current Rental Rate</b>.
+                  </p>
+                  <p>
+                    Request was made prior to the latest Rental update/edit.
+                  </p>
+                  <p style={{ textAlign: "center" }}>
+                    <b>*Confirm Only after You have Verified.*</b>
+                  </p>
+                </Alert>
+
+                <p></p>
+              </>
+            ) : (
+              <></>
+            )}
+            {!amtVerified &&
+            !wasRentalDocUpdated &&
+            !this.state.LoadingConfirms ? (
+              <>
+                <Alert variant="danger">
+                  <Alert.Heading>Request Amount Failure</Alert.Heading>
+                  <p>
+                    The <b>Total Amount</b> from the <b>Request does Not</b>
+                    match the <b>current Rental Rate</b>.
+                  </p>
+                  <p>
+                    Request was <b>Not</b> made prior to the latest Rental
+                    update/edit.
+                  </p>
+                  <p style={{ textAlign: "center" }}>
+                    <b>*Customer must resubmit request properly*</b>
+                  </p>
+                </Alert>
 
                 <p></p>
               </>
@@ -383,18 +433,50 @@ class ConfirmRentalsRequestModal extends React.Component {
           </Modal.Body>
           <Modal.Footer>
             <>
-              {this.state.priorConfirm &&
-              this.state.subsequentConfirm &&
-              amtVerified ? (
+              {this.state.priorConfirm && this.state.subsequentConfirm ? (
                 <>
-                  {this.state.LoadingConfirms || this.state.loadTime >= 1 ? (
-                    <Button variant="primary" disabled>
-                      <b>Confirm ({this.state.loadTime})</b>
-                    </Button>
+                  {amtVerified ? (
+                    <>
+                      {this.state.LoadingConfirms ||
+                      this.state.loadTime >= 1 ? (
+                        <Button variant="primary" disabled>
+                          <b>Confirm ({this.state.loadTime})</b>
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="primary"
+                          onClick={this.handleSubmitClick}
+                        >
+                          <b>Confirm</b>
+                        </Button>
+                      )}
+                    </>
                   ) : (
-                    <Button variant="primary" onClick={this.handleSubmitClick}>
-                      <b>Confirm</b>
-                    </Button>
+                    <>
+                      {wasRentalDocUpdated ? (
+                        <>
+                          {this.state.LoadingConfirms ||
+                          this.state.loadTime >= 1 ? (
+                            <Button variant="primary" disabled>
+                              <b>Verify and Confirm ({this.state.loadTime})</b>
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="primary"
+                              onClick={this.handleSubmitClick}
+                            >
+                              <b>Verify and Confirm</b>
+                            </Button>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <Button variant="primary" disabled>
+                            <b>Unable to Confirm</b>
+                          </Button>
+                        </>
+                      )}
+                    </>
                   )}
                 </>
               ) : (

@@ -4671,6 +4671,10 @@ class App extends React.Component {
               returnedDoc.rentalId,
               "base64"
             ).toJSON();
+            returnedDoc.toId = Identifier.from(
+              returnedDoc.toId,
+              "base64"
+            ).toJSON();
             // console.log("newRequest:\n", returnedDoc);
             docArray = [...docArray, returnedDoc];
           }
@@ -4910,6 +4914,10 @@ class App extends React.Component {
             ).toJSON();
             returnedDoc.rentalId = Identifier.from(
               returnedDoc.rentalId,
+              "base64"
+            ).toJSON();
+            returnedDoc.toId = Identifier.from(
+              returnedDoc.toId,
               "base64"
             ).toJSON();
             console.log("newConfirm:\n", returnedDoc);
@@ -7747,6 +7755,10 @@ class App extends React.Component {
               returnedDoc.rentalId,
               "base64"
             ).toJSON();
+            returnedDoc.toId = Identifier.from(
+              returnedDoc.toId,
+              "base64"
+            ).toJSON();
             //  console.log("newRequest:\n", returnedDoc);
             docArray = [...docArray, returnedDoc];
           }
@@ -8049,10 +8061,10 @@ class App extends React.Component {
               returnedDoc.reqId,
               "base64"
             ).toJSON();
-            // returnedDoc.toId = Identifier.from(
-            //   returnedDoc.toId,
-            //   "base64"
-            // ).toJSON();
+            returnedDoc.toId = Identifier.from(
+              returnedDoc.toId,
+              "base64"
+            ).toJSON();
             returnedDoc.rentalId = Identifier.from(
               returnedDoc.rentalId,
               "base64"
@@ -8220,7 +8232,7 @@ class App extends React.Component {
 
   //END OF MERCHANT QUERIES
 
-  handleConfirmRequestModal = (theRequest) => {
+  handleConfirmRequestModal = (theRequest, theNameDoc) => {
     //HAVE TO DETERMINE THE RENTAL of request ->
     let requestRental = this.state.RentalsRentals.find((rental) => {
       return rental.$id === theRequest.rentalId;
@@ -8229,6 +8241,7 @@ class App extends React.Component {
     this.setState(
       {
         selectedRequest: theRequest,
+        selectedReqName: theNameDoc,
         SelectedRental: requestRental,
       },
       () => this.showModal("ConfirmRentalsRequestModal")
@@ -8269,9 +8282,9 @@ class App extends React.Component {
         departDate: this.state.selectedRequest.departDate,
         rentalId: this.state.SelectedRental.$id,
         reqId: this.state.selectedRequest.$id,
-        toId: this.state.selectedRequest.$ownerId,
+        toId: this.state.selectedReqName.$ownerId, //This should be Owner and not Proxy.
         amt: this.state.selectedRequest.amt,
-        // pmtObj
+        msg: "",
       };
       //console.log(' Create: ', confirmProperties);
 
@@ -8311,6 +8324,7 @@ class App extends React.Component {
           returnedDoc.reqId,
           "base64"
         ).toJSON();
+        returnedDoc.toId = Identifier.from(returnedDoc.toId, "base64").toJSON();
 
         console.log("Rentals Confirm:\n", returnedDoc);
 
@@ -8420,7 +8434,7 @@ class App extends React.Component {
   showRentals2PartyReqModal = (
     inputRentalReqDoc,
     inputNameDoc,
-    inputNumber
+    inputNumber //from Confirm
   ) => {
     this.setState({
       selectedConfirm: inputRentalReqDoc,
@@ -8468,11 +8482,6 @@ class App extends React.Component {
         req: "100",
         fromReq: "100",
         amt: this.state.amountToSend2Party,
-
-        // txId: "", //Blank txId not paid out of multisig Yet
-        // sigObject: "",
-        // msgObject: theMsgObject,
-        //encryptObject: "",
       };
 
       //console.log(docProperties);
