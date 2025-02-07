@@ -124,6 +124,11 @@ import EditReviewModal from "./Components/7-Reviews/ReviewModals/EditReviewModal
 import CreateReplyModal from "./Components/7-Reviews/ReviewModals/CreateReplyModal";
 import EditReplyModal from "./Components/7-Reviews/ReviewModals/EditReplyModal";
 
+//NEARBY
+import CreatePostModal from "./Components/8-NearBy/YourPosts/CreatePostModal";
+import EditPostModal from "./Components/8-NearBy/YourPosts/EditPostModal";
+import EditEventModal from "./Components/8-NearBy/YourPosts/EditEventModal";
+
 import dapiClient from "./Components/DapiClient";
 import dapiClientNoWallet from "./Components/DapiClientNoWallet";
 
@@ -13049,7 +13054,7 @@ class App extends React.Component {
             yourPostsToDisplay: [post, ...this.state.yourPostsToDisplay],
             isLoadingYourPosts: false,
           },
-          () => this.sendFrontendFee()
+          () => this.loadIdentityCredits()
         );
       })
       .catch((e) => {

@@ -533,43 +533,6 @@ class EditEventModal extends React.Component {
               </Button>
             )}
 
-            {/* <h4 style={{ marginTop: ".2rem", marginBottom: ".1rem" }}>
-              <b>You are Looking For:</b>
-            </h4>
-
-            {this.state.selectedCategory === "lookrent" ? (
-              <Button
-                variant="primary"
-                style={{ textDecoration: "underline", marginRight: ".5rem" }}
-              >
-                <b>Place to Rent</b>
-              </Button>
-            ) : (
-              <Button
-                variant="primary"
-                style={{ marginRight: ".5rem" }}
-                onClick={() => this.handleCategoryButtons("lookrent")}
-              >
-                <b>Place to Rent</b>
-              </Button>
-            )}
-
-            {this.state.selectedCategory === "lookother" ? (
-              <Button
-                variant="primary"
-                style={{ textDecoration: "underline", marginRight: ".5rem" }}
-              >
-                <b>Trade</b>
-              </Button>
-            ) : (
-              <Button
-                variant="primary"
-                style={{ marginRight: ".5rem" }}
-                onClick={() => this.handleCategoryButtons("lookother")}
-              >
-                <b>Trade</b>
-              </Button>
-            )} */}
             <div className="BottomBorder" style={{ paddingTop: ".5rem" }}></div>
 
             <Form
@@ -799,33 +762,6 @@ class EditEventModal extends React.Component {
                   <b>Active</b> means people can view the post when searching.
                 </p>
               </Form.Group>
-
-              {this.state.selectedCategory === "offbiz" ? (
-                <Form.Group className="mb-3" id="formDGPCheckbox">
-                  {/* <Form.Label>
-                  <b>Is Post Active?</b>
-                </Form.Label> */}
-                  <Form.Check
-                    type="switch"
-                    id="DGP-switch"
-                    label={
-                      this.state.postDGP ? (
-                        <b>My Store</b>
-                      ) : (
-                        <b>No 'My Store' for viewing</b>
-                      )
-                    }
-                    //onChange={() => this.handleActive()}
-                  />
-
-                  <p>
-                    <b>My Store</b> means you have Shop/Menu available for
-                    viewing in the <b>My Store</b> dapp.
-                  </p>
-                </Form.Group>
-              ) : (
-                <></>
-              )}
 
               <div className="ButtonRightNoUnderline">
                 {this.state.validCity &&

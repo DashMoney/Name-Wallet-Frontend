@@ -120,7 +120,7 @@ class CreatePostModal extends React.Component {
 
       postActive: true,
       //postAvail: true,
-      postDGP: true,
+      postDGP: false,
 
       //EVENT
       // group: maxLength: 32,
@@ -640,7 +640,7 @@ class CreatePostModal extends React.Component {
                   marginBottom: ".7rem",
                 }}
               >
-                <b>Shops/Menus</b>
+                <b>Shopping</b>
               </Button>
             ) : (
               <Button
@@ -648,7 +648,7 @@ class CreatePostModal extends React.Component {
                 style={{ marginRight: ".5rem", marginBottom: ".7rem" }}
                 onClick={() => this.handleCategoryButtons("offbiz")}
               >
-                <b>Shops/Menus</b>
+                <b>Shopping</b>
               </Button>
             )}
 
@@ -700,7 +700,7 @@ class CreatePostModal extends React.Component {
                   marginBottom: ".7rem",
                 }}
               >
-                <b>Place to Rent</b>
+                <b>Places to Rent</b>
               </Button>
             ) : (
               <Button
@@ -708,96 +708,10 @@ class CreatePostModal extends React.Component {
                 style={{ marginRight: ".5rem", marginBottom: ".7rem" }}
                 onClick={() => this.handleCategoryButtons("offrent")}
               >
-                <b>Place to Rent</b>
+                <b>Places to Rent</b>
               </Button>
             )}
 
-            {this.state.selectedCategory === "offother" ? (
-              <Button
-                variant="primary"
-                style={{
-                  textDecoration: "underline",
-                  marginRight: ".5rem",
-                  marginBottom: ".7rem",
-                }}
-              >
-                <b
-                  style={{
-                    paddingLeft: ".7rem",
-                    paddingRight: ".7rem",
-                  }}
-                >
-                  Trade
-                </b>
-              </Button>
-            ) : (
-              <Button
-                variant="primary"
-                style={{ marginRight: ".5rem", marginBottom: ".7rem" }}
-                onClick={() => this.handleCategoryButtons("offother")}
-              >
-                <b
-                  style={{
-                    paddingLeft: ".7rem",
-                    paddingRight: ".7rem",
-                  }}
-                >
-                  Trade
-                </b>
-              </Button>
-            )}
-
-            <h4 style={{ marginTop: ".2rem", marginBottom: ".1rem" }}>
-              <b>You are Looking For:</b>
-            </h4>
-
-            {this.state.selectedCategory === "lookrent" ? (
-              <Button
-                variant="primary"
-                style={{ textDecoration: "underline", marginRight: ".5rem" }}
-              >
-                <b>Place to Rent</b>
-              </Button>
-            ) : (
-              <Button
-                variant="primary"
-                style={{ marginRight: ".5rem" }}
-                onClick={() => this.handleCategoryButtons("lookrent")}
-              >
-                <b>Place to Rent</b>
-              </Button>
-            )}
-
-            {this.state.selectedCategory === "lookother" ? (
-              <Button
-                variant="primary"
-                style={{ textDecoration: "underline", marginRight: ".5rem" }}
-              >
-                <b
-                  style={{
-                    paddingLeft: ".7rem",
-                    paddingRight: ".7rem",
-                  }}
-                >
-                  Trade
-                </b>
-              </Button>
-            ) : (
-              <Button
-                variant="primary"
-                style={{ marginRight: ".5rem" }}
-                onClick={() => this.handleCategoryButtons("lookother")}
-              >
-                <b
-                  style={{
-                    paddingLeft: ".7rem",
-                    paddingRight: ".7rem",
-                  }}
-                >
-                  Trade
-                </b>
-              </Button>
-            )}
             <div className="BottomBorder" style={{ paddingTop: ".5rem" }}></div>
 
             {this.state.selectedCategory === "" ? (
@@ -1048,11 +962,9 @@ class CreatePostModal extends React.Component {
                     </p>
                   </Form.Group>
 
-                  {this.state.selectedCategory === "offbiz" ? (
+                  {/* {this.state.selectedCategory === "offbiz" ? (
                     <Form.Group className="mb-3" id="formDGPCheckbox">
-                      {/* <Form.Label>
-                  <b>Is Post Active?</b>
-                </Form.Label> */}
+                      
                       <Form.Check
                         type="switch"
                         id="DGP-switch"
@@ -1073,7 +985,7 @@ class CreatePostModal extends React.Component {
                     </Form.Group>
                   ) : (
                     <></>
-                  )}
+                  )} */}
                   {/* Make separate/distinct submit for events for separate validation */}
                   <div className="ButtonRightNoUnderline">
                     {this.state.selectedCategory === "events" ? (
