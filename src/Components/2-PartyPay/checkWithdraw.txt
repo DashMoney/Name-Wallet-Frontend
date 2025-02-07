@@ -1,7 +1,9 @@
 export default function checkWithdraw(scriptHashToCheckFor, walletTXs) {
   //WALLETHISTORY -> ARRAY
-  //jUST PULL LAST 12
+  //jUST PULL LAST 40 or no limit
   //AND CAN EVEN SEPARATE DOWN TO SENT OR RECEIVED
+  //"type": "sent",
+  //
   // FOR CHECK WITHDRAW -> RECEIVED
   // IF THE FROM HAS AN ADDRESS THAT MATCHES THEN RETURN THE txId <-***
   // AND IF NOT RETURN FALSE THEN SETsTATE AND ADD WITHDRAWN TO STATE BUTTON

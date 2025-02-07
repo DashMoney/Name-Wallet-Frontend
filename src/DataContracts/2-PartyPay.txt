@@ -1,0 +1,212 @@
+//THIS IS 2-PARTY - REGISTER DATA CONTRACT
+
+const Dash = require("dash");
+
+const clientOpts = {
+  network: "testnet", //<- CHANGE*********
+  wallet: {
+    mnemonic: "Your Mnemonic", //<- CHANGE*********
+    unsafeOptions: {
+      skipSynchronizationBeforeHeight: 1029000, //<- CHANGE*********
+    },
+  },
+};
+
+const client = new Dash.Client(clientOpts);
+
+const registerContract = async () => {
+  const { platform } = client;
+  const identity = await platform.identities.get(
+    "Your IdentityID" //<- CHANGE*********
+  );
+
+  //2-Party Pay Walkthrough
+  // 1) Must first create xPubKeyDoc (HD PATH: "m/2024'/5'/2'")
+  // 2) Can then send Requests or Responses to Requests
+  // 3) Response requires sending amount to Request for this version
+  //4) Encryption of signatures and messages using eciesjs for other and AES for self
+  //5)request.$createdAt - 1729873000000 AND .slice(0, -3)
+  // timestamp minus constant and removing the milliseconds results in the non hardened public key used by both parties in the exchange
+
+  const contractDocuments = {
+    xPubKeyDoc: {
+      //"m/2024'/5'/2'"
+      type: "object",
+      indices: [
+        {
+          name: "ownerId",
+          properties: [{ $ownerId: "asc" }],
+          unique: true, // SINGLETON
+        },
+      ],
+      properties: {
+        xpubkey: {
+          type: "string",
+          minLength: 1,
+          maxLength: 400, //length of xPubKey 111
+          position: 0,
+        },
+      },
+      required: ["xpubkey"],
+      additionalProperties: false,
+    },
+
+    request: {
+      type: "object",
+      indices: [
+        {
+          //This is Sender QUERY
+          name: "ownerIdAndcreatedAt",
+          properties: [{ $ownerId: "asc" }, { $createdAt: "asc" }],
+          unique: false,
+        },
+        {
+          //This is Receipient QUERY
+          name: "toIdandcreatedAt",
+          properties: [{ toId: "asc" }, { $createdAt: "asc" }],
+          unique: false,
+        },
+        {
+          //This is orders and requests QUERY
+          name: "forId",
+          properties: [{ forId: "asc" }],
+          unique: false,
+        },
+      ],
+      properties: {
+        toId: {
+          //This is the Receipient ownerId
+          type: "array",
+          byteArray: true,
+          minItems: 32,
+          maxItems: 32,
+          contentMediaType: "application/x.dash.dpp.identifier",
+          position: 0,
+        },
+        forId: {
+          //This is for whatever document this point too. Future Possibility
+          type: "array",
+          byteArray: true,
+          minItems: 32,
+          maxItems: 32,
+          contentMediaType: "application/x.dash.dpp.identifier",
+          position: 1,
+        },
+        //yourAES
+        req: {
+          type: "string",
+          minLength: 0,
+          maxLength: 5120,
+          position: 2,
+        },
+
+        //forThem
+        fromReq: { type: "string", minLength: 0, maxLength: 5120, position: 3 },
+        amt: {
+          type: "integer",
+          minimum: 0,
+          maximum: 10000000000000, // 100,000 Dash is max
+          position: 4,
+        },
+      },
+      required: [
+        "toId",
+        "forId",
+        "req",
+        "fromReq",
+        "amt",
+        "$createdAt",
+        "$updatedAt",
+      ],
+      additionalProperties: false,
+    },
+
+    response: {
+      type: "object",
+      indices: [
+        {
+          //This is Owner QUERY
+          name: "ownerIdAndcreatedAt",
+          properties: [{ $ownerId: "asc" }, { $createdAt: "asc" }],
+          unique: false,
+        },
+        {
+          //This is Sender QUERY
+          name: "reqId",
+          properties: [{ reqId: "asc" }],
+          unique: false,
+        },
+      ],
+      properties: {
+        reqId: {
+          type: "array",
+          byteArray: true,
+          minItems: 32,
+          maxItems: 32,
+          contentMediaType: "application/x.dash.dpp.identifier",
+          position: 0,
+        },
+
+        toId: {
+          //TAGS THE OWNER SO IF DELETE PMT REQUEST
+          //This is the REQ ownerId
+          type: "array",
+          byteArray: true,
+          minItems: 32,
+          maxItems: 32,
+          contentMediaType: "application/x.dash.dpp.identifier",
+          position: 1,
+        },
+        //yourAES
+        resp: { 
+          type: "string",
+           minLength: 0,
+           maxLength: 5120,
+           position: 2 },
+
+        //forThem
+        fromResp: {
+          type: "string",
+          minLength: 0,
+          maxLength: 5120,
+          position: 3,
+        },
+        amtMatch: {
+          type: "integer",
+          minimum: 0,
+          maximum: 10000000000000, // 100,000 Dash is max
+          position: 4,
+        },
+        //request Document $createdAt - constant 1729873000000
+        reqTime: {
+          type: "integer",
+          minimum: 0,
+          maximum: 10000000000000,
+          position: 5,
+        },
+      },
+      required: [
+        "reqId",
+        "toId",
+        "resp",
+        "fromResp",
+        "amtMatch",
+        "reqTime",
+        "$createdAt",
+        "$updatedAt",
+      ],
+      additionalProperties: false,
+    },
+  };
+
+  const contract = await platform.contracts.create(contractDocuments, identity);
+  console.dir({ contract: contract.toJSON() });
+
+  await platform.contracts.publish(contract, identity);
+  return contract;
+};
+
+registerContract()
+  .then((d) => console.log("Contract registered:\n", d.toJSON()))
+  .catch((e) => console.error("Something went wrong:\n", e))
+  .finally(() => client.disconnect());

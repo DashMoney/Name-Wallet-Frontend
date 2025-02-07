@@ -1,6 +1,7 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
+import Alert from "react-bootstrap/Alert";
 
 import Badge from "react-bootstrap/Badge";
 import handleDenomDisplay from "../UnitDisplay";
@@ -39,12 +40,131 @@ class Pay2PartyReqsComp extends React.Component {
     };
   }
 
-  //IS CHECKALREADYSENT THE SAME AS CHECKWITHDRAWAL? <- NO
-  // SENT IS SENT AND WITH
-
-  callCheckAlreadySent = () => {
-    //call the .js function ->
+  checkAlreadySent = (theRequestPubKeyDoc) => {
+    //call the .js function -> when no response to check TXhistory
     // whatever return set to state ->
+
+    let timeStamp = this.props.req.$createdAt - 1729873000000;
+    //console.log("timeStamp", timeStamp);
+    let truncatedTimeStamp = new String(timeStamp).slice(0, -3);
+
+    let YourPublicKey = new HDPublicKey(this.props.Your2PartyPubKey.xpubkey)
+      .deriveChild(`m/${truncatedTimeStamp}`)
+      //`m/2147483647` <- LIMIT, will hit in 68 years
+      .toObject().publicKey;
+
+    // console.log("YourPublicKey", YourPublicKey);
+
+    let TheirPublicKey = new HDPublicKey(theRequestPubKeyDoc.xpubkey)
+      .deriveChild(`m/${truncatedTimeStamp}`)
+      .toObject().publicKey;
+
+    // console.log("TheirPublicKey", TheirPublicKey);
+
+    let redeemScript = Script.buildMultisigOut(
+      [YourPublicKey, TheirPublicKey],
+      2
+    );
+
+    //console.log("redeemScript: ", redeemScript);
+
+    let scriptHashOut = redeemScript.toScriptHashOut();
+    //console.log("ScriptHashOutOFALEADYSENT: ", scriptHashOut.toString());
+
+    //console.log("whichNetwork", whichNetwork);
+    let scriptAddress = Address.fromScript(
+      scriptHashOut,
+      this.props.whichNetwork
+    );
+    //console.log("scriptAddress: ", scriptAddress.toString());
+
+    let foundTX = undefined;
+    let foundtxId = undefined;
+
+    this.props.accountHistory.find((tx) => {
+      if (tx.type === "sent") {
+        foundTX = tx.to.find((input) => {
+          return (
+            input.address === scriptAddress.toString() &&
+            input.satoshis === this.props.req.amt
+          );
+        });
+      }
+
+      if (foundTX !== undefined) {
+        foundtxId = tx.txId;
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    //console.log("FoundTX: ", foundTX);
+    console.log("FoundtxId: ", foundtxId);
+
+    return foundtxId;
+  };
+
+  checkAlreadyWithdrawn = (theRequestPubKeyDoc) => {
+    let timeStamp = this.props.req.$createdAt - 1729873000000;
+    //console.log("timeStamp", timeStamp);
+    let truncatedTimeStamp = new String(timeStamp).slice(0, -3);
+
+    let YourPublicKey = new HDPublicKey(this.props.Your2PartyPubKey.xpubkey)
+      .deriveChild(`m/${truncatedTimeStamp}`)
+      //`m/2147483647` <- LIMIT, will hit in 68 years
+      .toObject().publicKey;
+
+    // console.log("YourPublicKey", YourPublicKey);
+
+    let TheirPublicKey = new HDPublicKey(theRequestPubKeyDoc.xpubkey)
+      .deriveChild(`m/${truncatedTimeStamp}`)
+      .toObject().publicKey;
+
+    // console.log("TheirPublicKey", TheirPublicKey);
+
+    let redeemScript = Script.buildMultisigOut(
+      [YourPublicKey, TheirPublicKey],
+      2
+    );
+
+    //console.log("redeemScript: ", redeemScript);
+
+    let scriptHashOut = redeemScript.toScriptHashOut();
+    //console.log("ScriptHashOutOFALEADYSENT: ", scriptHashOut.toString());
+
+    //console.log("whichNetwork", whichNetwork);
+    let scriptAddress = Address.fromScript(
+      scriptHashOut,
+      this.props.whichNetwork
+    );
+    //console.log("scriptAddress: ", scriptAddress.toString());
+
+    let foundTX = undefined;
+    let foundtxId = undefined;
+
+    this.props.accountHistory.find((tx) => {
+      if (tx.type === "received") {
+        foundTX = tx.from.find((input) => {
+          return (
+            input.address === scriptAddress.toString()
+            //&& input.satoshis === this.props.req.amt
+          );
+        });
+      }
+
+      if (foundTX !== undefined) {
+        foundtxId = tx.txId;
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    //console.log("FoundTX: ", foundTX);
+    //console.log("FoundtxId: ", foundtxId);
+
+    return foundtxId;
   };
 
   callGetSignature = (
@@ -83,7 +203,7 @@ class Pay2PartyReqsComp extends React.Component {
   callDAPIfor2Party = (theTxId, requestPubKey) => {
     const client = new Dash.Client(dapiClientNoWallet(this.props.whichNetwork));
     async function dapiClientMethods() {
-      console.log("theTxId:", theTxId);
+      //console.log("theTxId:", theTxId);
       let result = await client.getDAPIClient().core.getTransaction(theTxId);
 
       return result;
@@ -157,7 +277,7 @@ class Pay2PartyReqsComp extends React.Component {
       .finally(() => client.disconnect());
   };
 
-  verifyRequestStatus = (theResponse) => {
+  verifyRequestStatus = (theResponse, ifAlreadyWithdrawnTXid) => {
     // if (theOrder.txId === "payLater") {
     //   //console.log("PayLater");
     //   return <Badge bg="warning">Pay Later</Badge>;
@@ -169,7 +289,7 @@ class Pay2PartyReqsComp extends React.Component {
     }
 
     if (theResponse.error !== "" || this.props.req.error !== "") {
-      console.log("Failed on Decrypt Error");
+      //console.log("Failed on Decrypt Error");
       return <Badge bg="danger">Fail</Badge>;
     }
 
@@ -181,6 +301,10 @@ class Pay2PartyReqsComp extends React.Component {
 
     if (theResponse.txId === "rej") {
       return <Badge bg="secondary">Rejected</Badge>;
+    }
+
+    if (ifAlreadyWithdrawnTXid !== undefined) {
+      return <Badge bg="primary">Refunded</Badge>;
     }
 
     if (
@@ -352,9 +476,33 @@ class Pay2PartyReqsComp extends React.Component {
       }
     }
 
-    // if (response === undefined && initialAlreadySent??) {
-    //   //CALL CHECKALREADY SENT
-    // }
+    //Only checkAlreadySent if 1)No Response Doc 2) There is RequestPubKey 3) Req.txId is not complete 4) No sigObject so not signed and released 5) and no encryption error
+    let alreadySenttxId;
+
+    if (
+      response === undefined &&
+      requestPubKey !== undefined &&
+      this.props.req.txId === "" &&
+      this.props.req.sigObject === "" &&
+      this.props.req.error === ""
+    ) {
+      alreadySenttxId = this.checkAlreadySent(requestPubKey);
+      //BECAUSE THERE IS NO ASYNC CALL..
+      //I CAN JUST RETURN IT HERE AND NOT DO A STATE CALL.
+    }
+
+    //Only checkAlreadyWithdrawn if 1)is Response Doc 2) There is RequestPubKey 3) Req hasn't withdrawn 4) sigObject(refund) is signed 5) and no encryption error
+    let alreadyWithdrawntxId;
+    //FOR REFUND** - IMPORTANT
+    if (
+      response !== undefined &&
+      requestPubKey !== undefined &&
+      this.props.req.txId === "" &&
+      this.props.req.sigObject !== "" &&
+      this.props.req.error === ""
+    ) {
+      alreadyWithdrawntxId = this.checkAlreadyWithdrawn(requestPubKey);
+    }
 
     return (
       <>
@@ -382,7 +530,7 @@ class Pay2PartyReqsComp extends React.Component {
           </div>
           {/* <span>{this.state.copiedName ? <span>✅</span> : <></>}</span> */}
 
-          {this.verifyRequestStatus(response)}
+          {this.verifyRequestStatus(response, alreadyWithdrawntxId)}
 
           <span className="textsmaller">
             {formatDate(
@@ -443,8 +591,48 @@ class Pay2PartyReqsComp extends React.Component {
                   <></>
                 )}
 
+                {/* alreadySenttxId */}
+                {response === undefined &&
+                alreadySenttxId !== undefined &&
+                requestPubKey !== undefined ? (
+                  <>
+                    <Alert variant="danger">
+                      <Alert.Heading>2-Party Response Failed</Alert.Heading>
+
+                      <p>
+                        Your payment to the 2-Party has already been made, but
+                        the 2-Party Response Document was not created.
+                      </p>
+                      <p style={{ textAlign: "center" }}>
+                        <b>*Please Resubmit 2-Party Response to proceed.*</b>
+                      </p>
+                    </Alert>
+
+                    <p></p>
+                    <div className="d-grid gap-2">
+                      <Button
+                        variant="success"
+                        onClick={() =>
+                          this.props.alreadySentCreateResponse(
+                            this.props.req,
+                            requestName,
+                            requestPubKey,
+                            alreadySenttxId
+                          )
+                        }
+                      >
+                        <b>Resubmit Response</b>
+                      </Button>
+                    </div>
+                    <p></p>
+                  </>
+                ) : (
+                  <></>
+                )}
+
                 {/* Requested 1st - Buttons */}
                 {response === undefined &&
+                alreadySenttxId === undefined &&
                 this.props.accountBalance > this.props.req.amt &&
                 requestPubKey !== undefined ? (
                   <>
@@ -497,7 +685,8 @@ class Pay2PartyReqsComp extends React.Component {
                 ) : (
                   <>
                     {/*  Completed Refunded- WORDS */}
-                    {response.refundTxId !== "" ? (
+                    {response.refundTxId !== "" ||
+                    alreadyWithdrawntxId !== undefined ? (
                       <>
                         <div
                           style={{
@@ -585,7 +774,8 @@ class Pay2PartyReqsComp extends React.Component {
 
                             {/* WithDraw - button */}
                             {response.sigObject !== "" &&
-                            this.props.req.txId === "" ? (
+                            this.props.req.txId === "" &&
+                            alreadyWithdrawntxId === undefined ? (
                               <>
                                 {this.state.Loading2PartyAddress ? (
                                   <>
@@ -789,7 +979,7 @@ class Pay2PartyReqsComp extends React.Component {
               style={{ marginTop: ".4rem", marginBottom: ".5rem" }}
             >
               <h5>Messages</h5>
-              {this.verifyRequestStatus(response)}
+              {this.verifyRequestStatus(response, alreadyWithdrawntxId)}
             </div>
 
             {messages.length === 0 ? (

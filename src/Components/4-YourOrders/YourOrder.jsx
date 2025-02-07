@@ -225,7 +225,7 @@ class YourOrder extends React.Component {
             accountHistory={this.props.accountHistory}
             accountBalance={this.props.accountBalance}
             //
-            DisplayReqsOrPmts={this.props.DisplayReqsOrPmts}
+
             isLoading2Party={this.props.isLoading2Party}
             Your2PartyPubKey={this.props.Your2PartyPubKey}
             ReqsToYou={this.props.ReqsToYou}
@@ -238,6 +238,7 @@ class YourOrder extends React.Component {
               this.props.showAddMessageToResponseModal
             }
             showWithdrawRefundModal={this.props.showWithdrawRefundModal}
+            alreadySentCreateResponse={this.props.alreadySentCreateResponse}
           />
         );
       }

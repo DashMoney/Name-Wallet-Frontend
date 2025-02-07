@@ -183,7 +183,7 @@ class YourRsrvsPage extends React.Component {
                     accountHistory={this.props.accountHistory}
                     accountBalance={this.props.accountBalance}
                     //
-                    DisplayReqsOrPmts={this.props.DisplayReqsOrPmts}
+
                     Your2PartyPubKey={this.props.Your2PartyPubKey}
                     ReqsToYou={this.props.ReqsToYou}
                     ReqsToYouPubKeys={this.props.ReqsToYouPubKeys}
@@ -197,6 +197,9 @@ class YourRsrvsPage extends React.Component {
                       this.props.showAddMessageToResponseModal
                     }
                     showWithdrawRefundModal={this.props.showWithdrawRefundModal}
+                    alreadySentCreateResponse={
+                      this.props.alreadySentCreateResponse
+                    }
                   />
                 </>
               )}

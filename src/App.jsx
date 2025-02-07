@@ -365,12 +365,6 @@ class App extends React.Component {
       WALLET_nameSuccess: "",
       WALLET_amtSuccess: 0,
 
-      WALLET_sendMsgSuccess: false,
-      WALLET_sendMsgFailure: false,
-
-      WALLET_sendPmtMsgSuccess: false,
-      WALLET_sendPmtMsgFailure: false,
-
       //*** *** *** *** ***
 
       //WALLET PAGE STATE^^^^^^
@@ -3474,8 +3468,35 @@ class App extends React.Component {
     //.finally(() => client.disconnect()); // <- Caused Error in the past, added back seems to fix more recent payment error. -> YES error dont use
   };
 
+  //NEEDS ITS ONLY MODAL AND MESSAGE.. OR SHOULD JUST SUBMIT
+  //THIS IS THE Create Response is AlreadySent
+  alreadySentCreateResponse = (
+    reqDoc,
+    inputNameDoc, //name and OwnerId
+    pubKeyDoc,
+    txId
+    //inputNumber //Should already be in duffs
+  ) => {
+    this.setState(
+      {
+        //sendSuccess2Party: false, //TX go through
+        //sendFailure2Party: false, //TX go through
+        //sendPmtMsgFailure2Party: false, //Response go through
+        requestPmtReqDoc2Party: reqDoc,
+        sendToNameDoc2Party: inputNameDoc,
+        amountToSend2Party: Number(reqDoc.amt),
+        requestPubKeyDoc2Party: pubKeyDoc,
+      },
+      () => this.create2PartyResponseWithTX(txId, "")
+    );
+  };
+
   create2PartyResponseWithTX = (theTxId, addedMessage) => {
     //console.log(addedMessage);
+    this.setState({
+      //This is for the checkAlreadySent Resubmit
+      isLoading2Party: true,
+    });
 
     const client = new Dash.Client(
       dapiClient(
@@ -5327,15 +5348,11 @@ class App extends React.Component {
     this.setState({
       sendSuccess2Party: false, //TX go through
       sendFailure2Party: false, //TX go through
-      //sendReqSuccess2Party: false, //Req go through
-      // sendReqFailure2Party: false,
-      //sendPmtMsgSuccess2Party: false, //It just go through
       sendPmtMsgFailure2Party: false, //Response go through
       requestPmtReqDoc2Party: reqDoc,
       sendToNameDoc2Party: inputNameDoc,
       amountToSend2Party: Number(reqDoc.amt),
       requestPubKeyDoc2Party: pubKeyDoc,
-
       //messageToSend2Party: message, //Add message in the modal
 
       presentModal: "Pay2PartyRequestModalRSRVS",
@@ -5451,6 +5468,26 @@ class App extends React.Component {
         });
       });
     //.finally(() => client.disconnect()); // <- Caused Error in the past, added back seems to fix more recent payment error. -> YES error dont use
+  };
+
+  //NEEDS ITS ONLY MODAL AND MESSAGE.. OR SHOULD JUST SUBMIT
+  //THIS IS THE Create Response is AlreadySent
+  alreadySentCreateResponse_RSRVS = (
+    reqDoc,
+    inputNameDoc, //name and OwnerId
+    pubKeyDoc,
+    txId
+    //inputNumber //Should already be in duffs
+  ) => {
+    this.setState(
+      {
+        requestPmtReqDoc2Party: reqDoc,
+        sendToNameDoc2Party: inputNameDoc,
+        amountToSend2Party: Number(reqDoc.amt),
+        requestPubKeyDoc2Party: pubKeyDoc,
+      },
+      () => this.create2PartyResponseWithTX_RSRVS(txId, "")
+    );
   };
 
   create2PartyResponseWithTX_RSRVS = (theTxId, addedMessage) => {
@@ -6820,17 +6857,13 @@ class App extends React.Component {
     this.setState({
       sendSuccess2Party: false, //TX go through
       sendFailure2Party: false, //TX go through
-      //sendReqSuccess2Party: false, //Req go through
-      // sendReqFailure2Party: false,
-      //sendPmtMsgSuccess2Party: false, //It just go through
+
       sendPmtMsgFailure2Party: false, //Response go through
       requestPmtReqDoc2Party: reqDoc,
       sendToNameDoc2Party: inputNameDoc,
       amountToSend2Party: Number(reqDoc.amt),
       requestPubKeyDoc2Party: pubKeyDoc,
-
       //messageToSend2Party: message, //Add message in the modal
-
       presentModal: "Pay2PartyRequestModalYOURORDERS",
       isModalShowing: true,
     });
@@ -6944,6 +6977,26 @@ class App extends React.Component {
         });
       });
     //.finally(() => client.disconnect()); // <- Caused Error in the past, added back seems to fix more recent payment error. -> YES error dont use
+  };
+
+  //NEEDS ITS ONLY MODAL AND MESSAGE.. OR SHOULD JUST SUBMIT
+  //THIS IS THE Create Response is AlreadySent
+  alreadySentCreateResponse_YOURORDERS = (
+    reqDoc,
+    inputNameDoc, //name and OwnerId
+    pubKeyDoc,
+    txId
+    //inputNumber //Should already be in duffs
+  ) => {
+    this.setState(
+      {
+        requestPmtReqDoc2Party: reqDoc,
+        sendToNameDoc2Party: inputNameDoc,
+        amountToSend2Party: Number(reqDoc.amt),
+        requestPubKeyDoc2Party: pubKeyDoc,
+      },
+      () => this.create2PartyResponseWithTX_YOURORDERS(txId, "")
+    );
   };
 
   create2PartyResponseWithTX_YOURORDERS = (theTxId, addedMessage) => {
@@ -8255,7 +8308,6 @@ class App extends React.Component {
       isLoadingRentals2Party: true,
       isLoadingRentalsMerchant: true,
       //selectedDapp: "Rentals",
-      //DisplayReqsOrPmts: "Confirmed",
       DisplayRequests: "Confirmed",
     });
 
@@ -10045,8 +10097,6 @@ class App extends React.Component {
       .finally(() => client.disconnect());
   };
 
-  //Change ->
-
   handleConfirmOrderModal = (theOrder, theNameDoc) => {
     this.setState(
       {
@@ -10998,12 +11048,11 @@ class App extends React.Component {
       {
         WALLET_sendSuccess: false,
         WALLET_sendFailure: false,
-        WALLET_sendMsgSuccess: false,
-        WALLET_sendMsgFailure: false,
+
         WALLET_amountToSend: Number((inputNumber * 100000000).toFixed(0)),
         WALLET_sendToAddress: inputAddr,
         WALLET_sendToName: "",
-        WALLET_messageToSend: "",
+
         presentModal: "ConfirmAddrPaymentModal",
         isModalShowing: true,
       } //,
@@ -11028,24 +11077,6 @@ class App extends React.Component {
     });
   };
 
-  handleFailureMsgAlert_WALLET = () => {
-    this.setState({
-      WALLET_sendMsgFailure: false,
-    });
-  };
-  // BELOW - PAYMENT REQUEST
-  handleFailurePmtMsgAlert_WALLET = () => {
-    this.setState({
-      WALLET_sendPmtMsgFailure: false,
-    });
-  };
-
-  handleSuccessPmtMsgAlert_WALLET = () => {
-    this.setState({
-      WALLET_sendPmtMsgSuccess: false,
-    });
-  };
-  // ^^^^ - PAYMENT REQUEST
   handleLoginforPostPaymentWallet_WALLET = () => {
     const client = new Dash.Client(
       dapiClient(
@@ -12572,25 +12603,22 @@ class App extends React.Component {
       case "offrent":
         this.getOffRent(queryObject, categoryIndex);
         break;
-      case "offother":
-        this.getOffOther(queryObject, categoryIndex);
-        break;
-      case "lookrent":
-        this.getLookRent(queryObject, categoryIndex);
-        break;
-      case "lookother":
-        this.getLookOther(queryObject, categoryIndex);
-        break;
+      // case "offother":
+      //   this.getOffOther(queryObject, categoryIndex);
+      //   break;
+      // case "lookrent":
+      //   this.getLookRent(queryObject, categoryIndex);
+      //   break;
+      // case "lookother":
+      //   this.getLookOther(queryObject, categoryIndex);
+      //   break;
       default:
         console.log("No case that matches!");
     }
 
     // this.getOffRent(queryObject, categoryIndex);
     // this.getOffBiz(queryObject, categoryIndex);
-    // this.getOffOther(queryObject, categoryIndex);
     // this.getOffEvents(queryObject, categoryIndex);
-    // this.getLookRent(queryObject, categoryIndex);
-    // this.getLookOther(queryObject, categoryIndex);
   };
 
   getOffRent = (queryObj, cateIndex) => {
@@ -12788,102 +12816,6 @@ class App extends React.Component {
     //END OF NAME RETRIEVAL
   };
 
-  // getOffOther = (queryObj, cateIndex) => {
-  //   //console.log("Calling getOffOther");
-  //   let queryOffOther = JSON.parse(JSON.stringify(queryObj));
-
-  //   queryOffOther.where[cateIndex].push("offother");
-
-  //   const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-  //   const getDocuments = async () => {
-  //     return client.platform.documents.get(
-  //       "DMIOContract.dmiopost",
-  //       queryOffOther
-  //     );
-  //   };
-
-  //   getDocuments()
-  //     .then((d) => {
-  //       if (d.length === 0) {
-  //         //console.log("There are no OffOther");
-
-  //         this.setState({
-  //           OffTradePulled: true,
-  //           OffOtherPosts: [],
-  //           isLoadingNearbySearch: false,
-  //           isLoadingNearbyForm: false,
-  //         });
-  //       } else {
-  //         let docArray = [];
-  //         //console.log("Getting OffOther");
-  //         for (const n of d) {
-  //           //console.log("Document:\n", n.toJSON());
-  //           docArray = [...docArray, n.toJSON()];
-  //         }
-  //         this.getOffOtherNames(docArray);
-  //       }
-  //     })
-  //     .catch((e) => console.error("Something went wrong getOffOther:\n", e))
-  //     .finally(() => client.disconnect());
-  // };
-
-  // getOffOtherNames = (docArray) => {
-  //   const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-  //   //START OF NAME RETRIEVAL
-
-  //   let ownerarrayOfOwnerIds = docArray.map((doc) => {
-  //     return doc.$ownerId;
-  //   });
-
-  //   let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
-
-  //   let arrayOfOwnerIds = [...setOfOwnerIds];
-
-  //   // arrayOfOwnerIds = arrayOfOwnerIds.map((item) =>
-  //   //   Buffer.from(Identifier.from(item))
-  //   // );
-
-  //   //console.log("Calling getNamesOffOthers");
-
-  //   const getNameDocuments = async () => {
-  //     return client.platform.documents.get("DPNSContract.domain", {
-  //       where: [["records.identity", "in", arrayOfOwnerIds]],
-  //       orderBy: [["records.identity", "asc"]],
-  //     });
-  //   };
-
-  //   getNameDocuments()
-  //     .then((d) => {
-  //       //WHAT IF THERE ARE NO NAMES? -> THEN THIS WON'T BE CALLED
-  //       if (d.length === 0) {
-  //         //console.log("No DPNS domain documents retrieved.");
-  //       }
-
-  //       let nameDocArray = [];
-
-  //       for (const n of d) {
-  //         //console.log("NameDoc:\n", n.toJSON());
-
-  //         nameDocArray = [n.toJSON(), ...nameDocArray];
-  //       }
-  //       //console.log(`DPNS Name Docs: ${nameDocArray}`);
-
-  //       this.setState({
-  //         OffOtherNames: nameDocArray,
-  //         OffOtherPosts: docArray,
-  //         OffTradePulled: true,
-  //         isLoadingNearbySearch: false,
-  //         isLoadingNearbyForm: false,
-  //       });
-  //     })
-  //     .catch((e) => {
-  //       console.error("Something went wrong getting OffOther Names:\n", e);
-  //     })
-  //     .finally(() => client.disconnect());
-  //   //END OF NAME RETRIEVAL
-  // };
-
   getOffEvents = (queryObj, cateIndex) => {
     //console.log("Calling getOffEvents");
     let queryOffEvents = JSON.parse(JSON.stringify(queryObj));
@@ -12979,201 +12911,6 @@ class App extends React.Component {
       .finally(() => client.disconnect());
     //END OF NAME RETRIEVAL
   };
-
-  // getLookRent = (queryObj, cateIndex) => {
-  //   //console.log("Calling getLookRent");
-  //   let queryLookRent = JSON.parse(JSON.stringify(queryObj));
-
-  //   queryLookRent.where[cateIndex].push("lookrent");
-
-  //   const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-  //   const getDocuments = async () => {
-  //     return client.platform.documents.get(
-  //       "DMIOContract.dmiopost",
-  //       queryLookRent
-  //     );
-  //   };
-
-  //   getDocuments()
-  //     .then((d) => {
-  //       if (d.length === 0) {
-  //         //console.log("There are no LookRent Posts");
-
-  //         this.setState({
-  //           LookRentPulled: true,
-  //           LookRentPosts: [],
-  //           isLoadingNearbySearch: false,
-  //           isLoadingNearbyForm: false,
-  //         });
-  //       } else {
-  //         let docArray = [];
-  //         //console.log("Getting LookRent Posts");
-  //         for (const n of d) {
-  //           //console.log("Document:\n", n.toJSON());
-  //           docArray = [...docArray, n.toJSON()];
-  //         }
-  //         this.getLookRentNames(docArray);
-  //       }
-  //     })
-  //     .catch((e) => console.error("Something went wrong:\n", e))
-  //     .finally(() => client.disconnect());
-  // };
-
-  // getLookRentNames = (docArray) => {
-  //   const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-  //   //START OF NAME RETRIEVAL
-
-  //   let ownerarrayOfOwnerIds = docArray.map((doc) => {
-  //     return doc.$ownerId;
-  //   });
-
-  //   let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
-
-  //   let arrayOfOwnerIds = [...setOfOwnerIds];
-
-  //   // arrayOfOwnerIds = arrayOfOwnerIds.map((item) =>
-  //   //   Buffer.from(Identifier.from(item))
-  //   // );
-
-  //   //console.log("Calling LookRentNames");
-
-  //   const getNameDocuments = async () => {
-  //     return client.platform.documents.get("DPNSContract.domain", {
-  //       where: [["records.identity", "in", arrayOfOwnerIds]],
-  //       orderBy: [["records.identity", "asc"]],
-  //     });
-  //   };
-
-  //   getNameDocuments()
-  //     .then((d) => {
-  //       //WHAT IF THERE ARE NO NAMES? -> THEN THIS WON'T BE CALLED
-  //       if (d.length === 0) {
-  //         //console.log("No DPNS domain documents retrieved.");
-  //       }
-
-  //       let nameDocArray = [];
-
-  //       for (const n of d) {
-  //         //console.log("NameDoc:\n", n.toJSON());
-
-  //         nameDocArray = [n.toJSON(), ...nameDocArray];
-  //       }
-  //       //console.log(`DPNS Name Docs: ${nameDocArray}`);
-
-  //       this.setState({
-  //         LookRentNames: nameDocArray,
-  //         LookRentPosts: docArray,
-  //         LookRentPulled: true,
-  //         isLoadingNearbySearch: false,
-  //         isLoadingNearbyForm: false,
-  //       });
-  //     })
-  //     .catch((e) => {
-  //       console.error("Something went wrong getting LookRent Names:\n", e);
-  //     })
-  //     .finally(() => client.disconnect());
-  //   //END OF NAME RETRIEVAL
-  // };
-
-  // getLookOther = (queryObj, cateIndex) => {
-  //   //console.log("Calling getLookOther");
-
-  //   let queryLookOther = JSON.parse(JSON.stringify(queryObj));
-
-  //   queryLookOther.where[cateIndex].push("lookother");
-
-  //   const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-
-  //   const getDocuments = async () => {
-  //     return client.platform.documents.get(
-  //       "DMIOContract.dmiopost",
-  //       queryLookOther
-  //     );
-  //   };
-
-  //   getDocuments()
-  //     .then((d) => {
-  //       if (d.length === 0) {
-  //         //console.log("There are no LookOther Posts");
-
-  //         this.setState({
-  //           LookTradePulled: true,
-  //           LookOtherPosts: [],
-  //           isLoadingNearbySearch: false,
-  //           isLoadingNearbyForm: false,
-  //         });
-  //       } else {
-  //         let docArray = [];
-  //         //console.log("Getting LookOther Posts");
-  //         for (const n of d) {
-  //           //console.log("Document:\n", n.toJSON());
-  //           docArray = [...docArray, n.toJSON()];
-  //         }
-  //         this.getLookOtherNames(docArray);
-  //       }
-  //     })
-  //     .catch((e) => console.error("Something went wrong:\n", e))
-  //     .finally(() => client.disconnect());
-  // };
-
-  // getLookOtherNames = (docArray) => {
-  //   const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
-  //   //START OF NAME RETRIEVAL
-
-  //   let ownerarrayOfOwnerIds = docArray.map((doc) => {
-  //     return doc.$ownerId;
-  //   });
-
-  //   let setOfOwnerIds = [...new Set(ownerarrayOfOwnerIds)];
-
-  //   let arrayOfOwnerIds = [...setOfOwnerIds];
-
-  //   // arrayOfOwnerIds = arrayOfOwnerIds.map((item) =>
-  //   //   Buffer.from(Identifier.from(item))
-  //   // );
-
-  //   //console.log("Calling getNamesforDSOmsgs");
-
-  //   const getNameDocuments = async () => {
-  //     return client.platform.documents.get("DPNSContract.domain", {
-  //       where: [["records.identity", "in", arrayOfOwnerIds]],
-  //       orderBy: [["records.identity", "asc"]],
-  //     });
-  //   };
-
-  //   getNameDocuments()
-  //     .then((d) => {
-  //       //WHAT IF THERE ARE NO NAMES? -> THEN THIS WON'T BE CALLED
-  //       if (d.length === 0) {
-  //         //console.log("No DPNS domain documents retrieved.");
-  //       }
-
-  //       let nameDocArray = [];
-
-  //       for (const n of d) {
-  //         //console.log("NameDoc:\n", n.toJSON());
-
-  //         nameDocArray = [n.toJSON(), ...nameDocArray];
-  //       }
-  //       //console.log(`DPNS Name Docs: ${nameDocArray}`);
-
-  //       this.setState({
-  //         LookOtherNames: nameDocArray,
-  //         LookOtherPosts: docArray,
-  //         LookTradePulled: true,
-  //         isLoadingNearbySearch: false,
-  //         isLoadingNearbyForm: false,
-  //       });
-  //     })
-  //     .catch((e) => {
-  //       console.error("Something went wrong getting LookOther Names:\n", e);
-  //     })
-  //     .finally(() => client.disconnect());
-  //   //END OF NAME RETRIEVAL
-  // };
-
-  //$$  $$   $$$  $$  $  $$  $$$  $$$  $$  $$
 
   createYourPost = (postObject) => {
     //console.log("Called Create Post");
@@ -14207,6 +13944,7 @@ class App extends React.Component {
                 }
                 showRefundFundsModal={this.showRefundFundsModal}
                 showWithdrawRefundModal={this.showWithdrawRefundModal}
+                alreadySentCreateResponse={this.alreadySentCreateResponse}
               />
             </>
           ) : (
@@ -14284,6 +14022,9 @@ class App extends React.Component {
                 showWithdrawRefundModal={
                   this.showWithdrawRefundModal_YOURORDERS
                 }
+                alreadySentCreateResponse={
+                  this.alreadySentCreateResponse_YOURORDERS
+                }
               />
             </>
           ) : (
@@ -14299,19 +14040,11 @@ class App extends React.Component {
                 Your2PartyPubKey={this.state.Your2PartyPubKey}
                 isLoginComplete={isLoginComplete}
                 pullInitialTriggerRSRVS={this.pullInitialTriggerRSRVS}
-                //InitialPullPROXY={this.state.InitialPullPROXY}
-                // InitialPullReservations={this.state.InitialPullReservations}
-
                 isRsrvsRefreshReady={this.state.isRsrvsRefreshReady}
                 handleRefresh_Rsrvs={this.handleRefresh_Rsrvs}
-                // RsrvsRequests: [],
-                // RsrvsRentals: [],
-                // RsrvsRentalsNames: [],
                 RsrvsRentalsNames={this.state.RsrvsRentalsNames}
                 isLoadingRsrvsRentals={this.state.isLoadingRsrvsRentals}
                 isLoadingRsrvs2Party={this.state.isLoadingRsrvs2Party}
-                // RsrvsConfirms: [],
-
                 Rentals={this.state.RsrvsRentals}
                 RentalRequests={this.state.RsrvsRequests}
                 RentalConfirms={this.state.RsrvsConfirms}
@@ -14330,12 +14063,8 @@ class App extends React.Component {
                 mnemonic={this.state.mnemonic}
                 accountHistory={this.state.accountHistory}
                 //
-                DisplayReqsOrPmts={this.state.DisplayReqsOrPmts}
-                isLoading2Party={this.state.isLoadingRsrvs2Party}
-                // Rsrvs2PartyReqs: [],
-                // Rsrvs2PartyResps: [],
-                // RsrvsRentalsPubkeys: [],
 
+                isLoading2Party={this.state.isLoadingRsrvs2Party}
                 ReqsToYou={this.state.Rsrvs2PartyReqs}
                 ReqsToYouPubKeys={this.state.RsrvsRentalsPubkeys}
                 //ReqsToYouNames={this.state.ReqsToYouNames}
@@ -14346,6 +14075,7 @@ class App extends React.Component {
                   this.showAddMessageToResponseModal_RSRVS
                 }
                 showWithdrawRefundModal={this.showWithdrawRefundModal_RSRVS}
+                alreadySentCreateResponse={this.alreadySentCreateResponse_RSRVS}
               />
             </>
           ) : (
@@ -14426,13 +14156,6 @@ class App extends React.Component {
                 handleRefresh_Rentals={this.handleRefresh_Rentals}
                 //InitialPullRentals: true,
 
-                // RentalsRentals: [],
-                //       RentalsRequests: [],
-
-                //       RentalsProxies: [],
-                //       RentalsNames: [],
-                //       RentalsControllers: [],
-
                 Rentals={this.state.RentalsRentals}
                 RentalRequests={this.state.RentalsRequests}
                 RentalConfirms={this.state.RentalsConfirms}
@@ -14460,11 +14183,7 @@ class App extends React.Component {
                 //
                 mnemonic={this.state.mnemonic}
                 //
-                //       RentalsPubkeys: [],
-                //       RentalsConfirms: [],
-                //       Rentals2PartyReqs: [],
-                //       Rentals2PartyResps: [],
-                DisplayReqsOrPmts={this.state.DisplayReqsOrPmts}
+
                 isLoading2Party={this.state.isLoadingRentals2Party}
                 ReqsFromYou={this.state.Rentals2PartyReqs}
                 ReqsFromYouPubKeys={this.state.RentalsPubkeys}
@@ -14604,22 +14323,10 @@ class App extends React.Component {
                 closeTopNav={this.closeTopNav}
                 WALLET_sendFailure={this.state.WALLET_sendFailure}
                 WALLET_sendSuccess={this.state.WALLET_sendSuccess}
-                WALLET_sendMsgSuccess={this.state.WALLET_sendMsgSuccess}
-                WALLET_sendMsgFailure={this.state.WALLET_sendMsgFailure}
-                WALLET_sendPmtMsgSuccess={this.state.WALLET_sendPmtMsgSuccess}
-                WALLET_sendPmtMsgFailure={this.state.WALLET_sendPmtMsgFailure}
                 handleFailureAlert_WALLET={this.handleFailureAlert_WALLET}
                 handleSuccessAlert_WALLET={this.handleSuccessAlert_WALLET}
-                handleFailureMsgAlert_WALLET={this.handleFailureMsgAlert_WALLET}
-                handleFailurePmtMsgAlert_WALLET={
-                  this.handleFailurePmtMsgAlert_WALLET
-                }
-                handleSuccessPmtMsgAlert_WALLET={
-                  this.handleSuccessPmtMsgAlert_WALLET
-                }
                 WALLET_amountToSend={this.state.WALLET_amountToSend}
                 WALLET_sendToName={this.state.WALLET_sendToName}
-                WALLET_requestPmtNameDoc={this.state.WALLET_requestPmtNameDoc}
                 WALLET_sendToAddress={this.state.WALLET_sendToAddress}
                 mnemonic={this.state.mnemonic}
                 whichNetwork={this.state.whichNetwork}
@@ -14966,23 +14673,6 @@ class App extends React.Component {
         ) : (
           <></>
         )}
-        {/* {this.state.isModalShowing &&
-        this.state.presentModal === "RejectReqModal" ? (
-          <RejectReqModal
-            uniqueName={this.state.uniqueName}
-            sendToName={this.state.WALLET_sendToName}
-            requestPmtNameDoc={this.state.WALLET_requestPmtNameDoc}
-            amountToSend={this.state.WALLET_amountToSend}
-            //submitDGMThread={this.submitDGMThread_WALLET}
-            rejectOrReplyRequestThread={this.rejectOrReplyRequestThread_WALLET}
-            messageToWhomName={this.state.WALLET_messageToWhomName}
-            isModalShowing={this.state.isModalShowing}
-            hideModal={this.hideModal}
-            mode={this.state.mode}
-          />
-        ) : (
-          <></>
-        )} */}
 
         {/*
          *RESERVATIONS
@@ -15359,71 +15049,8 @@ class App extends React.Component {
         ) : (
           <></>
         )}
-        {this.state.isModalShowing &&
-        this.state.presentModal === "RegisterDGMModal" ? (
-          <RegisterDGMModal
-            RegisterDGMAddress={this.RegisterDGMAddress_WALLET}
-            isModalShowing={this.state.isModalShowing}
-            hideModal={this.hideModal}
-            mode={this.state.mode}
-            closeTopNav={this.closeTopNav}
-          />
-        ) : (
-          <></>
-        )}
-        {this.state.isModalShowing &&
-        this.state.presentModal === "ThreadModal_WALLET" ? (
-          <ThreadModal_WALLET
-            uniqueName={this.state.uniqueName}
-            submitDGMThread={this.submitDGMThread_WALLET}
-            messageToWhomName={this.state.WALLET_messageToWhomName}
-            isModalShowing={this.state.isModalShowing}
-            hideModal={this.hideModal}
-            mode={this.state.mode}
-            closeTopNav={this.closeTopNav}
-          />
-        ) : (
-          <></>
-        )}
-        {this.state.isModalShowing &&
-        this.state.presentModal === "PayRequestModal" ? (
-          <PayRequestModal
-            sendToName={this.state.WALLET_sendToName}
-            requestPmtNameDoc={this.state.WALLET_requestPmtNameDoc}
-            //This is used to search for DGM address
-            amountToSend={this.state.WALLET_amountToSend}
-            //messageToSend={this.state.WALLET_messageToSend}
 
-            whichNetwork={this.state.whichNetwork}
-            //sendDashtoName={this.state.sendDashtoName}
-            payDashtoRequest={this.payDashtoRequest_WALLET}
-            //requestDashfromName={this.state.requestDashfromName}
-            //handleClearModalPostPmtConfirm={this.handleClearModalPostPmtConfirm}
-            isModalShowing={this.state.isModalShowing}
-            hideModal={this.hideModal}
-            mode={this.state.mode}
-          />
-        ) : (
-          <></>
-        )}
-        {this.state.isModalShowing &&
-        this.state.presentModal === "RejectReqModal" ? (
-          <RejectReqModal
-            uniqueName={this.state.uniqueName}
-            sendToName={this.state.WALLET_sendToName}
-            requestPmtNameDoc={this.state.WALLET_requestPmtNameDoc}
-            amountToSend={this.state.WALLET_amountToSend}
-            //submitDGMThread={this.submitDGMThread_WALLET}
-            rejectOrReplyRequestThread={this.rejectOrReplyRequestThread_WALLET}
-            messageToWhomName={this.state.WALLET_messageToWhomName}
-            isModalShowing={this.state.isModalShowing}
-            hideModal={this.hideModal}
-            mode={this.state.mode}
-          />
-        ) : (
-          <></>
-        )}
-        {this.state.isModalShowing &&
+        {/* {this.state.isModalShowing &&
         this.state.presentModal === "WalletTXModal" ? (
           <WalletTXModal
             isModalShowing={this.state.isModalShowing}
@@ -15444,24 +15071,11 @@ class App extends React.Component {
             //My Store^^
             isLoadingAddresses_WALLET={this.state.isLoadingAddresses_WALLET}
             isLoadingMsgs={this.state.isLoadingMsgs_WALLET}
-            //MyStore and Shopping use TXId to connect name to Tx but does the address pull already accomplish this for shopping <= yes
-            //Shopping
-            /*
-              isLoadingRecentOrders: true,
-              recentOrders: [],
-              recentOrdersStores: [],
-              recentOrdersNames: [],
-              recentOrdersDGMAddresses: [],
-              recentOrdersItems: [],
-              recentOrdersMessages: [],
-             */
-            //Shopping^^
-            //sortedTuples={sortedTuples} // <= this is made in the WalletTXModal -> yes
-            // So this should only be gotten too after wallet and msgs are loaded.. ->
+           
           />
         ) : (
           <></>
-        )}
+        )} */}
         {/* *   ################
          *      ###          ####
          *      ################

@@ -203,7 +203,7 @@ class Request extends React.Component {
             accountHistory={this.props.accountHistory}
             accountBalance={this.props.accountBalance}
             //
-            DisplayReqsOrPmts={this.props.DisplayReqsOrPmts}
+
             isLoading2Party={this.props.isLoading2Party}
             Your2PartyPubKey={this.props.Your2PartyPubKey}
             ReqsFromYou={this.props.ReqsFromYou}

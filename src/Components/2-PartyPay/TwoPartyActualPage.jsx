@@ -198,7 +198,7 @@ class TwoPartyPage extends React.Component {
                 }
                 showRefundFundsModal={this.props.showRefundFundsModal}
                 showWithdrawRefundModal={this.props.showWithdrawRefundModal}
-
+                alreadySentCreateResponse={this.props.alreadySentCreateResponse}
                 //showRejectReplyReqModal={this.props.showRejectReplyReqModal}
               />
             </>

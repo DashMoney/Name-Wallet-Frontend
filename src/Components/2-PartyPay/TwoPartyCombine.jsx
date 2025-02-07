@@ -75,6 +75,7 @@ class TwoPartyCombine extends React.Component {
                   this.props.showAddMessageToResponseModal
                 }
                 showWithdrawRefundModal={this.props.showWithdrawRefundModal}
+                alreadySentCreateResponse={this.props.alreadySentCreateResponse}
               />
             </div>
           </Col>

@@ -202,7 +202,7 @@ class RequestsPage extends React.Component {
                     mnemonic={this.props.mnemonic}
                     accountBalance={this.props.accountBalance}
                     //
-                    DisplayReqsOrPmts={this.props.DisplayReqsOrPmts}
+
                     isLoading2Party={this.props.isLoading2Party}
                     Your2PartyPubKey={this.props.Your2PartyPubKey}
                     ReqsFromYou={this.props.ReqsFromYou}

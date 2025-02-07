@@ -19,7 +19,7 @@ const {
     HDPublicKey,
     Transaction,
     Script,
-    //Address,
+    Address,
   },
 } = Dash;
 
@@ -40,6 +40,67 @@ class SentOrdersReqsComp extends React.Component {
   //     copiedName: true,
   //   });
   // };
+  checkAlreadyWithdrawn = (theResponsePubKeyDoc) => {
+    let timeStamp = this.props.req.$createdAt - 1729873000000;
+    //console.log("timeStamp", timeStamp);
+    let truncatedTimeStamp = new String(timeStamp).slice(0, -3);
+
+    let YourPublicKey = new HDPublicKey(this.props.Your2PartyPubKey.xpubkey)
+      .deriveChild(`m/${truncatedTimeStamp}`)
+      //`m/2147483647` <- LIMIT, will hit in 68 years
+      .toObject().publicKey;
+
+    // console.log("YourPublicKey", YourPublicKey);
+
+    let TheirPublicKey = new HDPublicKey(theResponsePubKeyDoc.xpubkey)
+      .deriveChild(`m/${truncatedTimeStamp}`)
+      .toObject().publicKey;
+
+    // console.log("TheirPublicKey", TheirPublicKey);
+
+    let redeemScript = Script.buildMultisigOut(
+      [YourPublicKey, TheirPublicKey],
+      2
+    );
+
+    //console.log("redeemScript: ", redeemScript);
+
+    let scriptHashOut = redeemScript.toScriptHashOut();
+    //console.log("ScriptHashOutOFALEADYSENT: ", scriptHashOut.toString());
+
+    //console.log("whichNetwork", whichNetwork);
+    let scriptAddress = Address.fromScript(
+      scriptHashOut,
+      this.props.whichNetwork
+    );
+    //console.log("scriptAddress: ", scriptAddress.toString());
+
+    let foundTX = undefined;
+    let foundtxId = undefined;
+
+    this.props.accountHistory.find((tx) => {
+      if (tx.type === "received") {
+        foundTX = tx.from.find((input) => {
+          return (
+            input.address === scriptAddress.toString()
+            //&& input.satoshis === this.props.req.amt
+          );
+        });
+      }
+
+      if (foundTX !== undefined) {
+        foundtxId = tx.txId;
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    //console.log("FoundTX: ", foundTX);
+    //console.log("FoundtxId: ", foundtxId);
+
+    return foundtxId;
+  };
 
   callGetSignature = (
     theRequest,
@@ -146,7 +207,7 @@ class SentOrdersReqsComp extends React.Component {
       .finally(() => client.disconnect());
   };
 
-  verifyRequestStatus = (theResponse) => {
+  verifyRequestStatus = (theResponse, ifAlreadyWithdrawnTXid) => {
     if (theResponse === undefined) {
       //console.log("PayLater");
       return <Badge bg="success">Requested</Badge>;
@@ -163,8 +224,12 @@ class SentOrdersReqsComp extends React.Component {
     }
 
     if (theResponse.error !== "" || this.props.req.error !== "") {
-      console.log("Failed on Decrypt Error");
+      // console.log("Failed on Decrypt Error");
       return <Badge bg="danger">Fail</Badge>;
+    }
+
+    if (ifAlreadyWithdrawnTXid !== undefined) {
+      return <Badge bg="primary">Completed</Badge>;
     }
 
     // if (theResponse.sigObject === "" && theResponse.txId !== "") {
@@ -353,6 +418,28 @@ class SentOrdersReqsComp extends React.Component {
       }
     }
 
+    //Only checkAlreadyWithdrawn if 1) 2) There is ResponsePubKey 3) Req hasn't withdrawn 4) sigObject(release) is signed 5) and no encryption error
+    let alreadyWithdrawntxId;
+    //FOR RELEASE** - IMPORTANT
+    if (
+      response !== undefined &&
+      responsePubKey !== undefined &&
+      //response.txId !== "" &&
+      //response.refundTxId === "" &&
+
+      this.props.req.txId === "" &&
+      response.sigObject !== "" &&
+      response.error === ""
+    ) {
+      alreadyWithdrawntxId = this.checkAlreadyWithdrawn(responsePubKey);
+      //BECAUSE THERE IS NO ASYNC CALL..
+      //I CAN JUST RETURN IT HERE AND NOT DO A STATE CALL.
+      //
+      //ALL THAT IS NEEDED IS TO SAY COMPLETE BC THE OTHER HAS ALREADY FINISHED TX. SO NOT INFORM ANYONE BUT YOURSELF.
+      //
+      //{/* WithDraw - button */}
+    }
+
     return (
       // <Card
       //   id="card"
@@ -383,7 +470,7 @@ class SentOrdersReqsComp extends React.Component {
           </div>
           {/* <span>{this.state.copiedName ? <span>✅</span> : <></>}</span> */}
 
-          {this.verifyRequestStatus(response)}
+          {this.verifyRequestStatus(response, alreadyWithdrawntxId)}
 
           <span className="textsmaller">
             {formatDate(
@@ -423,7 +510,8 @@ class SentOrdersReqsComp extends React.Component {
               <>
                 {/* Retrieved = Completed is req.txId !== '' */}
                 {/*  Completed Retrieved- WORDS */}
-                {this.props.req.txId !== "" ? (
+                {this.props.req.txId !== "" ||
+                alreadyWithdrawntxId !== undefined ? (
                   <>
                     <div
                       style={{
@@ -538,7 +626,8 @@ class SentOrdersReqsComp extends React.Component {
 
                             {/* Retrieve Button 4rd - button */}
                             {response.sigObject !== "" &&
-                            this.props.req.txId === "" ? (
+                            this.props.req.txId === "" &&
+                            alreadyWithdrawntxId === undefined ? (
                               <>
                                 {this.state.Loading2PartyAddress ? (
                                   <>
@@ -746,7 +835,7 @@ class SentOrdersReqsComp extends React.Component {
                 style={{ marginTop: ".4rem", marginBottom: ".5rem" }}
               >
                 <h5>Messages</h5>
-                {this.verifyRequestStatus(response)}
+                {this.verifyRequestStatus(response, alreadyWithdrawntxId)}
               </div>
             </>
 

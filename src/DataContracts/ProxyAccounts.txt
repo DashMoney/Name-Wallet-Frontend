@@ -1,0 +1,107 @@
+//THIS IS THE PROXY ACCOUNTS - REGISTER DATA CONTRACT
+
+const Dash = require("dash");
+
+const clientOpts = {
+  network: "testnet", //<- CHANGE*********
+  wallet: {
+    mnemonic: "Your Mnemonic", //<- CHANGE*********
+    unsafeOptions: {
+      skipSynchronizationBeforeHeight: 1029000, //<- CHANGE*********
+    },
+  },
+};
+
+const client = new Dash.Client(clientOpts);
+
+const registerContract = async () => {
+  const { platform } = client;
+  const identity = await platform.identities.get(
+    "Your IdentityID" //<- CHANGE*********
+  );
+
+  //Proxy Account Walkthrough for Identity Proxy Accounts, NOT Wallet Proxy Accounts
+  // 1) In Name-Wallet purchase DPNS Name Document
+  // 2) Then Name-Wallet in Proxy Dapp create new Identity.
+  // 3) Proxy Dapp then creates a Proxy Document for the new Identity
+  // 4) In Name-Wallet after the first Proxy is created the Controller Document is created and subsequest proxies
+  //      just edit/update the ControllerDoc.
+
+
+  const contractDocuments = {
+    controller: {
+      //Name-Wallet
+      type: "object",
+      indices: [
+        {
+          //This is Controller & Proxy QUERY
+          // Proxy queries proxyDoc and then uses this for the ControlId
+          //
+          // Controller queries this for their list
+          //and checks the proxies so they match and maybe also checks their credit amts
+          //
+          name: "ownerId",
+          properties: [{ $ownerId: "asc" }],
+          unique: true, //This will be Singleton
+        },
+       
+      ],
+      properties: {
+        proxyList: {
+          //[[IdentityId, Label],[..]]
+          type: "string",
+          minLength: 0,
+          maxLength: 5000,
+          position: 0,
+        }, // JSON STRINGIFY AND PARSE
+        //
+        // USE TUPLES HERE: [IdentityId, Label] ***
+        //
+      },
+      required: ["proxyList", "$createdAt", "$updatedAt"],
+      additionalProperties: false,
+    },
+    
+    proxy: {
+      type: "object",
+      indices: [
+        {
+          //This is proxy search query
+          name: "ownerId",
+          properties: [{ $ownerId: "asc" }],
+          unique: true, //This will be Singleton
+        },
+        {
+          //This is controller search query?
+          name: "controlId",
+          properties: [{ controlId: "asc" }],
+          unique: false,
+        },
+      ],
+      properties: {
+        controlId: {
+          //this is the controller Id
+          type: "array",
+          byteArray: true,
+          minItems: 32,
+          maxItems: 32,
+          contentMediaType: "application/x.dash.dpp.identifier",
+          position: 0,
+        },
+      },
+      required: ["controlId", "$createdAt"],
+      additionalProperties: false,
+    },
+  };
+
+  const contract = await platform.contracts.create(contractDocuments, identity);
+  console.dir({ contract: contract.toJSON() });
+
+  await platform.contracts.publish(contract, identity);
+  return contract;
+};
+
+registerContract()
+  .then((d) => console.log("Contract registered:\n", d.toJSON()))
+  .catch((e) => console.error("Something went wrong:\n", e))
+  .finally(() => client.disconnect());
