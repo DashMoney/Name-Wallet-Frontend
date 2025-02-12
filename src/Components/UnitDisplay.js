@@ -7,7 +7,7 @@ export default function handleDenomDisplay(
     if (duffs >= 1000000) {
       return `${((duffs * qty) / 100000000).toFixed(3)} tDash`;
     } else if (duffs >= 1000) {
-      return `${((duffs * qty) / 1000).toFixed(0)} tksat`;
+      return `${((duffs * qty) / 1000).toFixed(0)} tkduff`;
     } else if (duffs > 0) {
       return "tdust";
     } else if (duffs === 0) {
@@ -19,7 +19,7 @@ export default function handleDenomDisplay(
     if (duffs >= 1000000) {
       return `${((duffs * qty) / 100000000).toFixed(3)} Dash`;
     } else if (duffs >= 1000) {
-      return `${((duffs * qty) / 1000).toFixed(0)} ksat`;
+      return `${((duffs * qty) / 1000).toFixed(0)} kduff`;
     } else if (duffs > 0) {
       return "dust";
     } else if (duffs === 0) {

@@ -3,6 +3,8 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import CloseButton from "react-bootstrap/CloseButton";
 
+import Alert from "react-bootstrap/Alert";
+
 import handleDenomDisplay from "../../UnitDisplay";
 
 //import "./ConfirmPaymentModal.css";
@@ -72,6 +74,26 @@ class ConfirmOrders2PartyReqModal extends React.Component {
                 </b>
               </h5>
             </div>
+
+            {this.props.SelectedOrderCalcAmt !== this.props.amountToSend ? (
+              <>
+                <Alert variant="danger">
+                  <Alert.Heading>Order Amount (Warning)</Alert.Heading>
+                  <p>
+                    The <b>Total Amount</b> from the <b>Order does Not</b> match
+                    the <b>current Total Cost</b>.
+                  </p>
+
+                  <p style={{ textAlign: "center" }}>
+                    <b>*Confirm Only after You have Verified.*</b>
+                  </p>
+                </Alert>
+
+                <p></p>
+              </>
+            ) : (
+              <></>
+            )}
 
             {/* <h6>
               <b>Message:</b>

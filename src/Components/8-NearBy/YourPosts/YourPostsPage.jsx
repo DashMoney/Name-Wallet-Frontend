@@ -66,7 +66,7 @@ class YourPostsPage extends React.Component {
                 </p>
               </>
             ) : (
-              <>{posts}</>
+              <Row className="justify-content-md-center">{posts}</Row>
             )}
           </>
         )}

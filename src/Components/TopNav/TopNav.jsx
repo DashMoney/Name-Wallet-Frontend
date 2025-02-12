@@ -26,15 +26,15 @@ class TopNav extends React.Component {
     this.props.toggleTopNav();
   };
 
-  handleFrontendFee = () => {
-    // return unit for display or no fee
-    if (this.props.validFrontendFee) {
-      //Need to add a decimal or comma on the second from last
-      return (this.props.FrontendFee / 100).toFixed(2);
-    } else {
-      return "0"; //"No Frontend Fee";
-    }
-  };
+  // handleFrontendFee = () => {
+  //   // return unit for display or no fee
+  //   if (this.props.validFrontendFee) {
+  //     //Need to add a decimal or comma on the second from last
+  //     return (this.props.FrontendFee / 100).toFixed(2);
+  //   } else {
+  //     return "0"; //"No Frontend Fee";
+  //   }
+  // };
 
   render() {
     let offCanvasBkgd;
@@ -58,6 +58,7 @@ class TopNav extends React.Component {
         <Navbar
           expanded={this.props.expandedTopNav}
           className="Top"
+          //fixed="top"
           bg={this.props.mode}
           data-bs-theme={this.props.mode}
           //variant={this.props.mode}

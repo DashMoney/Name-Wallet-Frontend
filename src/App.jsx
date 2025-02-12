@@ -6280,8 +6280,30 @@ class App extends React.Component {
             let returnedDoc = n.toJSON();
             //console.log("Inventories:\n", returnedDoc);
             returnedDoc.items = JSON.parse(returnedDoc.items);
+            // ITEM/IMG COMBINE
+            returnedDoc.itemsImgs = JSON.parse(returnedDoc.itemsImgs);
+
+            let combinedItems = returnedDoc.items.map((item, index) => {
+              item.imgArray = returnedDoc.itemsImgs[index];
+              return item;
+            });
+
+            returnedDoc.items = combinedItems;
+            delete returnedDoc.itemsImgs;
+            // ITEM/IMG COMBINE ^^^
             returnedDoc.shipOpts = JSON.parse(returnedDoc.shipOpts);
             //console.log("newInventories:\n", returnedDoc);
+            //TESTING - BELOW
+            //Split out item to test delete item handling -> Test SAT
+            //returnedDoc.items.shift();
+            //console.log("DeleteItemInventory:\n", returnedDoc.items);
+            //Split out shipOpts to test delete shipping handling ->
+            // Not much to go on, just leaves shipping off, but it did not fail. -> sat
+            //returnedDoc.shipOpts = [];
+            //console.log("DeleteShippingInventory:\n", returnedDoc.shipOpts);
+            //shippingPriceEdit ->
+            //returnedDoc.shipOpts[0][2] = 20000000;
+
             docArray = [...docArray, returnedDoc];
           }
 
@@ -9388,9 +9410,29 @@ class App extends React.Component {
             //   "base64"
             // ).toJSON();
             returnedDoc.items = JSON.parse(returnedDoc.items);
+            // ITEM/IMG COMBINE
+            returnedDoc.itemsImgs = JSON.parse(returnedDoc.itemsImgs);
+            let combinedItems = returnedDoc.items.map((item, index) => {
+              item.imgArray = returnedDoc.itemsImgs[index];
+              return item;
+            });
+            returnedDoc.items = combinedItems;
+            delete returnedDoc.itemsImgs;
+            // ITEM/IMG COMBINE ^^^
             returnedDoc.shipOpts = JSON.parse(returnedDoc.shipOpts);
-            //console.log("newInventory:\n", returnedDoc.items);
+            console.log("newInventory:\n", returnedDoc);
             docArray = [...docArray, returnedDoc];
+
+            //Split out item to test delete item handling -> Test SAT
+            //returnedDoc.items.shift();
+            //console.log("DeleteItemInventory:\n", returnedDoc.items);
+
+            //Split out shipOpts to test delete shipping handling ->
+            // Not much to go on, just leaves shipping off, but it did not fail.
+            //returnedDoc.shipOpts = [];
+            //console.log("DeleteShippingInventory:\n", returnedDoc.shipOpts);
+            //shippingPriceEdit -> Test SAT
+            //returnedDoc.shipOpts[0][2] = 20000000;
           }
 
           this.getOrdersConfirms(docArray[0]);
@@ -10011,7 +10053,7 @@ class App extends React.Component {
             // console.log("newReq:\n", returnedDoc);
             docArray = [...docArray, returnedDoc];
           }
-          //WHY ISNT THIS MYREQS??
+
           //
           //decryptMyReqs(theReqs, theMnemonic, whichNetwork)
           let decryptedDocs = decryptMyReqs(
@@ -10107,6 +10149,7 @@ class App extends React.Component {
       {
         SelectedOrder: theOrder,
         SelectedOrderNameDoc: theNameDoc,
+        //SelectedOrderCalcAmt: calcAmt, //ConfirmOrderModal calculates Amt itself.
       },
       () => this.showModal("ConfirmOrderModal")
     );
@@ -10212,12 +10255,17 @@ class App extends React.Component {
 
   //ORDERS - 2 PARTY REQUEST
 
-  showOrders2PartyReqModal = (inputOrderReqDoc, inputNameDoc, inputNumber) => {
+  showOrders2PartyReqModal = (
+    inputOrderReqDoc,
+    inputNameDoc,
+    inputNumber,
+    calcAmt
+  ) => {
     this.setState({
       selectedConfirm: inputOrderReqDoc,
       sendToNameDoc2Party: inputNameDoc,
       amountToSend2Party: inputNumber, //Number((inputNumber * 100000000).toFixed(0)),
-
+      SelectedOrderCalcAmt: calcAmt,
       presentModal: "ConfirmOrders2PartyReqModal",
       isModalShowing: true,
     });
@@ -14960,6 +15008,7 @@ class App extends React.Component {
           <ConfirmOrderModal
             whichNetwork={this.state.whichNetwork}
             Inventory={this.state.Inventory}
+            OrdersInventoryDoc={this.state.OrdersInventoryDoc}
             order={this.state.SelectedOrder}
             SelectedOrderNameDoc={this.state.SelectedOrderNameDoc}
             createConfirmOrder={this.createConfirmOrder}
@@ -14979,6 +15028,7 @@ class App extends React.Component {
             amountToSend={this.state.amountToSend2Party}
             //messageToSend={this.state.messageToSend2Party}
             requestOrders2PartyPayment={this.requestOrders2PartyPayment}
+            SelectedOrderCalcAmt={this.state.SelectedOrderCalcAmt}
             isModalShowing={this.state.isModalShowing}
             hideModal={this.hideModal}
             mode={this.state.mode}

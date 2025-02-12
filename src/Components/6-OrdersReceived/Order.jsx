@@ -208,6 +208,47 @@ class Order extends React.Component {
     );
   };
 
+  handleTotalNotForDisplay = () => {
+    let theTotal = 0;
+
+    this.props.order.cart.forEach((tuple) => {
+      let theItem = this.props.Inventory.find((item) => {
+        return item.itemId === tuple[0].itemId;
+      }); //this gets active as well
+
+      let theVariant = theItem.variants.find((vari) => {
+        return vari[0] === tuple[0].variant;
+      });
+
+      if (theVariant[2] !== 0) {
+        theTotal += tuple[1] * theVariant[2];
+        //console.log(theTotal);
+      }
+    });
+
+    //Add the Shipping HERE**
+    let shipCost = 0;
+
+    //this.props.order.shipping !== "" &&
+    //this.props.OrdersInventoryDoc.shipOpts.length === 0
+
+    if (
+      this.props.OrdersInventoryDoc.shipOpts.length !== 0 &&
+      this.props.order.shipping !== ""
+    ) {
+      let shipOpt = this.props.OrdersInventoryDoc.shipOpts.find((opt) => {
+        return opt[1] === this.props.order.shipping;
+      });
+      if (shipOpt !== undefined) {
+        shipCost = shipOpt[2];
+      }
+    }
+
+    theTotal += shipCost;
+
+    return Number(theTotal);
+  };
+
   render() {
     let cardBkg;
     let cardText;
@@ -423,6 +464,10 @@ class Order extends React.Component {
       return opt[1] === this.props.order.shipping;
     });
 
+    let calculatedAmt = this.handleTotalNotForDisplay();
+
+    let amtVerified = this.props.order.amt === calculatedAmt;
+
     return (
       <>
         <Card
@@ -553,15 +598,32 @@ class Order extends React.Component {
                 <b>Total</b> ({this.handleTotalItems()})<b>:</b>
               </h4>
 
-              {this.handleTotal()}
+              {amtVerified ? (
+                <> {this.handleTotal()}</>
+              ) : (
+                <>
+                  <h4 className="indentMembers" style={{ color: "#008de4" }}>
+                    <b>
+                      {handleDenomDisplay(
+                        this.props.whichNetwork,
+                        this.props.order.amt
+                      )}
+                    </b>
+                  </h4>
+                </>
+              )}
             </div>
-            {/* <div className="cartTotal">
-              <h4>
-                <b>Total</b> ({this.handleTotalItems()})<b>:</b>
-              </h4>
+            {amtVerified ? (
+              <> </>
+            ) : (
+              <>
+                <p style={{ color: "red", textAlign: "center" }}>
+                  The amount from the order does not match the current total.
+                </p>
 
-              {this.handleTotal()}
-            </div> */}
+                <p></p>
+              </>
+            )}
 
             {confirm === undefined && !this.props.isLoadingOrders ? (
               <>
@@ -575,6 +637,7 @@ class Order extends React.Component {
                           this.props.handleConfirmOrderModal(
                             this.props.order,
                             orderName
+                            //calculatedAmt
                           )
                         }
                       >
