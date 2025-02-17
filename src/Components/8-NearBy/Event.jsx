@@ -1,7 +1,7 @@
 //This will be the Post.jsx but for events
 import React from "react";
 import Badge from "react-bootstrap/Badge";
-//import Button from 'react-bootstrap/Button';
+import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 
 class Event extends React.Component {
@@ -110,7 +110,7 @@ class Event extends React.Component {
             {this.props.event.address !== undefined &&
             this.props.event.address !== "" ? (
               <>
-                <p style={{ whiteSpace: "pre-wrap" }}>
+                <p style={{ whiteSpace: "pre-wrap", marginBottom: "0rem" }}>
                   {this.props.event.address}
                 </p>
                 {/* ADD COPY HERE */}
@@ -123,24 +123,26 @@ class Event extends React.Component {
                     });
                   }}
                 >
-                  <b>Copy</b>
+                  <b>Copy Address</b>
                 </Button>
                 {this.state.copiedAddress ? <span>Copied!</span> : <></>}
               </>
             ) : (
               <></>
             )}
-
+            <p></p>
             {this.props.event.link !== undefined &&
             this.props.event.link !== "" ? (
               <>
-                <a
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  href={this.props.event.link}
-                >
-                  <b>{this.props.event.link}</b>
-                </a>
+                <p>
+                  <a
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    href={this.props.event.link}
+                  >
+                    <b>{this.props.event.link}</b>
+                  </a>
+                </p>
               </>
             ) : (
               <></>

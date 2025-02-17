@@ -3321,7 +3321,7 @@ class App extends React.Component {
             isLoading2Party: false,
             //send2PartyPmtMsgSuccess: true,
           },
-          () => this.loadIdentityCredits()
+          () => this.handleRefresh_2Party()
         );
       })
       .catch((e) => {
@@ -6281,15 +6281,15 @@ class App extends React.Component {
             //console.log("Inventories:\n", returnedDoc);
             returnedDoc.items = JSON.parse(returnedDoc.items);
             // ITEM/IMG COMBINE
-            returnedDoc.itemsImgs = JSON.parse(returnedDoc.itemsImgs);
+            // returnedDoc.itemsImgs = JSON.parse(returnedDoc.itemsImgs);
 
-            let combinedItems = returnedDoc.items.map((item, index) => {
-              item.imgArray = returnedDoc.itemsImgs[index];
-              return item;
-            });
+            // let combinedItems = returnedDoc.items.map((item, index) => {
+            //   item.imgArray = returnedDoc.itemsImgs[index];
+            //   return item;
+            // });
 
-            returnedDoc.items = combinedItems;
-            delete returnedDoc.itemsImgs;
+            // returnedDoc.items = combinedItems;
+            // delete returnedDoc.itemsImgs;
             // ITEM/IMG COMBINE ^^^
             returnedDoc.shipOpts = JSON.parse(returnedDoc.shipOpts);
             //console.log("newInventories:\n", returnedDoc);
@@ -9411,13 +9411,13 @@ class App extends React.Component {
             // ).toJSON();
             returnedDoc.items = JSON.parse(returnedDoc.items);
             // ITEM/IMG COMBINE
-            returnedDoc.itemsImgs = JSON.parse(returnedDoc.itemsImgs);
-            let combinedItems = returnedDoc.items.map((item, index) => {
-              item.imgArray = returnedDoc.itemsImgs[index];
-              return item;
-            });
-            returnedDoc.items = combinedItems;
-            delete returnedDoc.itemsImgs;
+            // returnedDoc.itemsImgs = JSON.parse(returnedDoc.itemsImgs);
+            // let combinedItems = returnedDoc.items.map((item, index) => {
+            //   item.imgArray = returnedDoc.itemsImgs[index];
+            //   return item;
+            // });
+            // returnedDoc.items = combinedItems;
+            // delete returnedDoc.itemsImgs;
             // ITEM/IMG COMBINE ^^^
             returnedDoc.shipOpts = JSON.parse(returnedDoc.shipOpts);
             console.log("newInventory:\n", returnedDoc);
@@ -9436,7 +9436,7 @@ class App extends React.Component {
           }
 
           this.getOrdersConfirms(docArray[0]);
-          this.getOrdersOrders(docArray[0]);
+          this.getOrdersOrders();
 
           // this.setState(
           //   {
@@ -9496,6 +9496,7 @@ class App extends React.Component {
               Orders2PartyReqs: [],
               Orders2PartyResps: [],
               //isLoadingOrders2Party: false,
+              //Why not just set loading to false?
             },
             () => this.combineInventoryANDConfirms(newArray, [])
           );
@@ -9533,17 +9534,27 @@ class App extends React.Component {
   //DO I NEED THIS IF THE INVENTORY IS NOT ADJUSTED HERE?
   combineInventoryANDConfirms = (theInventory, theConfirms) => {
     if (theInventory === undefined) {
-      this.setState({
-        Inventory: [],
-      });
+      this.setState(
+        {
+          Inventory: [],
+        },
+        () => console.log("Inventory undefined")
+      );
     } else if (theInventory.length === 0) {
-      this.setState({
-        Inventory: [],
-      });
+      this.setState(
+        {
+          Inventory: [],
+        },
+        () => console.log("Inventory has no items")
+      );
     } else if (theConfirms.length === 0) {
-      this.setState({
-        Inventory: theInventory,
-      });
+      this.setState(
+        {
+          Inventory: theInventory,
+          isLoadingOrders2Party: false,
+        },
+        () => console.log("Inventory has no confirms")
+      );
     } else {
       let filteredConfirms = theConfirms.filter((confirm) => {
         return confirm.$createdAt > theInventory.$updatedAt;
@@ -9713,14 +9724,15 @@ class App extends React.Component {
     this.setState(
       {
         Inventory: updatedInventory,
+
         //InventoryInitial: updatedInventory, //This is what the Save Changes to Platform will compare //DONT NEED FOR NAMEWALLET
       } //,() => this.getMerchantName()
     );
     console.log("updatedInventory", updatedInventory);
   };
 
-  getOrdersOrders = (theInventoryDoc) => {
-    //console.log("Calling getOrders");
+  getOrdersOrders = () => {
+    console.log("Calling getOrders");
 
     const client = new Dash.Client(dapiClientNoWallet(this.state.whichNetwork));
 
@@ -9741,7 +9753,7 @@ class App extends React.Component {
     getDocuments()
       .then((d) => {
         if (d.length === 0) {
-          //console.log("There are no YourOrders");
+          console.log("There are no Orders");
 
           this.setState({
             OrdersOrders: [], //Requests //UnconfirmedOrders: [],
@@ -9766,9 +9778,7 @@ class App extends React.Component {
             //  console.log("newRequest:\n", returnedDoc);
             docArray = [...docArray, returnedDoc];
           }
-          this.getOrdersProxies(
-            docArray // theInventoryDoc
-          );
+          this.getOrdersProxies(docArray);
         }
       })
       .catch((e) => console.error("Something went wrong:\n", e))
